@@ -1,0 +1,27 @@
+{
+  "name": "@tybys/emnapi-docs",
+  "version": "0.0.0",
+  "description": "emnapi documentation",
+  "private": true,
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "dev": "vitepress",
+    "build": "vitepress build",
+    "serve": "vitepress serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toyobayashi/emnapi-docs.git"
+  },
+  "author": "toyobayashi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/toyobayashi/emnapi-docs/issues"
+  },
+  "homepage": "https://github.com/toyobayashi/emnapi-docs#readme",
+  "devDependencies": {
+    "vitepress": "^0.22.4"
+  }
+}
