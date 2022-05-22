@@ -4,6 +4,7 @@ export default defineConfig({
   lang: 'en-US',
   title: 'emnapi',
   description: 'emnapi - The Subset of Node-API implementation for Emscripten',
+  lastUpdated: true,
   srcDir: 'src',
   scrollOffset: 'header',
 
@@ -15,7 +16,9 @@ export default defineConfig({
   themeConfig: {
     repo: 'toyobayashi/emnapi-docs',
     repoLabel: 'Docs Repo',
-    lastUpdated: true,
+    docsBranch: 'main',
+    docsDir: 'src',
+    lastUpdated: 'Last Updated',
     prevLinks: true,
     nextLinks: true,
     editLinks: true,
