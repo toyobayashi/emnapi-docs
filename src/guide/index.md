@@ -16,6 +16,12 @@ I built this library for aiming to be able to build Node-API code to Emscripten 
 
 In fact, `emnapi` should be slower and more expensive than `embind` for invoking binding function. But it still be worth to use when you highly expect to share the Node-API binding code.
 
+## Browser Compatibility
+
+Let's forget IE.
+
+`emnapi` JavaScript code is all ES5, but requires ES6 globals like `WeakMap`, and [some of APIs](/reference/list.html) requires `BigInt`, `WeakRef` and `FinalizationRegistry` which is very new in ECMA Standard, so if you are using those APIs, your code will not work on old browsers or old version Node.js. You can click the link to see which browsers support [WeakRef](https://www.caniuse.com/?search=WeakRef) 和 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry)。Taking Chrome as an example, the recommended target browser version is higher than Chrome 84.
+
 ## Is it ready for production?
 
 All Node.js official test passed! The functionality could be guaranteed.

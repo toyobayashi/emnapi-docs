@@ -16,6 +16,12 @@ sidebarDepth: 2
 
 事实上，在调用绑定函数时，`emnapi` 应该比 `embind` 更慢且更昂贵。但是当你非常希望共享 Node-API 绑定代码时，它仍然值得使用。
 
+## 浏览器兼容性
+
+先把 IE 忘掉吧。
+
+`emnapi` 发布的 JavaScript 代码都是 ES5，但需要 ES6 全局变量，例如 `WeakMap`，并且[一些 API](/zh/reference/list.html) 需要 `BigInt`、`WeakRef` 和 `FinalizationRegistry`，这在 ES 标准中是非常新的，所以如果你用到了这些 API，你的代码将无法在稍微旧点的浏览器或旧版本 Node.js 上运行。你可以点击链接查看哪些浏览器支持 [WeakRef](https://www.caniuse.com/?search=WeakRef) 和 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry)。以 Chrome 为例，推荐目标浏览器版本高于 Chrome 84。
+
 ## 可用于生产环境吗
 
 所有 Node.js 官方测试通过！功能可以得到保证。
