@@ -5,7 +5,7 @@ home: true
 heroText: emnapi
 tagline: A Subset of Node-API Implementation for Emscripten
 actionText: Get Started
-actionLink: ./en/guide/
+actionLink: ./guide/
 features:
   - title: Portable
     details: Running your Node-API native addon on browser with little code change.
