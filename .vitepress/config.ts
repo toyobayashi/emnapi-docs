@@ -1,4 +1,5 @@
 import { defineConfig, DefaultTheme } from 'vitepress'
+import tr, { Lang } from './i18n'
 
 export default defineConfig({
   lang: 'en-US',
@@ -8,10 +9,13 @@ export default defineConfig({
   srcDir: 'src',
   scrollOffset: 'header',
 
-  // locales: {
-  //   '/': { lang: 'en-US' },
-  //   '/zh/': { lang: ' zh-CN' },
-  // },
+  locales: {
+    '/': { lang: 'en-US' },
+    '/zh/': {
+      lang: ' zh-CN',
+      description: 'emnapi - 适用于 Emscripten 的 Node-API 子集实现'
+    },
+  },
 
   themeConfig: {
     repo: 'toyobayashi/emnapi-docs',
@@ -23,50 +27,69 @@ export default defineConfig({
     nextLinks: true,
     editLinks: true,
     editLinkText: 'Any mistake found? Correct it now!',
-    // locales: {
-    //   '/': { label: 'English' },
-    //   '/zh/' : { label: '简体中文' },
-    // },
-    nav: [
-      { text: 'Guide', link: '/', activeMatch: '^/$|^/guide/' },
-      {
-        text: 'API Reference',
-        link: '/reference/list',
-        activeMatch: '^/reference/'
+    locales: {
+      '/': {
+        label: 'English',
+        nav: getNav('/'),
+        sidebar: getSideBar('/')
       },
-      { text: 'Github', link: 'https://github.com/toyobayashi/emnapi' },
-    ],
-    sidebar: {
-      '/guide/': getGuideSidebar(),
-      '/reference/': getReferenceSidebar(),
-      '/': getGuideSidebar(),
+      '/zh/' : {
+        label: '简体中文',
+        selectText: '语言',
+        repoLabel: '文档仓库',
+        editLinkText: '在 Github 上编辑本页',
+        nav: getNav('/zh/'),
+        sidebar: getSideBar('/zh/')
+      },
     }
   }
 })
 
-function getGuideSidebar (): DefaultTheme.SideBarItem[] {
+
+
+function getNav (lang: Lang): DefaultTheme.NavItem[] {
+  return [
+    { text: tr[lang].guide, link: `${lang}/guide/`, activeMatch: `^/(\\S+/)?guide/` },
+    {
+      text: tr[lang].apiReference,
+      link: `${lang}reference/list`,
+      activeMatch: `^/(\\S+/)?reference/`
+    },
+    { text: 'Github', link: 'https://github.com/toyobayashi/emnapi' },
+  ]
+}
+
+function getSideBar (lang: Lang): DefaultTheme.MultiSideBarConfig {
+  return {
+    [`${lang}guide/`]: getGuideSidebar(lang),
+    [`${lang}reference/`]: getReferenceSidebar(lang),
+    [`${lang}`]: getGuideSidebar(lang),
+  }
+}
+
+function getGuideSidebar (lang: Lang): DefaultTheme.SideBarItem[] {
   return [
     {
-      text: 'Introduction',
+      text: tr[lang].introduction,
       children: [
-        { text: 'What is emnapi', link: '/' },
-        { text: 'Getting Started', link: '/guide/getting-started' },
-        { text: 'Using C++ Wrapper', link: '/guide/using-cpp' },
-        { text: 'Using CMake', link: '/guide/using-cmake' }
+        { text: tr[lang].whatIsEmnapi, link: `${lang}guide/` },
+        { text: tr[lang].gettingStarted, link: `${lang}guide/getting-started` },
+        { text: tr[lang].usingCppWrapper, link: `${lang}guide/using-cpp` },
+        { text: tr[lang].usingCMake, link: `${lang}guide/using-cmake` }
       ]
     },
     {
-      text: 'Advanced',
+      text: tr[lang].advanced,
       children: [
-        { text: 'emnapi Runtime', link: '/guide/runtime' }
+        { text: tr[lang].emnapiRuntime, link: `${lang}guide/runtime` }
       ]
     }
   ]
 }
 
-function getReferenceSidebar (): DefaultTheme.SideBarItem[] {
+function getReferenceSidebar (lang: Lang): DefaultTheme.SideBarItem[] {
   return [
-    { text: 'API List', link: '/reference/list' },
-    { text: 'Additional APIs', link: '/reference/additional' }
+    { text: tr[lang].apiList, link: `${lang}reference/list` },
+    { text: tr[lang].additionalApi, link: `${lang}reference/additional` }
   ]
 }

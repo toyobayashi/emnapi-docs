@@ -1,14 +1,14 @@
-# emnapi Runtime
+# emnapi 运行时
 
-Most APIs are implemented in JavaScript and they are depend on runtime code shipped in `library_napi.js` library file. So if you are building multiple wasm target, the same runtime code will be linked into each wasm glue js file. To "dynamic linking" the runtime code, that is, to share the runtime code among multiple wasm, you could do:
+emnapi 的绝大多数 API 都是用 JavaScript 实现的，它们依赖于 `library_napi.js` 库文件中提供的运行时代码。因此，如果要构建多个 wasm 目标，则相同的运行时代码将链接到每个 wasm 胶水 js 文件中。如果想要“动态链接”运行时代码，即在多个 wasm 之间共享运行时代码，可以这样做：
 
-1. Installing emnapi runtime
+1. 安装 emnapi 运行时
 
     ```bash
     npm install @tybys/emnapi-runtime
     ```
 
-2. Linking no runtime library build
+2. 链接无运行时的库文件
 
     - emcc
 
@@ -23,9 +23,9 @@ Most APIs are implemented in JavaScript and they are depend on runtime code ship
       target_link_libraries(hello emnapi_noruntime)
       ```
 
-3. Importing runtime code
+3. 导入运行时
 
-    - Browser
+    - 浏览器
 
         ```html
         <script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
@@ -36,7 +36,7 @@ Most APIs are implemented in JavaScript and they are depend on runtime code ship
 
         Just npm install `@tybys/emnapi-runtime` 
 
-    You can specify `emnapiRuntime` explicitly, this step is optional:
+    也可以显式指定 `emnapiRuntime`，这一步是可选的：
 
     ```html
     <script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
@@ -52,4 +52,4 @@ Most APIs are implemented in JavaScript and they are depend on runtime code ship
     Module.emnapiRuntime = require('@tybys/emnapi-runtime')
     ```
 
-`@tybys/emnapi-runtime` version should match `@tybys/emnapi` version.
+`@tybys/emnapi-runtime` 版本应与 `@tybys/emnapi` 版本保持一致。
