@@ -11,6 +11,7 @@ const tr = {
 
     advanced: 'Advanced',
     emnapiRuntime: 'emnapi Runtime',
+    modularization: 'Modularization',
 
     apiList: 'API List',
     additionalApi: 'Additional APIs'
@@ -27,6 +28,7 @@ const tr = {
 
     advanced: '进阶',
     emnapiRuntime: 'emnapi 运行时',
+    modularization: '模块化',
 
     apiList: 'API 列表',
     additionalApi: '额外新增的 API'

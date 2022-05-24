@@ -81,7 +81,8 @@ function getGuideSidebar (lang: Lang): DefaultTheme.SideBarItem[] {
     {
       text: tr[lang].advanced,
       children: [
-        { text: tr[lang].emnapiRuntime, link: `${lang}guide/runtime` }
+        { text: tr[lang].emnapiRuntime, link: `${lang}guide/runtime` },
+        { text: tr[lang].modularization, link: `${lang}guide/modularization` }
       ]
     }
   ]
