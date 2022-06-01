@@ -89,3 +89,61 @@ const Module = await createModule({
 - 支持 UMD / CommonJS / ESM / Node.js ESM 格式
 - 支持微信小程序中的 `WXWebAssembly`
 - 缓存 Promise 结果，意味着多次调用初始化函数时只会获取和编译一次 wasm
+
+```bash
+npm install -D @tybys/emwrap
+```
+
+::: tip
+
+使用 emwrap 时应当避免将 `-sMODULARIZE=1` 或 `-o .mjs` 后缀传给 emcc / em++。
+
+:::
+
+你可以使用 [`--js-transform`](https://emscripten.org/docs/tools_reference/emcc.html#emcc-minify) 选项：
+
+```bash
+emcc -o glue.js -O3 --js-transform "emwrap --name=myWasmLib" main.c
+```
+
+Windows:
+
+```bat
+emcc -o glue.js -O3 --js-transform "emwrap.cmd --name=myWasmLib" main.c
+```
+
+或分成两个步骤：
+
+```bash
+emcc -o glue.js -O3 main.c
+emwrap --name=myWasmLib --minify glue.js
+```
+
+浏览器 `<script>`:
+
+```html
+<script src="glue.js"></script>
+<script>
+  myWasmLib.default().then(function (ctx) {
+    var Module = ctx.Module;
+    Module.myfunction();
+  });
+</script>
+```
+
+Webpack:
+
+```js
+import init from './glue.js'
+// const init = require('./glue.js').default
+init().then(({ Module }) => { Module.myfunction() })
+```
+
+CMake:
+
+```cmake
+add_custom_command(TARGET yourtarget POST_BUILD
+  COMMAND npx emwrap "--name=umdname" "$<TARGET_FILE:yourtarget>"
+  # COMMAND node "./other-script.js"
+)
+```

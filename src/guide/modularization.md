@@ -95,3 +95,61 @@ Features:
 - Support wrapping Emscripten code to UMD / CommonJS / ESM / Node.js ESM format
 - Support `WXWebAssembly` in WeChat miniprogram environment
 - Cache the promise result, means that fetch and compile wasm only once when calling factory function multiple times
+
+```bash
+npm install -D @tybys/emwrap
+```
+
+::: tip
+
+You should avoid passing `-sMODULARIZE=1` or `-o mjs` extension to emcc / em++.
+
+:::
+
+You can use [`--js-transform`](https://emscripten.org/docs/tools_reference/emcc.html#emcc-minify) option:
+
+```bash
+emcc -o glue.js -O3 --js-transform "emwrap --name=myWasmLib" main.c
+```
+
+Windows:
+
+```bat
+emcc -o glue.js -O3 --js-transform "emwrap.cmd --name=myWasmLib" main.c
+```
+
+or in two steps:
+
+```bash
+emcc -o glue.js -O3 main.c
+emwrap --name=myWasmLib --minify glue.js
+```
+
+Browser `<script>`:
+
+```html
+<script src="glue.js"></script>
+<script>
+  myWasmLib.default().then(function (ctx) {
+    var Module = ctx.Module;
+    Module.myfunction();
+  });
+</script>
+```
+
+Webpack:
+
+```js
+import init from './glue.js'
+// const init = require('./glue.js').default
+init().then(({ Module }) => { Module.myfunction() })
+```
+
+CMake:
+
+```cmake
+add_custom_command(TARGET yourtarget POST_BUILD
+  COMMAND npx emwrap "--name=umdname" "$<TARGET_FILE:yourtarget>"
+  # COMMAND node "./other-script.js"
+)
+```

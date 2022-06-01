@@ -11,7 +11,6 @@
 - ~~napi_create_external_arraybuffer~~ (use [emnapi_create_external_uint8array][] instead)
 - ~~napi_adjust_external_memory~~
 - ~~napi_detach_arraybuffer~~
-- ~~napi_is_detached_arraybuffer~~
 
 ## 受限的 API
 
@@ -142,6 +141,7 @@
 - napi_create_typedarray
 - napi_create_dataview
 - napi_is_dataview
+- napi_is_detached_arraybuffer
 - napi_get_version
 - napi_create_promise
 - napi_resolve_deferred
