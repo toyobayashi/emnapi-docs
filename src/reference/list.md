@@ -9,8 +9,6 @@ These APIs always return `napi_generic_failure`.
 :::
 
 - ~~napi_create_external_arraybuffer~~ (use [emnapi_create_external_uint8array][] instead)
-- ~~napi_adjust_external_memory~~
-- ~~napi_detach_arraybuffer~~
 
 ## Limited
 
@@ -61,6 +59,10 @@ These APIs may return `NULL` data pointer
 - ***napi_get_arraybuffer_info*** (Require `FinalizationRegistry`, data is a copy in wasm memory)
 - ***napi_get_typedarray_info*** (Require `FinalizationRegistry`, data is a copy in wasm memory)
 - ***napi_get_dataview_info*** (Require `FinalizationRegistry`, data is a copy in wasm memory)
+
+### Memory management
+
+- ***napi_adjust_external_memory*** (call `emscripten_resize_heap` internally, `change_in_bytes` must be a positive integer)
 
 ### Multithread simple asynchronous operations
 
@@ -169,6 +171,7 @@ These APIs are stable and safe!
 - napi_create_typedarray
 - napi_create_dataview
 - napi_is_dataview
+- napi_detach_arraybuffer
 - napi_is_detached_arraybuffer
 - napi_get_version
 - napi_create_promise

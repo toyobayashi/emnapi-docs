@@ -9,8 +9,6 @@
 :::
 
 - ~~napi_create_external_arraybuffer~~ (use [emnapi_create_external_uint8array][] instead)
-- ~~napi_adjust_external_memory~~
-- ~~napi_detach_arraybuffer~~
 
 ## 受限的 API
 
@@ -61,6 +59,10 @@
 - ***napi_get_arraybuffer_info*** (需要 `FinalizationRegistry`，data 是 wasm 内存中的一份拷贝)
 - ***napi_get_typedarray_info*** (需要 `FinalizationRegistry`，data 是 wasm 内存中的一份拷贝)
 - ***napi_get_dataview_info*** (需要 `FinalizationRegistry`，data 是 wasm 内存中的一份拷贝)
+
+### 内存管理
+
+- ***napi_adjust_external_memory*** (内部调用 `emscripten_resize_heap`, `change_in_bytes` 必须是正整数)
 
 ### 多线程简单异步操作
 
@@ -169,6 +171,7 @@ Cross-Origin-Embedder-Policy: require-corp
 - napi_create_typedarray
 - napi_create_dataview
 - napi_is_dataview
+- napi_detach_arraybuffer
 - napi_is_detached_arraybuffer
 - napi_get_version
 - napi_create_promise
