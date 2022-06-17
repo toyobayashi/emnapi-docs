@@ -41,6 +41,11 @@ export default defineConfig({
         nav: getNav('/zh/'),
         sidebar: getSideBar('/zh/')
       },
+    },
+    algolia: {
+      appId: '0UYMT1XPL1',
+      apiKey: '93bb252b942dac8d9c4e6e8432d1ab99',
+      indexName: 'emnapi'
     }
   }
 })
