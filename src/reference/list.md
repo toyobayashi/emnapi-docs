@@ -14,6 +14,8 @@ These APIs always return `napi_generic_failure`.
 
 ## Limited
 
+### Reference related
+
 ::: warning
 
 These APIs require [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) and [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 engine v8.4+ / Node.js v14.6.0+), else return `napi_generic_failure`. Only `Object` and  `Function` can be referenced, `Symbol` is not support.
@@ -32,6 +34,8 @@ These APIs require [FinalizationRegistry](https://www.caniuse.com/?search=Finali
 - ***napi_get_reference_value***
 - ***napi_add_finalizer***
 
+### BigInt related
+
 ::: warning
 
 These APIs require [BigInt](https://www.caniuse.com/?search=BigInt) (v8 engine v6.7+ / Node.js v10.4.0+), else return `napi_generic_failure`
@@ -45,6 +49,8 @@ These APIs require [BigInt](https://www.caniuse.com/?search=BigInt) (v8 engine v
 - ***napi_get_value_bigint_uint64***
 - ***napi_get_value_bigint_words***
 
+### ArrayBuffer related
+
 ::: warning
 
 These APIs may return `NULL` data pointer
@@ -55,6 +61,28 @@ These APIs may return `NULL` data pointer
 - ***napi_get_arraybuffer_info*** (Require `FinalizationRegistry`, data is a copy in wasm memory)
 - ***napi_get_typedarray_info*** (Require `FinalizationRegistry`, data is a copy in wasm memory)
 - ***napi_get_dataview_info*** (Require `FinalizationRegistry`, data is a copy in wasm memory)
+
+### Multithread simple asynchronous operations
+
+::: warning
+
+These APIs added in emnapi v0.15.0 require Emscripten pthread support (`-sUSE_PTHREADS=1`), also recommand to specifying thread pool size explicitly (`-sPTHREAD_POOL_SIZE=4`).
+
+Require target environment has `Worker` and `SharedArrayBuffer` support. If target environment is browser, require
+
+```
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Embedder-Policy: require-corp
+```
+
+in response headers.
+
+:::
+
+- ***napi_create_async_work*** (`node_api.h`, The `async_resource` and `async_resource_name` parameter have no effect.)
+- ***napi_delete_async_work*** (`node_api.h`)
+- ***napi_queue_async_work*** (`node_api.h`)
+- ***napi_cancel_async_work*** (`node_api.h`)
 
 ## Stable
 

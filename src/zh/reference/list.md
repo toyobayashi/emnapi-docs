@@ -14,6 +14,8 @@
 
 ## 受限的 API
 
+### 引用相关
+
 ::: warning
 
 以下 API 需要 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) 和 [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 引擎 v8.4+ / Node.js v14.6.0+)，否则返回 `napi_generic_failure` 状态。只有 `Object` 和  `Function` 可以被引用，不支持 `Symbol`。
@@ -32,6 +34,8 @@
 - ***napi_get_reference_value***
 - ***napi_add_finalizer***
 
+### BigInt 相关
+
 ::: warning
 
 以下 API 需要 [BigInt](https://www.caniuse.com/?search=BigInt) (v8 引擎 v6.7+ / Node.js v10.4.0+)，否则返回 `napi_generic_failure` 状态。
@@ -45,6 +49,8 @@
 - ***napi_get_value_bigint_uint64***
 - ***napi_get_value_bigint_words***
 
+### ArrayBuffer 相关
+
 ::: warning
 
 `data` 指针返回值可能为 `NULL` 的 API：
@@ -55,6 +61,28 @@
 - ***napi_get_arraybuffer_info*** (需要 `FinalizationRegistry`，data 是 wasm 内存中的一份拷贝)
 - ***napi_get_typedarray_info*** (需要 `FinalizationRegistry`，data 是 wasm 内存中的一份拷贝)
 - ***napi_get_dataview_info*** (需要 `FinalizationRegistry`，data 是 wasm 内存中的一份拷贝)
+
+### 多线程简单异步操作
+
+::: warning
+
+这些在 emnapi v0.15.0 中添加的 API 需要 Emscripten pthread 支持（`-sUSE_PTHREADS=1`），建议明确指定线程池大小（`-sPTHREAD_POOL_SIZE=4`）。
+
+要求目标环境有 `Worker` 和 `SharedArrayBuffer` 支持。如果目标环境是浏览器，则需要
+
+```
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Embedder-Policy: require-corp
+```
+
+在响应头中。
+
+:::
+
+- ***napi_create_async_work*** (`node_api.h`, The `async_resource` and `async_resource_name` parameter have no effect.)
+- ***napi_delete_async_work*** (`node_api.h`)
+- ***napi_queue_async_work*** (`node_api.h`)
+- ***napi_cancel_async_work*** (`node_api.h`)
 
 ## 稳定的 API
 
