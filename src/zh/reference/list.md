@@ -64,11 +64,11 @@
 
 - ***napi_adjust_external_memory*** (内部调用 `emscripten_resize_heap`, `change_in_bytes` 必须是正整数)
 
-### 多线程简单异步操作
+### 多线程
 
 ::: warning
 
-这些在 emnapi v0.15.0 中添加的 API 需要 Emscripten pthread 支持（`-sUSE_PTHREADS=1`），建议明确指定线程池大小（`-sPTHREAD_POOL_SIZE=4`）。
+这些 API 需要 Emscripten pthread 支持（`-sUSE_PTHREADS=1`），建议明确指定线程池大小（`-sPTHREAD_POOL_SIZE=4`）。
 
 要求目标环境有 `Worker` 和 `SharedArrayBuffer` 支持。如果目标环境是浏览器，则需要
 
@@ -81,10 +81,18 @@ Cross-Origin-Embedder-Policy: require-corp
 
 :::
 
-- ***napi_create_async_work*** (`node_api.h`, The `async_resource` and `async_resource_name` parameter have no effect.)
+- ***napi_create_async_work*** (`node_api.h`, `async_resource` 和 `async_resource_name` 参数没有效果)
 - ***napi_delete_async_work*** (`node_api.h`)
 - ***napi_queue_async_work*** (`node_api.h`)
 - ***napi_cancel_async_work*** (`node_api.h`)
+
+- ***napi_create_threadsafe_function*** (`node_api.h`, `async_resource` 和 `async_resource_name` 参数没有效果)
+- ***napi_get_threadsafe_function_context*** (`node_api.h`)
+- ***napi_call_threadsafe_function*** (`node_api.h`)
+- ***napi_acquire_threadsafe_function*** (`node_api.h`)
+- ***napi_release_threadsafe_function*** (`node_api.h`)
+- ***napi_unref_threadsafe_function*** (`node_api.h`)
+- ***napi_ref_threadsafe_function*** (`node_api.h`)
 
 ## 稳定的 API
 

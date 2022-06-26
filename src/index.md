@@ -11,7 +11,7 @@ features:
     details: Running your Node-API native addon on browser with little code change.
   - title: Lightweight
     details: Tiny runtime and linking JavaScript implementation on demand.
-  - title: Flexible
-    details: Support CMake build system, share runtime among multiple wasm
+  - title: Multithread
+    details: Support multithreaded asynchronous operations (async work, thread safe functions) via Web Worker.
 footer: MIT Licensed | Copyright © 2021-present toyobayashi
 ---

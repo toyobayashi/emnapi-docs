@@ -86,6 +86,14 @@ in response headers.
 - ***napi_queue_async_work*** (`node_api.h`)
 - ***napi_cancel_async_work*** (`node_api.h`)
 
+- ***napi_create_threadsafe_function*** (`node_api.h`, The `async_resource` and `async_resource_name` parameter have no effect.)
+- ***napi_get_threadsafe_function_context*** (`node_api.h`)
+- ***napi_call_threadsafe_function*** (`node_api.h`)
+- ***napi_acquire_threadsafe_function*** (`node_api.h`)
+- ***napi_release_threadsafe_function*** (`node_api.h`)
+- ***napi_unref_threadsafe_function*** (`node_api.h`)
+- ***napi_ref_threadsafe_function*** (`node_api.h`)
+
 ## Stable
 
 ::: tip
