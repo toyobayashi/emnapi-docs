@@ -4,7 +4,7 @@
 
 ::: danger
 
-以下 API 无法实现，调用后将永远返回 `napi_generic_failure` 状态。
+以下 API 无法实现。
 
 :::
 

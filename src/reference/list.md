@@ -4,7 +4,7 @@
 
 ::: danger
 
-These APIs always return `napi_generic_failure`.
+These APIs are no way to implement.
 
 :::
 
