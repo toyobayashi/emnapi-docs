@@ -2,6 +2,7 @@ const tr = {
   '/': {
     guide: 'Guide',
     apiReference: 'API Reference',
+    examples: 'Examples',
 
     introduction: 'Introduction',
     whatIsEmnapi: 'What is emnapi',
@@ -19,6 +20,7 @@ const tr = {
   '/zh/': {
     guide: '指南',
     apiReference: 'API 参考',
+    examples: '代码示例',
 
     introduction: '介绍',
     whatIsEmnapi: '什么是 emnapi',

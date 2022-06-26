@@ -61,6 +61,7 @@ function getNav (lang: Lang): DefaultTheme.NavItem[] {
       activeMatch: `^/(\\S+/)?reference/`
     },
     { text: 'Github', link: 'https://github.com/toyobayashi/emnapi' },
+    { text: tr[lang].examples, link: 'https://github.com/toyobayashi/node-addon-examples' },
   ]
 }
 
