@@ -1,5 +1,28 @@
 # 使用 CMake
 
+你需要安装：
+
+- CMake `>= 3.13`
+- make
+
+::: tip
+Windows 用户有多种获取 `make` 的选择
+
+- 安装 [mingw-w64](https://www.mingw-w64.org/downloads/)，然后使用 `mingw32-make`
+- 下载 [make 的 MSVC 预构建二进制文件](https://github.com/toyobayashi/make-win-build/releases)，添加到 `%Path%` 后重命名为 `mingw32-make`
+- 安装 [Visual Studio 2022](https://visualstudio.microsoft.com/) C++ 桌面工作负载，在 `Visual Studio Developer Command Prompt` 中使用 `nmake`
+- 安装 [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)，在 `Visual Studio Developer Command Prompt` 中使用 `nmake`
+:::
+
+验证环境：
+
+```bash
+cmake --version
+make -v
+# mingw32-make -v
+# nmake /?
+```
+
 创建 `CMakeLists.txt`。
 
 ```cmake
@@ -14,8 +37,7 @@ add_executable(hello hello.c)
 
 target_link_libraries(hello emnapi)
 target_link_options(hello PRIVATE
-  "-sALLOW_MEMORY_GROWTH=1"
-  "-sNODEJS_CATCH_EXIT=0"
+  "-sEXPORTED_FUNCTIONS=['_malloc','_free']"
 )
 ```
 
@@ -23,11 +45,11 @@ target_link_options(hello PRIVATE
 
 ```bash
 mkdir build
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
+emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
 cmake --build build
 ```
 
-如果在 Windows 上未安装 `make`，请在 `Visual Studio Developer Command Prompt` 中跑下面的构建命令。
+如果在 Windows 上未安装 `make` 或 `mingw32-make`，请在 `Visual Studio Developer Command Prompt` 中跑下面的构建命令。
 
 ```bat
 mkdir build

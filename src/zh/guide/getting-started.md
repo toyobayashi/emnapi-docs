@@ -6,14 +6,18 @@
 
 你需要安装：
 
-* Node.js 最新 LTS (建议 v14.6.0 以上)
-* Emscripten 工具链 v2.0.2+ (需要 Python 3)
-* CMake v3.9+
-* 仅 Windows：GNU make 或 nmake (包含在 Visual Studio C++ 桌面开发工作负载)
+- Node.js `>= v14.6.0`
+- Emscripten `>= v3.0.0` (`v2.x` 未测试，也许可以正常工作)
 
-设置 `$EMSDK` 环境变量为 emsdk 根目录，并确保 Emscripten 工具链二进制目录（`$EMSDK/upstream/emscripten`）和 CMake 在 `$PATH` 里
+设置 `$EMSDK` 环境变量为 emsdk 根目录。
 
-未安装 [make](https://github.com/toyobayashi/make-win-build/releases) 的 Windows 用户请使用 [Visual Studio Developer Command Prompt](https://visualstudio.microsoft.com/visual-cpp-build-tools/) 跑命令，因为这里面可以用到 `nmake` 作为替代。
+验证环境：
+
+```bash
+node -v
+npm -v
+emcc -v
+```
 
 ## 安装
 
@@ -80,13 +84,13 @@ NAPI_MODULE_INIT() {
 
 ## 构建源码
 
-使用 `emcc` 编译 `hello.c`，通过 `-I` 设置包含目录，通过 `--js-library` 链接emnapi JavaScript库。
+使用 `emcc` 编译 `hello.c`，通过 `-I` 设置包含目录，导出 `_malloc` 和 `_free`，通过 `--js-library` 链接emnapi JavaScript库。
 
 ```bash
 emcc -O3 \
      -I./node_modules/@tybys/emnapi/include \
      --js-library=./node_modules/@tybys/emnapi/dist/library_napi.js \
-     -sALLOW_MEMORY_GROWTH=1 \
+     -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
      -o hello.js \
      ./node_modules/@tybys/emnapi/src/emnapi.c \
      hello.c

@@ -35,7 +35,7 @@ em++ -O3 \
      -DNODE_ADDON_API_ENABLE_MAYBE \
      -I./node_modules/@tybys/emnapi/include \
      --js-library=./node_modules/@tybys/emnapi/dist/library_napi.js \
-     -sALLOW_MEMORY_GROWTH=1 \
+     -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
      -o hello.js \
      ./node_modules/@tybys/emnapi/src/emnapi.c \
      hello.cpp

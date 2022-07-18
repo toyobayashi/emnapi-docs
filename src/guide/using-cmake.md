@@ -1,5 +1,28 @@
 # Using CMake
 
+You will need to install:
+
+- CMake `>= 3.13`
+- make
+
+::: tip
+There are several choices to get `make` for Windows user
+
+- Install [mingw-w64](https://www.mingw-w64.org/downloads/), then use `mingw32-make`
+- Download [MSVC prebuilt binary of GNU make](https://github.com/toyobayashi/make-win-build/releases), add to `%Path%` then rename it to `mingw32-make`
+- Install [Visual Studio 2022](https://visualstudio.microsoft.com/) C++ desktop workload, use `nmake` in `Visual Studio Developer Command Prompt`
+- Install [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/), use `nmake` in `Visual Studio Developer Command Prompt`
+:::
+
+Verify your environment:
+
+```bash
+cmake --version
+make -v
+# mingw32-make -v
+# nmake /?
+```
+
 Create `CMakeLists.txt`.
 
 ```cmake
@@ -14,8 +37,7 @@ add_executable(hello hello.c)
 
 target_link_libraries(hello emnapi)
 target_link_options(hello PRIVATE
-  "-sALLOW_MEMORY_GROWTH=1"
-  "-sNODEJS_CATCH_EXIT=0"
+  "-sEXPORTED_FUNCTIONS=['_malloc','_free']"
 )
 ```
 
@@ -23,11 +45,11 @@ Building with `emcmake`, output `build/hello.js` and `build/hello.wasm`.
 
 ```bash
 mkdir build
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
+emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
 cmake --build build
 ```
 
-If you have not installed `make` on Windows, execute commands below in `Visual Studio Developer Command Prompt`.
+If you have not installed `make` or `mingw32-make` on Windows, execute commands below in `Visual Studio Developer Command Prompt`.
 
 ```bat
 mkdir build

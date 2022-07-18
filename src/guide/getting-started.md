@@ -6,16 +6,18 @@ This section will help you build a Hello World example by using emnapi.
 
 You will need to install:
 
-- Node.js latest LTS (recommend v14.6.0+)
-- Emscripten tool chain (need Python 3)
-- CMake v3.9+
-- Windows only: GNU make or nmake (included in Visual Studio C++ Desktop workload)
+- Node.js `>= v14.6.0`
+- Emscripten `>= v3.0.0` (`v2.x` may also works, not tested)
 
 Set `$EMSDK` environment variable to the emsdk root path.
 
-Make sure `emcc` / `em++` / `cmake` / `make` can be found in `$PATH`.
+Verify your environment:
 
-If you have not installed [make](https://github.com/toyobayashi/make-win-build/releases) on Windows, you can also execute build commands in [Visual Studio Developer Command Prompt](https://visualstudio.microsoft.com/visual-cpp-build-tools/) where `nmake` is available.
+```bash
+node -v
+npm -v
+emcc -v
+```
 
 ## Installation
 
@@ -82,13 +84,13 @@ NAPI_MODULE_INIT() {
 
 ## Buiding Source Code
 
-Compile `hello.c` using `emcc`, set include directory by `-I`, link emnapi JavaScript library by `--js-library`.
+Compile `hello.c` using `emcc`, set include directory by `-I`, export `_malloc` and `_free`, link emnapi JavaScript library by `--js-library`.
 
 ```bash
 emcc -O3 \
      -I./node_modules/@tybys/emnapi/include \
      --js-library=./node_modules/@tybys/emnapi/dist/library_napi.js \
-     -sALLOW_MEMORY_GROWTH=1 \
+     -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
      -o hello.js \
      ./node_modules/@tybys/emnapi/src/emnapi.c \
      hello.c
