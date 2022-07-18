@@ -22,6 +22,6 @@
   },
   "homepage": "https://github.com/toyobayashi/emnapi-docs#readme",
   "devDependencies": {
-    "vitepress": "^0.22.4"
+    "vitepress": "^1.0.0-alpha.4"
   }
 }

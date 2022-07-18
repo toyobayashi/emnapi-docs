@@ -10,37 +10,47 @@ export default defineConfig({
   scrollOffset: 'header',
 
   locales: {
-    '/': { lang: 'en-US' },
+    '/': {
+      lang: 'en-US',
+      label: 'English',
+      description: 'emnapi - The Subset of Node-API implementation for Emscripten',
+      selectText: 'English'
+    },
     '/zh/': {
       lang: ' zh-CN',
-      description: 'emnapi - 适用于 Emscripten 的 Node-API 子集实现'
+      label: '简体中文',
+      description: 'emnapi - 适用于 Emscripten 的 Node-API 子集实现',
+      selectText: '简体中文'
     },
   },
 
   themeConfig: {
-    repo: 'toyobayashi/emnapi-docs',
-    repoLabel: 'Docs Repo',
-    docsBranch: 'main',
-    docsDir: 'src',
-    lastUpdated: 'Last Updated',
-    prevLinks: true,
-    nextLinks: true,
-    editLinks: true,
-    editLinkText: 'Any mistake found? Correct it now!',
-    locales: {
-      '/': {
-        label: 'English',
-        nav: getNav('/'),
-        sidebar: getSideBar('/')
-      },
-      '/zh/' : {
-        label: '简体中文',
-        selectText: '语言',
-        repoLabel: '文档仓库',
-        editLinkText: '在 Github 上编辑本页',
-        nav: getNav('/zh/'),
-        sidebar: getSideBar('/zh/')
-      },
+    lastUpdatedText: 'Last Updated',
+    editLink: {
+      pattern: 'https://github.com/toyobayashi/emnapi-docs/edit/main/src/:path',
+      text: 'Any mistake found? Correct it now!'
+    },
+    nav: getNav('/'),
+    sidebar: {
+      ...getSideBar('/zh/'),
+      ...getSideBar('/'),
+    },
+    socialLinks: [
+      {
+        icon: 'github',
+        link: 'https://github.com/toyobayashi/emnapi'
+      }
+    ],
+    localeLinks: {
+      text: '',
+      items: [
+        { text: 'English', link: '/guide/' },
+        { text: '简体中文', link: '/zh/guide/' },
+      ],
+    },
+    footer: {
+      message: 'Released under the MIT License.',
+      copyright: 'Copyright © 2022-PRESENT toyobayashi',
     },
     algolia: {
       appId: '0UYMT1XPL1',
@@ -50,8 +60,6 @@ export default defineConfig({
   }
 })
 
-
-
 function getNav (lang: Lang): DefaultTheme.NavItem[] {
   return [
     { text: tr[lang].guide, link: `${lang}/guide/`, activeMatch: `^/(\\S+/)?guide/` },
@@ -60,12 +68,12 @@ function getNav (lang: Lang): DefaultTheme.NavItem[] {
       link: `${lang}reference/list`,
       activeMatch: `^/(\\S+/)?reference/`
     },
-    { text: 'Github', link: 'https://github.com/toyobayashi/emnapi' },
     { text: tr[lang].examples, link: 'https://github.com/toyobayashi/node-addon-examples' },
+    { text: tr[lang].docsRepo, link: 'https://github.com/toyobayashi/emnapi-docs' },
   ]
 }
 
-function getSideBar (lang: Lang): DefaultTheme.MultiSideBarConfig {
+function getSideBar (lang: Lang): DefaultTheme.SidebarMulti {
   return {
     [`${lang}guide/`]: getGuideSidebar(lang),
     [`${lang}reference/`]: getReferenceSidebar(lang),
@@ -73,11 +81,11 @@ function getSideBar (lang: Lang): DefaultTheme.MultiSideBarConfig {
   }
 }
 
-function getGuideSidebar (lang: Lang): DefaultTheme.SideBarItem[] {
+function getGuideSidebar (lang: Lang): DefaultTheme.SidebarGroup[] {
   return [
     {
       text: tr[lang].introduction,
-      children: [
+      items: [
         { text: tr[lang].whatIsEmnapi, link: `${lang}guide/` },
         { text: tr[lang].gettingStarted, link: `${lang}guide/getting-started` },
         { text: tr[lang].usingCppWrapper, link: `${lang}guide/using-cpp` },
@@ -86,7 +94,7 @@ function getGuideSidebar (lang: Lang): DefaultTheme.SideBarItem[] {
     },
     {
       text: tr[lang].advanced,
-      children: [
+      items: [
         { text: tr[lang].emnapiRuntime, link: `${lang}guide/runtime` },
         { text: tr[lang].modularization, link: `${lang}guide/modularization` }
       ]
@@ -94,9 +102,14 @@ function getGuideSidebar (lang: Lang): DefaultTheme.SideBarItem[] {
   ]
 }
 
-function getReferenceSidebar (lang: Lang): DefaultTheme.SideBarItem[] {
+function getReferenceSidebar (lang: Lang): DefaultTheme.SidebarGroup[] {
   return [
-    { text: tr[lang].apiList, link: `${lang}reference/list` },
-    { text: tr[lang].additionalApi, link: `${lang}reference/additional` }
+    {
+      text: 'API',
+      items: [
+        { text: tr[lang].apiList, link: `${lang}reference/list` },
+        { text: tr[lang].additionalApi, link: `${lang}reference/additional` }
+      ]
+    }
   ]
 }

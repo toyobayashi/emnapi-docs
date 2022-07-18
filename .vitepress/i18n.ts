@@ -15,7 +15,8 @@ const tr = {
     modularization: 'Modularization',
 
     apiList: 'API List',
-    additionalApi: 'Additional APIs'
+    additionalApi: 'Additional APIs',
+    docsRepo: 'Docs Repo'
   },
   '/zh/': {
     guide: '指南',
@@ -33,7 +34,8 @@ const tr = {
     modularization: '模块化',
 
     apiList: 'API 列表',
-    additionalApi: '额外新增的 API'
+    additionalApi: '额外新增的 API',
+    docsRepo: '文档仓库'
   }
 } as const
 
