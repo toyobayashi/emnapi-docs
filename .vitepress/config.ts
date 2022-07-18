@@ -55,20 +55,14 @@ export default defineConfig({
 function getNav (lang: Lang): DefaultTheme.NavItem[] {
   return [
     { text: tr[lang].guide, link: `${lang}/guide/`, activeMatch: `^/(\\S+/)?guide/` },
-    {
-      text: tr[lang].apiReference,
-      link: `${lang}reference/list`,
-      activeMatch: `^/(\\S+/)?reference/`
-    },
-    { text: 'Github', link: 'https://github.com/toyobayashi/emnapi' },
     { text: tr[lang].examples, link: 'https://github.com/toyobayashi/node-addon-examples' },
+    { text: 'Github', link: 'https://github.com/toyobayashi/emnapi' },
   ]
 }
 
 function getSideBar (lang: Lang): DefaultTheme.MultiSideBarConfig {
   return {
     [`${lang}guide/`]: getGuideSidebar(lang),
-    [`${lang}reference/`]: getReferenceSidebar(lang),
     [`${lang}`]: getGuideSidebar(lang),
   }
 }
@@ -90,13 +84,13 @@ function getGuideSidebar (lang: Lang): DefaultTheme.SideBarItem[] {
         { text: tr[lang].emnapiRuntime, link: `${lang}guide/runtime` },
         { text: tr[lang].modularization, link: `${lang}guide/modularization` }
       ]
+    },
+    {
+      text: 'API',
+      children: [
+        { text: tr[lang].apiList, link: `${lang}reference/list` },
+        { text: tr[lang].additionalApi, link: `${lang}reference/additional` }
+      ]
     }
-  ]
-}
-
-function getReferenceSidebar (lang: Lang): DefaultTheme.SideBarItem[] {
-  return [
-    { text: tr[lang].apiList, link: `${lang}reference/list` },
-    { text: tr[lang].additionalApi, link: `${lang}reference/additional` }
   ]
 }
