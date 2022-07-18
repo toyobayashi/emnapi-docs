@@ -26,7 +26,7 @@ make -v
 Create `CMakeLists.txt`.
 
 ```cmake
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.13)
 
 project(emnapiexample)
 
@@ -35,7 +35,7 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/node_modules/@tybys/emnapi")
 add_executable(hello hello.c)
 # or add_executable(hello hello.cpp)
 
-target_link_libraries(hello emnapi)
+target_link_libraries(hello emnapi_full)
 target_link_options(hello PRIVATE
   "-sEXPORTED_FUNCTIONS=['_malloc','_free']"
 )
