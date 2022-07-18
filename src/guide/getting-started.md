@@ -190,7 +190,7 @@ If you used cmake to install emnapi globally, run
 emcc -O3 \
      -I<sysroot>/include/emnapi \
      -L<sysroot>/lib/emnapi \
-     --js-library=<sysroot>/include/emnapi/library_napi.js \
+     --js-library=<sysroot>/lib/emnapi/library_napi.js \
      -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
      -o hello.js \
      -lemnapi \
