@@ -4,7 +4,7 @@ sidebarDepth: 2
 
 # What is emnapi
 
-`emnapi` is a subset of **N**ode-**API** (named NAPI previously) implementation for **Em**scripten.
+`emnapi` is a subset of [**N**ode-**API**](https://nodejs.org/docs/v16.15.0/api/n-api.html) (named NAPI previously) implementation for **Em**scripten.
 
 ## Motivation
 
