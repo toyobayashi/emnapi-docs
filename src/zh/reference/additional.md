@@ -6,6 +6,22 @@
 
 :::
 
+#### emnapi_is_support_weakref
+
+```c
+int emnapi_is_support_weakref();
+```
+
+如果运行时支持 `FinalizationRegistry` 和 `WeakRef`，则返回 `1`，否则返回 `0`。
+
+#### emnapi_is_support_bigint
+
+```c
+int emnapi_is_support_bigint();
+```
+
+如果运行时支持 `BigInt`，则返回 `1`，否则返回 `0`。
+
 #### emnapi_get_module_object
 
 ```c
