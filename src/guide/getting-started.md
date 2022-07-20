@@ -25,11 +25,12 @@ emcc -v
 
 ## Installation
 
-You can install emnapi to local project or Emscripten sysroot.
+There are two methods to install emnapi.
 
-### Local (recommended)
+- Install `emnapi` package to local project via `npm` (recommended)
+- Build `emnapi` from source via `cmake` and install to custom sysroot path
 
-Just use npm.
+### NPM
 
 ```bash
 npm install -D @tybys/emnapi
@@ -38,9 +39,9 @@ npm install -D @tybys/emnapi
 # npm install -D @tybys/emnapi-runtime
 ```
 
-### Global
+### CMake
 
-To install emnapi to the sysroot of Emscripten, first you need to install:
+You will need to install:
 
 - CMake `>= 3.13`
 - make
@@ -60,13 +61,14 @@ Verify your environment:
 cmake --version
 make -v
 
-# Windows
-
+# Windows cmd
 # mingw32-make -v
+
+# Visual Studio Developer Command Prompt
 # nmake /?
 ```
 
-Clone emnapi repository and build from source:
+Clone repository and build from source:
 
 ```bash
 git clone https://github.com/toyobayashi/emnapi
@@ -81,20 +83,10 @@ emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
 # emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=nmake -G "NMake Makefiles"  -H. -Bbuild
 
 cmake --build build
-cmake --install build
+cmake --install build [--prefix <sysroot>]
 ```
 
-After you run the script above, the emnapi headers and static library will be installed to:
-
-- `$EMSDK/upstream/emscripten/cache/sysroot/include/emnapi`
-- `$EMSDK/upstream/emscripten/cache/sysroot/lib/emnapi`
-- `$EMSDK/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten`
-
-You can install them to other place by adding `--prefix` option to `cmake --install`:
-
-```bash
-cmake --install build --prefix <sysroot>
-```
+Default `sysroot` is `$EMSDK/upstream/emscripten/cache/sysroot`.
 
 ## Writing Source Code
 
@@ -104,34 +96,23 @@ Create `hello.c`
 #include <node_api.h>
 #include <string.h>
 
-#define GET_AND_THROW_LAST_ERROR(env)                                    \
-  do {                                                                   \
-    const napi_extended_error_info *error_info;                          \
-    napi_get_last_error_info((env), &error_info);                        \
-    bool is_pending;                                                     \
-    const char* err_message = error_info->error_message;                 \
-    napi_is_exception_pending((env), &is_pending);                       \
-    if (!is_pending) {                                                   \
-      const char* error_message = err_message != NULL ?                  \
-        err_message :                                                    \
-        "empty error message";                                           \
-      napi_throw_error((env), NULL, error_message);                      \
-    }                                                                    \
+#define NAPI_CALL(env, the_call)                                \
+  do {                                                          \
+    if ((the_call) != napi_ok) {                                \
+      const napi_extended_error_info *error_info;               \
+      napi_get_last_error_info((env), &error_info);             \
+      bool is_pending;                                          \
+      const char* err_message = error_info->error_message;      \
+      napi_is_exception_pending((env), &is_pending);            \
+      if (!is_pending) {                                        \
+        const char* error_message = err_message != NULL ?       \
+          err_message :                                         \
+          "empty error message";                                \
+        napi_throw_error((env), NULL, error_message);           \
+      }                                                         \
+      return NULL;                                              \
+    }                                                           \
   } while (0)
-
-#define NAPI_CALL_BASE(env, the_call, ret_val)                           \
-  do {                                                                   \
-    if ((the_call) != napi_ok) {                                         \
-      GET_AND_THROW_LAST_ERROR((env));                                   \
-      return ret_val;                                                    \
-    }                                                                    \
-  } while (0)
-
-#define NAPI_CALL(env, the_call)                                         \
-  NAPI_CALL_BASE(env, the_call, NULL)
-
-#define DECLARE_NAPI_PROPERTY(name, func)                                \
-  { (name), NULL, (func), NULL, NULL, NULL, napi_default, NULL }
 
 static napi_value js_hello(napi_env env, napi_callback_info info) {
   napi_value world;
@@ -142,8 +123,10 @@ static napi_value js_hello(napi_env env, napi_callback_info info) {
 }
 
 NAPI_MODULE_INIT() {
-  napi_property_descriptor desc = DECLARE_NAPI_PROPERTY("hello", js_hello);
-  NAPI_CALL(env, napi_define_properties(env, exports, 1, &desc));
+  napi_value hello;
+  NAPI_CALL(env, napi_create_function(env, "hello", NAPI_AUTO_LENGTH,
+                                      js_hello, NULL, &hello));
+  NAPI_CALL(env, napi_set_named_property(env, exports, "hello", hello));
   return exports;
 }
 ```
@@ -151,21 +134,14 @@ NAPI_MODULE_INIT() {
 The C code is equivalant to the JavaScript below:
 
 ```js
-function js_hello () {
-  const world = 'world'
-  return world
-}
-
 module.exports = (function (exports) {
-  const desc = {
-    hello: {
-      configurable: false,
-      writable: false,
-      enumerable: false,
-      value: js_hello
-    }
+  const hello = function hello () {
+    // native code in js_hello
+    const world = 'world'
+    return world
   }
-  Object.defineProperties(exports, desc)
+
+  exports.hello = hello
   return exports
 })(module.exports)
 ```
@@ -184,7 +160,7 @@ emcc -O3 \
      hello.c
 ```
 
-If you used cmake to install emnapi globally, run
+If you installed `emnapi` via `cmake --install`, run:
 
 ```bash
 emcc -O3 \
@@ -255,3 +231,5 @@ node ./index.js
 ```
 
 Then you can see the hello world output.
+
+If a JS error is thrown on runtime initialization, Node.js process will exit. You can use `-sNODEJS_CATCH_EXIT=0` and add `ununcaughtException` handler yourself to avoid this. Alternatively, you can use `Module.onEmnapiInitialized` callback to catch error.

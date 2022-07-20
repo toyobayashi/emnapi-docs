@@ -1,5 +1,7 @@
 # Using CMake
 
+See [Getting Started] for environment setup.
+
 Create `CMakeLists.txt`.
 
 ```cmake
@@ -34,8 +36,4 @@ emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=nmake -G "NMake Ma
 cmake --build build
 ```
 
-Full example codes can be found [here](https://github.com/toyobayashi/emnapi/tree/main/example).
-
-Output code can run in recent version modern browsers and Node.js latest LTS. IE is not supported.
-
-If a JS error is thrown on runtime initialization, Node.js process will exit. You can use `-sNODEJS_CATCH_EXIT=0` and add `ununcaughtException` handler yourself to avoid this. Alternatively, you can use `Module.onEmnapiInitialized` callback to catch error.
+[Getting Started]: /guide/getting-started.html#cmake
