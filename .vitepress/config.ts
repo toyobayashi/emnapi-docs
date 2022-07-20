@@ -2,6 +2,7 @@ import { defineConfig, DefaultTheme } from 'vitepress'
 import tr, { Lang } from './i18n'
 
 export default defineConfig({
+  base: process.env.EMNAPI_DOCS_BASE || '/',
   lang: 'en-US',
   title: 'emnapi',
   description: 'emnapi - The Subset of Node-API implementation for Emscripten',
