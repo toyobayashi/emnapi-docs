@@ -9,6 +9,7 @@ const tr = {
     gettingStarted: 'Getting Started',
     usingCppWrapper: 'Using C++ Wrapper',
     usingCMake: 'Using CMake',
+    errorHandling: 'Error Handling',
 
     advanced: 'Advanced',
     emnapiRuntime: 'emnapi Runtime',
@@ -27,6 +28,7 @@ const tr = {
     gettingStarted: '开始使用',
     usingCppWrapper: '使用 C++ 包装器',
     usingCMake: '使用 CMake',
+    errorHandling: '错误处理',
 
     advanced: '进阶',
     emnapiRuntime: 'emnapi 运行时',

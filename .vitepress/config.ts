@@ -76,7 +76,8 @@ function getGuideSidebar (lang: Lang): DefaultTheme.SideBarItem[] {
         { text: tr[lang].whatIsEmnapi, link: `${lang}guide/` },
         { text: tr[lang].gettingStarted, link: `${lang}guide/getting-started` },
         { text: tr[lang].usingCppWrapper, link: `${lang}guide/using-cpp` },
-        { text: tr[lang].usingCMake, link: `${lang}guide/using-cmake` }
+        { text: tr[lang].usingCMake, link: `${lang}guide/using-cmake` },
+        { text: tr[lang].errorHandling, link: `${lang}guide/error-handling` }
       ]
     },
     {
