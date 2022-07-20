@@ -30,7 +30,7 @@ emcc -v
 - 通过 `npm` 将 `emnapi` 安装到本地项目中（推荐）
 - 通过 `cmake` 从源码构建 `emnapi` 然后安装到自定义的 sysroot 路径
 
-### NPM
+### 通过 NPM 安装
 
 ```bash
 npm install -D @tybys/emnapi
@@ -39,7 +39,7 @@ npm install -D @tybys/emnapi
 # npm install -D @tybys/emnapi-runtime
 ```
 
-### CMake
+### 通过 CMake 安装
 
 你需要安装：
 
@@ -73,6 +73,10 @@ make -v
 ```bash
 git clone https://github.com/toyobayashi/emnapi
 cd ./emnapi
+
+npm run build
+
+cd ./packages/emnapi
 
 emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
 

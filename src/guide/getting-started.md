@@ -30,7 +30,7 @@ There are two methods to install emnapi.
 - Install `emnapi` package to local project via `npm` (recommended)
 - Build `emnapi` from source via `cmake` and install to custom sysroot path
 
-### NPM
+### Install via NPM
 
 ```bash
 npm install -D @tybys/emnapi
@@ -39,7 +39,7 @@ npm install -D @tybys/emnapi
 # npm install -D @tybys/emnapi-runtime
 ```
 
-### CMake
+### Install via CMake
 
 You will need to install:
 
@@ -73,6 +73,10 @@ Clone repository and build from source:
 ```bash
 git clone https://github.com/toyobayashi/emnapi
 cd ./emnapi
+
+npm run build
+
+cd ./packages/emnapi
 
 emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
 
