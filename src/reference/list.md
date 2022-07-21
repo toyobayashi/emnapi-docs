@@ -42,23 +42,28 @@ These APIs don't exist.
 
 ::: warning
 
-These APIs require [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) and [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 engine v8.4+ / Node.js v14.6.0+), if the runtime does not support, passing `finalize_cb` will cause an error. Only `Object` and  `Function` can be referenced, `Symbol` is not support.
+Only `Object` and  `Function` can be referenced, `Symbol` is not support.
+
+These APIs require [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) and [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 engine v8.4+ / Node.js v14.6.0+), if the runtime does not support, all references are strong references no matter their reference count is 0 or not. The limitations of these APIs are listed below
 
 :::
 
 #### js_native_api.h
 
-- ***napi_wrap***
-- ***napi_unwrap***
-- ***napi_remove_wrap***
-- ***napi_create_external***
-- ***napi_get_value_external***
-- ***napi_create_reference***
-- ***napi_delete_reference***
-- ***napi_reference_ref***
-- ***napi_reference_unref***
-- ***napi_get_reference_value***
-- ***napi_add_finalizer***
+- ***napi_wrap***: `finalize_cb` and `result` must be `NULL`, user must call `napi_remove_wrap` later
+- ***napi_unwrap***: No limitation
+- ***napi_remove_wrap***: No limitation
+---
+- ***napi_create_external***: `finalize_cb` must be `NULL`
+- ***napi_get_value_external***: No limitation
+---
+- ***napi_create_reference***: Create strong reference even if `0` is passed to `initial_refcount`
+- ***napi_delete_reference***: No limitation
+- ***napi_reference_ref***: No limitation
+- ***napi_reference_unref***: The reference is still a strong reference even the count is `0`
+- ***napi_get_reference_value***: No limitation
+---
+- ***napi_add_finalizer***: Unavailable, always throws error
 
 ### BigInt related
 

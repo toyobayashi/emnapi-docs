@@ -42,23 +42,28 @@ sidebarDepth: 3
 
 ::: warning
 
-以下 API 需要 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) 和 [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 引擎 v8.4+ / Node.js v14.6.0+)，如果运行时不支持，传入 `finalize_cb` 将导致抛错。只有 `Object` 和  `Function` 可以被引用，不支持 `Symbol`。
+只有 `Object` 和  `Function` 可以被引用，不支持 `Symbol`。
+
+以下 API 需要 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) 和 [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 引擎 v8.4+ / Node.js v14.6.0+)，如果运行时不支持，所有引用都是强引用，无论它们的引用计数是否为 0。下面列出了这些 API 的限制
 
 :::
 
 #### js_native_api.h
 
-- ***napi_wrap***
-- ***napi_unwrap***
-- ***napi_remove_wrap***
-- ***napi_create_external***
-- ***napi_get_value_external***
-- ***napi_create_reference***
-- ***napi_delete_reference***
-- ***napi_reference_ref***
-- ***napi_reference_unref***
-- ***napi_get_reference_value***
-- ***napi_add_finalizer***
+- ***napi_wrap***: `finalize_cb` 和 `result` 必须传 `NULL`, 稍后必须调用 `napi_remove_wrap`
+- ***napi_unwrap***: 无限制
+- ***napi_remove_wrap***: 无限制
+---
+- ***napi_create_external***: `finalize_cb` 必须传 `NULL`
+- ***napi_get_value_external***: 无限制
+---
+- ***napi_create_reference***: 即使传 `0` 给 `initial_refcount` 也创建强引用
+- ***napi_delete_reference***: 无限制
+- ***napi_reference_ref***: 无限制
+- ***napi_reference_unref***: 即使计数为 0，该引用仍然是强引用
+- ***napi_get_reference_value***: 无限制
+---
+- ***napi_add_finalizer***: 不可用，总是抛出错误
 
 ### BigInt 相关
 
