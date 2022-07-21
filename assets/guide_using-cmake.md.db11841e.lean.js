@@ -1,0 +1,1 @@
+import{_ as a,c as n,o as e,a as s}from"./app.09993eb5.js";const _='{"title":"Using CMake","description":"","frontmatter":{},"headers":[],"relativePath":"guide/using-cmake.md","lastUpdated":1658387680000}',t={},o=s("",8),p=[o];function c(l,i,d,u,r,k){return e(),n("div",null,p)}var g=a(t,[["render",c]]);export{_ as __pageData,g as default};
