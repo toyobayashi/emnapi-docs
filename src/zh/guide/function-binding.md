@@ -1,4 +1,4 @@
-# Function Binding
+# 函数绑定
 
 ## 参数处理
 
