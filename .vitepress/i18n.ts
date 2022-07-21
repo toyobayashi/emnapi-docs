@@ -10,6 +10,7 @@ const tr = {
     usingCppWrapper: 'Using C++ Wrapper',
     usingCMake: 'Using CMake',
     errorHandling: 'Error Handling',
+    functionBinding: 'Function Binding',
 
     advanced: 'Advanced',
     emnapiRuntime: 'emnapi Runtime',
@@ -29,6 +30,7 @@ const tr = {
     usingCppWrapper: '使用 C++ 包装器',
     usingCMake: '使用 CMake',
     errorHandling: '错误处理',
+    functionBinding: '函数绑定',
 
     advanced: '进阶',
     emnapiRuntime: 'emnapi 运行时',
