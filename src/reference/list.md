@@ -1,14 +1,40 @@
+---
+sidebarDepth: 3
+---
+
 # API List
 
 ## Unavailable
 
 ::: danger
 
-These APIs are no way to implement.
+These APIs don't exist.
 
 :::
 
+#### js_native_api.h
+
 - ~~napi_create_external_arraybuffer~~ (use [emnapi_create_external_uint8array][] instead)
+
+#### node_api.h
+
+- ~~napi_module_register~~
+- ~~napi_async_init~~
+- ~~napi_async_destroy~~
+- ~~napi_make_callback~~
+- ~~napi_create_buffer~~
+- ~~napi_create_external_buffer~~
+- ~~napi_create_buffer_copy~~
+- ~~napi_is_buffer~~
+- ~~napi_get_buffer_info~~
+- ~~napi_get_uv_event_loop~~
+- ~~napi_add_env_cleanup_hook~~
+- ~~napi_remove_env_cleanup_hook~~
+- ~~napi_open_callback_scope~~
+- ~~napi_close_callback_scope~~
+- ~~napi_add_async_cleanup_hook~~
+- ~~napi_remove_async_cleanup_hook~~
+- ~~node_api_get_module_file_name~~
 
 ## Limited
 
@@ -16,9 +42,11 @@ These APIs are no way to implement.
 
 ::: warning
 
-These APIs require [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) and [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 engine v8.4+ / Node.js v14.6.0+), else return `napi_generic_failure`. Only `Object` and  `Function` can be referenced, `Symbol` is not support.
+These APIs require [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) and [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 engine v8.4+ / Node.js v14.6.0+), if the runtime does not support, passing `finalize_cb` will cause an error. Only `Object` and  `Function` can be referenced, `Symbol` is not support.
 
 :::
+
+#### js_native_api.h
 
 - ***napi_wrap***
 - ***napi_unwrap***
@@ -36,9 +64,11 @@ These APIs require [FinalizationRegistry](https://www.caniuse.com/?search=Finali
 
 ::: warning
 
-These APIs require [BigInt](https://www.caniuse.com/?search=BigInt) (v8 engine v6.7+ / Node.js v10.4.0+), else return `napi_generic_failure`
+These APIs require [BigInt](https://www.caniuse.com/?search=BigInt) (v8 engine v6.7+ / Node.js v10.4.0+), throw error if the runtime does not support.
 
 :::
+
+#### js_native_api.h
 
 - ***napi_create_bigint_int64***
 - ***napi_create_bigint_uint64***
@@ -55,16 +85,20 @@ These APIs may return `NULL` data pointer
 
 :::
 
-- ***napi_create_arraybuffer*** (No way to implement in JS)
+#### js_native_api.h
+
+- ***napi_create_arraybuffer*** (`data` is always `NULL`, no way to implement in JS)
 - ***napi_get_arraybuffer_info*** (Require `FinalizationRegistry`, data is a copy in wasm memory)
 - ***napi_get_typedarray_info*** (Require `FinalizationRegistry`, data is a copy in wasm memory)
 - ***napi_get_dataview_info*** (Require `FinalizationRegistry`, data is a copy in wasm memory)
 
 ### Memory management
 
+#### js_native_api.h
+
 - ***napi_adjust_external_memory*** (call `emscripten_resize_heap` internally, `change_in_bytes` must be a positive integer)
 
-### Multithread simple asynchronous operations
+### Multithread related
 
 ::: warning
 
@@ -79,28 +113,33 @@ Cross-Origin-Embedder-Policy: require-corp
 
 in response headers.
 
+The `async_resource` and `async_resource_name` parameter have no effect.
+
 :::
 
-- ***napi_create_async_work*** (`node_api.h`, The `async_resource` and `async_resource_name` parameter have no effect.)
-- ***napi_delete_async_work*** (`node_api.h`)
-- ***napi_queue_async_work*** (`node_api.h`)
-- ***napi_cancel_async_work*** (`node_api.h`)
+#### node_api.h
 
-- ***napi_create_threadsafe_function*** (`node_api.h`, The `async_resource` and `async_resource_name` parameter have no effect.)
-- ***napi_get_threadsafe_function_context*** (`node_api.h`)
-- ***napi_call_threadsafe_function*** (`node_api.h`)
-- ***napi_acquire_threadsafe_function*** (`node_api.h`)
-- ***napi_release_threadsafe_function*** (`node_api.h`)
-- ***napi_unref_threadsafe_function*** (`node_api.h`)
-- ***napi_ref_threadsafe_function*** (`node_api.h`)
+- ***napi_create_async_work***
+- ***napi_delete_async_work***
+- ***napi_queue_async_work***
+- ***napi_cancel_async_work***
+- ***napi_create_threadsafe_function***
+- ***napi_get_threadsafe_function_context***
+- ***napi_call_threadsafe_function***
+- ***napi_acquire_threadsafe_function***
+- ***napi_release_threadsafe_function***
+- ***napi_unref_threadsafe_function***
+- ***napi_ref_threadsafe_function***
 
 ## Stable
 
 ::: tip
 
-These APIs are stable and safe!
+These APIs are stable!
 
 :::
+
+#### js_native_api.h
 
 - napi_get_last_error_info
 - napi_get_undefined
@@ -197,7 +236,10 @@ These APIs are stable and safe!
 - napi_object_seal
 - napi_type_tag_object
 - napi_check_object_type_tag
-- napi_fatal_error (`node_api.h`)
-- napi_get_node_version (`node_api.h`)
+
+#### node_api.h
+
+- napi_fatal_error
+- napi_get_node_version
 
 [emnapi_create_external_uint8array]: /reference/additional.html#emnapi-create-external-uint8array

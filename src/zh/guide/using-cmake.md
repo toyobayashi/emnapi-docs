@@ -1,9 +1,11 @@
 # 使用 CMake
 
+环境安装请参考[开始使用][]章节
+
 创建 `CMakeLists.txt`。
 
 ```cmake
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.13)
 
 project(emnapiexample)
 
@@ -12,10 +14,9 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/node_modules/@tybys/emnapi")
 add_executable(hello hello.c)
 # or add_executable(hello hello.cpp)
 
-target_link_libraries(hello emnapi)
+target_link_libraries(hello emnapi_full)
 target_link_options(hello PRIVATE
-  "-sALLOW_MEMORY_GROWTH=1"
-  "-sNODEJS_CATCH_EXIT=0"
+  "-sEXPORTED_FUNCTIONS=['_malloc','_free']"
 )
 ```
 
@@ -23,11 +24,11 @@ target_link_options(hello PRIVATE
 
 ```bash
 mkdir build
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
+emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
 cmake --build build
 ```
 
-如果在 Windows 上未安装 `make`，请在 `Visual Studio Developer Command Prompt` 中跑下面的构建命令。
+如果在 Windows 上未安装 `make` 或 `mingw32-make`，请在 `Visual Studio Developer Command Prompt` 中跑下面的构建命令。
 
 ```bat
 mkdir build
@@ -35,8 +36,4 @@ emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=nmake -G "NMake Ma
 cmake --build build
 ```
 
-完整的示例代码可以在[这里](https://github.com/toyobayashi/emnapi/tree/main/example)找到。
-
-输出的代码可以运行在最近版本的现代浏览器和最新的 Node.js LTS 版本。不支持 IE。
-
-如果在运行时初始化时抛出 JS 错误，Node.js 进程将会退出。可以使用`-sNODEJS_CATCH_EXIT=0` 并自己添加`uncaughtException`。或者可以使用 `Module.onEmnapiInitialized` 来捕获异常。
+[开始使用]: /zh/guide/getting-started.html#cmake

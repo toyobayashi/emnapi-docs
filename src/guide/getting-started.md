@@ -6,27 +6,91 @@ This section will help you build a Hello World example by using emnapi.
 
 You will need to install:
 
-- Node.js latest LTS (recommend v14.6.0+)
-- Emscripten tool chain (need Python 3)
-- CMake v3.9+
-- Windows only: GNU make or nmake (included in Visual Studio C++ Desktop workload)
+- Node.js `>= v14.6.0`
+- Emscripten `>= v3.0.0` (`v2.x` may also works, not tested)
 
+::: tip
 Set `$EMSDK` environment variable to the emsdk root path.
 
-Make sure `emcc` / `em++` / `cmake` / `make` can be found in `$PATH`.
+Add `$EMSDK/upstream/emscripten` to `$PATH` environment variable.
+:::
 
-If you have not installed [make](https://github.com/toyobayashi/make-win-build/releases) on Windows, you can also execute build commands in [Visual Studio Developer Command Prompt](https://visualstudio.microsoft.com/visual-cpp-build-tools/) where `nmake` is available.
+Verify your environment:
+
+```bash
+node -v
+npm -v
+emcc -v
+```
 
 ## Installation
 
-Make a directory named `hello`, and install `emnapi` from NPM.
+There are two methods to install emnapi.
+
+- Install `emnapi` package to local project via `npm` (recommended)
+- Build `emnapi` from source via `cmake` and install to custom sysroot path
+
+### Install via NPM
 
 ```bash
-mkdir ./hello
-cd ./hello
-npm init -y
 npm install -D @tybys/emnapi
+
+# optional, see "emnapi Runtime" chapter for more details
+# npm install -D @tybys/emnapi-runtime
 ```
+
+### Install via CMake
+
+You will need to install:
+
+- CMake `>= 3.13`
+- make
+
+::: tip
+There are several choices to get `make` for Windows user
+
+- Install [mingw-w64](https://www.mingw-w64.org/downloads/), then use `mingw32-make`
+- Download [MSVC prebuilt binary of GNU make](https://github.com/toyobayashi/make-win-build/releases), add to `%Path%` then rename it to `mingw32-make`
+- Install [Visual Studio 2022](https://visualstudio.microsoft.com/) C++ desktop workload, use `nmake` in `Visual Studio Developer Command Prompt`
+- Install [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/), use `nmake` in `Visual Studio Developer Command Prompt`
+:::
+
+Verify your environment:
+
+```bash
+cmake --version
+make -v
+
+# Windows cmd
+# mingw32-make -v
+
+# Visual Studio Developer Command Prompt
+# nmake /?
+```
+
+Clone repository and build from source:
+
+```bash
+git clone https://github.com/toyobayashi/emnapi
+cd ./emnapi
+
+npm run build
+
+cd ./packages/emnapi
+
+emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
+
+# Windows have mingw32-make installed
+# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
+
+# Windows Visual Studio Developer Command Prompt
+# emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=nmake -G "NMake Makefiles"  -H. -Bbuild
+
+cmake --build build
+cmake --install build [--prefix <sysroot>]
+```
+
+Default `sysroot` is `$EMSDK/upstream/emscripten/cache/sysroot`.
 
 ## Writing Source Code
 
@@ -36,36 +100,25 @@ Create `hello.c`
 #include <node_api.h>
 #include <string.h>
 
-#define GET_AND_THROW_LAST_ERROR(env)                                    \
-  do {                                                                   \
-    const napi_extended_error_info *error_info;                          \
-    napi_get_last_error_info((env), &error_info);                        \
-    bool is_pending;                                                     \
-    const char* err_message = error_info->error_message;                 \
-    napi_is_exception_pending((env), &is_pending);                       \
-    if (!is_pending) {                                                   \
-      const char* error_message = err_message != NULL ?                  \
-        err_message :                                                    \
-        "empty error message";                                           \
-      napi_throw_error((env), NULL, error_message);                      \
-    }                                                                    \
+#define NAPI_CALL(env, the_call)                                \
+  do {                                                          \
+    if ((the_call) != napi_ok) {                                \
+      const napi_extended_error_info *error_info;               \
+      napi_get_last_error_info((env), &error_info);             \
+      bool is_pending;                                          \
+      const char* err_message = error_info->error_message;      \
+      napi_is_exception_pending((env), &is_pending);            \
+      if (!is_pending) {                                        \
+        const char* error_message = err_message != NULL ?       \
+          err_message :                                         \
+          "empty error message";                                \
+        napi_throw_error((env), NULL, error_message);           \
+      }                                                         \
+      return NULL;                                              \
+    }                                                           \
   } while (0)
 
-#define NAPI_CALL_BASE(env, the_call, ret_val)                           \
-  do {                                                                   \
-    if ((the_call) != napi_ok) {                                         \
-      GET_AND_THROW_LAST_ERROR((env));                                   \
-      return ret_val;                                                    \
-    }                                                                    \
-  } while (0)
-
-#define NAPI_CALL(env, the_call)                                         \
-  NAPI_CALL_BASE(env, the_call, NULL)
-
-#define DECLARE_NAPI_PROPERTY(name, func)                                \
-  { (name), NULL, (func), NULL, NULL, NULL, napi_default, NULL }
-
-static napi_value Method(napi_env env, napi_callback_info info) {
+static napi_value js_hello(napi_env env, napi_callback_info info) {
   napi_value world;
   const char* str = "world";
   size_t str_len = strlen(str);
@@ -74,23 +127,53 @@ static napi_value Method(napi_env env, napi_callback_info info) {
 }
 
 NAPI_MODULE_INIT() {
-  napi_property_descriptor desc = DECLARE_NAPI_PROPERTY("hello", Method);
-  NAPI_CALL(env, napi_define_properties(env, exports, 1, &desc));
+  napi_value hello;
+  NAPI_CALL(env, napi_create_function(env, "hello", NAPI_AUTO_LENGTH,
+                                      js_hello, NULL, &hello));
+  NAPI_CALL(env, napi_set_named_property(env, exports, "hello", hello));
   return exports;
 }
 ```
 
+The C code is equivalant to the JavaScript below:
+
+```js
+module.exports = (function (exports) {
+  const hello = function hello () {
+    // native code in js_hello
+    const world = 'world'
+    return world
+  }
+
+  exports.hello = hello
+  return exports
+})(module.exports)
+```
+
 ## Buiding Source Code
 
-Compile `hello.c` using `emcc`, set include directory by `-I`, link emnapi JavaScript library by `--js-library`.
+Compile `hello.c` using `emcc`, set include directory by `-I`, export `_malloc` and `_free`, link emnapi JavaScript library by `--js-library`.
 
 ```bash
 emcc -O3 \
      -I./node_modules/@tybys/emnapi/include \
      --js-library=./node_modules/@tybys/emnapi/dist/library_napi.js \
-     -sALLOW_MEMORY_GROWTH=1 \
+     -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
      -o hello.js \
      ./node_modules/@tybys/emnapi/src/emnapi.c \
+     hello.c
+```
+
+If you installed `emnapi` via `cmake --install`, run:
+
+```bash
+emcc -O3 \
+     -I<sysroot>/include/emnapi \
+     -L<sysroot>/lib/emnapi \
+     --js-library=<sysroot>/lib/emnapi/library_napi.js \
+     -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
+     -o hello.js \
+     -lemnapi \
      hello.c
 ```
 
@@ -152,3 +235,5 @@ node ./index.js
 ```
 
 Then you can see the hello world output.
+
+If a JS error is thrown on runtime initialization, Node.js process will exit. You can use `-sNODEJS_CATCH_EXIT=0` and add `ununcaughtException` handler yourself to avoid this. Alternatively, you can use `Module.onEmnapiInitialized` callback to catch error.

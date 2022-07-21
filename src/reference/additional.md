@@ -6,6 +6,22 @@ These APIs are in `emnapi.h`.
 
 :::
 
+#### emnapi_is_support_weakref
+
+```c
+int emnapi_is_support_weakref();
+```
+
+Returns `1` if the runtime support `FinalizationRegistry` and `WeakRef`, else returns `0`.
+
+#### emnapi_is_support_bigint
+
+```c
+int emnapi_is_support_bigint();
+```
+
+Returns `1` if the runtime support `BigInt`, else returns `0`.
+
 #### emnapi_get_module_object
 
 ```c

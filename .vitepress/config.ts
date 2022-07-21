@@ -2,6 +2,7 @@ import { defineConfig, DefaultTheme } from 'vitepress'
 import tr, { Lang } from './i18n'
 
 export default defineConfig({
+  base: process.env.EMNAPI_DOCS_BASE || '/',
   lang: 'en-US',
   title: 'emnapi',
   description: 'emnapi - The Subset of Node-API implementation for Emscripten',
@@ -63,20 +64,14 @@ export default defineConfig({
 function getNav (lang: Lang): DefaultTheme.NavItem[] {
   return [
     { text: tr[lang].guide, link: `${lang}/guide/`, activeMatch: `^/(\\S+/)?guide/` },
-    {
-      text: tr[lang].apiReference,
-      link: `${lang}reference/list`,
-      activeMatch: `^/(\\S+/)?reference/`
-    },
     { text: tr[lang].examples, link: 'https://github.com/toyobayashi/node-addon-examples' },
-    { text: tr[lang].docsRepo, link: 'https://github.com/toyobayashi/emnapi-docs' },
+    { text: tr[lang].docsRepo, link: 'https://github.com/toyobayashi/emnapi-docs' }
   ]
 }
 
 function getSideBar (lang: Lang): DefaultTheme.SidebarMulti {
   return {
     [`${lang}guide/`]: getGuideSidebar(lang),
-    [`${lang}reference/`]: getReferenceSidebar(lang),
     [`${lang}`]: getGuideSidebar(lang),
   }
 }
@@ -84,12 +79,13 @@ function getSideBar (lang: Lang): DefaultTheme.SidebarMulti {
 function getGuideSidebar (lang: Lang): DefaultTheme.SidebarGroup[] {
   return [
     {
-      text: tr[lang].introduction,
+      text: tr[lang].guide,
       items: [
         { text: tr[lang].whatIsEmnapi, link: `${lang}guide/` },
         { text: tr[lang].gettingStarted, link: `${lang}guide/getting-started` },
         { text: tr[lang].usingCppWrapper, link: `${lang}guide/using-cpp` },
-        { text: tr[lang].usingCMake, link: `${lang}guide/using-cmake` }
+        { text: tr[lang].usingCMake, link: `${lang}guide/using-cmake` },
+        { text: tr[lang].errorHandling, link: `${lang}guide/error-handling` }
       ]
     },
     {
@@ -98,12 +94,7 @@ function getGuideSidebar (lang: Lang): DefaultTheme.SidebarGroup[] {
         { text: tr[lang].emnapiRuntime, link: `${lang}guide/runtime` },
         { text: tr[lang].modularization, link: `${lang}guide/modularization` }
       ]
-    }
-  ]
-}
-
-function getReferenceSidebar (lang: Lang): DefaultTheme.SidebarGroup[] {
-  return [
+    },
     {
       text: 'API',
       items: [

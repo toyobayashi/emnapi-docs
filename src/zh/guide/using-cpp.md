@@ -8,26 +8,26 @@
 
 :::
 
-Create `hello.cpp`.
+创建 `hello.cpp`。
 
 ```cpp
 #include <napi.h>
 
-Napi::String Method(const Napi::CallbackInfo& info) {
+Napi::String JsHello(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   return Napi::String::New(env, "world");
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(Napi::String::New(env, "hello"),
-              Napi::Function::New(env, Method)).Check();
+              Napi::Function::New(env, JsHello, "hello")).Check();
   return exports;
 }
 
 NODE_API_MODULE(NODE_GYP_MODULE_NAME, Init)
 ```
 
-使用 `em++` 编译 `hello.cpp`。Emscripten 默认禁用 C++ 异常，所以这里也预定义了 `-DNAPI_DISABLE_CPP_EXCEPTIONS` 和 `-DNODE_ADDON_API_ENABLE_MAYBE`。如果想启用 C++ 异常，请改用 `-sDISABLE_EXCEPTION_CATCHING=0` 并删掉 `.Check()` 调用。
+使用 `em++` 编译 `hello.cpp`。Emscripten 默认禁用 C++ 异常，所以这里也预定义了 `-DNAPI_DISABLE_CPP_EXCEPTIONS` 和 `-DNODE_ADDON_API_ENABLE_MAYBE`。如果想启用 C++ 异常，请改用 `-sDISABLE_EXCEPTION_CATCHING=0` 并删掉 `.Check()` 调用。请在[这里](https://github.com/nodejs/node-addon-api/blob/main/doc/error_handling.md)查看官方文档。
 
 ```bash
 em++ -O3 \
@@ -35,7 +35,7 @@ em++ -O3 \
      -DNODE_ADDON_API_ENABLE_MAYBE \
      -I./node_modules/@tybys/emnapi/include \
      --js-library=./node_modules/@tybys/emnapi/dist/library_napi.js \
-     -sALLOW_MEMORY_GROWTH=1 \
+     -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
      -o hello.js \
      ./node_modules/@tybys/emnapi/src/emnapi.c \
      hello.cpp

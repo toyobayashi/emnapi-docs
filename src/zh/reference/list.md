@@ -1,14 +1,40 @@
+---
+sidebarDepth: 3
+---
+
 # API 列表
 
 ## 不可用的 API
 
 ::: danger
 
-以下 API 无法实现。
+以下 API 不存在。
 
 :::
 
+#### js_native_api.h
+
 - ~~napi_create_external_arraybuffer~~ (use [emnapi_create_external_uint8array][] instead)
+
+#### node_api.h
+
+- ~~napi_module_register~~
+- ~~napi_async_init~~
+- ~~napi_async_destroy~~
+- ~~napi_make_callback~~
+- ~~napi_create_buffer~~
+- ~~napi_create_external_buffer~~
+- ~~napi_create_buffer_copy~~
+- ~~napi_is_buffer~~
+- ~~napi_get_buffer_info~~
+- ~~napi_get_uv_event_loop~~
+- ~~napi_add_env_cleanup_hook~~
+- ~~napi_remove_env_cleanup_hook~~
+- ~~napi_open_callback_scope~~
+- ~~napi_close_callback_scope~~
+- ~~napi_add_async_cleanup_hook~~
+- ~~napi_remove_async_cleanup_hook~~
+- ~~node_api_get_module_file_name~~
 
 ## 受限的 API
 
@@ -16,9 +42,11 @@
 
 ::: warning
 
-以下 API 需要 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) 和 [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 引擎 v8.4+ / Node.js v14.6.0+)，否则返回 `napi_generic_failure` 状态。只有 `Object` 和  `Function` 可以被引用，不支持 `Symbol`。
+以下 API 需要 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) 和 [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 引擎 v8.4+ / Node.js v14.6.0+)，如果运行时不支持，传入 `finalize_cb` 将导致抛错。只有 `Object` 和  `Function` 可以被引用，不支持 `Symbol`。
 
 :::
+
+#### js_native_api.h
 
 - ***napi_wrap***
 - ***napi_unwrap***
@@ -36,9 +64,11 @@
 
 ::: warning
 
-以下 API 需要 [BigInt](https://www.caniuse.com/?search=BigInt) (v8 引擎 v6.7+ / Node.js v10.4.0+)，否则返回 `napi_generic_failure` 状态。
+以下 API 需要 [BigInt](https://www.caniuse.com/?search=BigInt) (v8 引擎 v6.7+ / Node.js v10.4.0+)，如果运行时不支持，则抛出错误。
 
 :::
+
+#### js_native_api.h
 
 - ***napi_create_bigint_int64***
 - ***napi_create_bigint_uint64***
@@ -55,16 +85,20 @@
 
 :::
 
-- ***napi_create_arraybuffer*** (JS 无法实现)
+#### js_native_api.h
+
+- ***napi_create_arraybuffer*** (`data` 总是返回 `NULL`，JS 无法实现)
 - ***napi_get_arraybuffer_info*** (需要 `FinalizationRegistry`，data 是 wasm 内存中的一份拷贝)
 - ***napi_get_typedarray_info*** (需要 `FinalizationRegistry`，data 是 wasm 内存中的一份拷贝)
 - ***napi_get_dataview_info*** (需要 `FinalizationRegistry`，data 是 wasm 内存中的一份拷贝)
 
 ### 内存管理
 
+#### js_native_api.h
+
 - ***napi_adjust_external_memory*** (内部调用 `emscripten_resize_heap`, `change_in_bytes` 必须是正整数)
 
-### 多线程
+### 多线程相关
 
 ::: warning
 
@@ -79,20 +113,23 @@ Cross-Origin-Embedder-Policy: require-corp
 
 在响应头中。
 
+`async_resource` 和 `async_resource_name` 参数没有效果。
+
 :::
 
-- ***napi_create_async_work*** (`node_api.h`, `async_resource` 和 `async_resource_name` 参数没有效果)
-- ***napi_delete_async_work*** (`node_api.h`)
-- ***napi_queue_async_work*** (`node_api.h`)
-- ***napi_cancel_async_work*** (`node_api.h`)
+#### node_api.h
 
-- ***napi_create_threadsafe_function*** (`node_api.h`, `async_resource` 和 `async_resource_name` 参数没有效果)
-- ***napi_get_threadsafe_function_context*** (`node_api.h`)
-- ***napi_call_threadsafe_function*** (`node_api.h`)
-- ***napi_acquire_threadsafe_function*** (`node_api.h`)
-- ***napi_release_threadsafe_function*** (`node_api.h`)
-- ***napi_unref_threadsafe_function*** (`node_api.h`)
-- ***napi_ref_threadsafe_function*** (`node_api.h`)
+- ***napi_create_async_work***
+- ***napi_delete_async_work***
+- ***napi_queue_async_work***
+- ***napi_cancel_async_work***
+- ***napi_create_threadsafe_function***
+- ***napi_get_threadsafe_function_context***
+- ***napi_call_threadsafe_function***
+- ***napi_acquire_threadsafe_function***
+- ***napi_release_threadsafe_function***
+- ***napi_unref_threadsafe_function***
+- ***napi_ref_threadsafe_function***
 
 ## 稳定的 API
 
@@ -101,6 +138,8 @@ Cross-Origin-Embedder-Policy: require-corp
 以下 API 稳定可用！
 
 :::
+
+#### js_native_api.h
 
 - napi_get_last_error_info
 - napi_get_undefined
@@ -197,7 +236,10 @@ Cross-Origin-Embedder-Policy: require-corp
 - napi_object_seal
 - napi_type_tag_object
 - napi_check_object_type_tag
-- napi_fatal_error (`node_api.h`)
-- napi_get_node_version (`node_api.h`)
+
+#### node_api.h
+
+- napi_fatal_error
+- napi_get_node_version
 
 [emnapi_create_external_uint8array]: /zh/reference/additional.html#emnapi-create-external-uint8array
