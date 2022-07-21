@@ -1,13 +1,15 @@
 # Error handling
 
-- [Node-API documentation](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#error-handling)
-- [node-addon-api documentation](https://github.com/nodejs/node-addon-api/blob/main/doc/error_handling.md)
+本节内容参考：
+
+- [Node-API 文档](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#error-handling)
+- [node-addon-api 文档](https://github.com/nodejs/node-addon-api/blob/v5.0.0/doc/error_handling.md)
 
 ## Node-API (C)
 
-### Return Values
+### 返回值
 
-All of the Node-API functions share the same error handling pattern. The return type of all API functions is `napi_status`.
+所有 Node-API 函数共享相同的错误处理模式。所有 API 函数的返回类型都是 `napi_status`。
 
 ```c
 typedef enum {
@@ -36,19 +38,17 @@ typedef enum {
 } napi_status;
 ```
 
-The return value will be `napi_ok` if the request was successful and no uncaught JavaScript exception was thrown. If an error occurred **AND** an exception was thrown, the `napi_status` value for the error will be returned. If an exception was thrown, and no error occurred, `napi_pending_exception` will be returned.
+如果请求成功并且没有抛出未捕获的 JavaScript 异常，则返回值将为 `napi_ok`。如果发生错误**并**抛出异常，则将返回错误的 `napi_status` 值。如果抛出异常并且没有发生错误，则将返回 `napi_pending_exception`。
 
-In cases where a return value other than `napi_ok` or `napi_pending_exception` is returned, `napi_is_exception_pending` must be called to check if an exception is pending.
+在返回 `napi_ok` 或 `napi_pending_exception` 以外的返回值的情况下，必须调用 `napi_is_exception_pending` 来检查是否存在异常未处理。
 
 ```c
 napi_status napi_is_exception_pending(napi_env env, bool* result);
 ```
 
-The full set of possible `napi_status` values is defined in napi_api_types.h.
+`napi_status` 返回值提供了与 VM 无关的错误表示。在某些情况下，能够获取更详细的信息很有用，包括表示错误的字符串以及特定于 VM（引擎）的信息。
 
-The `napi_status` return value provides a VM-independent representation of the error which occurred. In some cases it is useful to be able to get more detailed information, including a string representing the error as well as VM (engine)-specific information.
-
-In order to retrieve this information `napi_get_last_error_info` is provided which returns a `napi_extended_error_info` structure.
+`napi_get_last_error_info` 用于接收此信息，它返回一个 `napi_extended_error_info` 结构。
 
 ```c
 typedef struct napi_extended_error_info {
@@ -59,14 +59,14 @@ typedef struct napi_extended_error_info {
 };
 ```
 
-- `error_message`: Textual representation of the error that occurred.
-- `engine_reserved`: Opaque handle reserved for engine use only.
-- `engine_error_code`: VM specific error code.
-- `error_code`: Node-API status code for the last error.
+- `error_message`：发生的错误的文本表示。
+- `engine_reserved`：保留仅供引擎使用的不透明指针。
+- `engine_error_code`：VM 特定的错误代码。
+- `error_code`：Node-API 最后一个错误的状态代码。
 
-### napi_get_last_error_info
+### 最后一次的错误信息
 
-`napi_get_last_error_info` returns the information for the last Node-API call that was made.
+`napi_get_last_error_info` 返回最后一次 Node-API 调用的信息。
 
 ```c
 napi_status
@@ -74,18 +74,18 @@ napi_get_last_error_info(napi_env env,
                          const napi_extended_error_info** result);
 ```
 
-- `[in] env`: The environment that the API is invoked under.
-- `[out] result`: The napi_extended_error_info structure with more information about the error.
+- `[in] env`: 调用 API 的环境。
+- `[out] result`: napi_extended_error_info 结构，包含有关错误的更多信息。
 
-This API retrieves a `napi_extended_error_info` structure with information about the last error that occurred.
+此 API 检索 `napi_extended_error_info` 结构，其中包含有关发生的最后一个错误的信息。
 
-The content of the `napi_extended_error_info` returned is only valid up until a Node-API function is called on the same env. This includes a call to `napi_is_exception_pending` so it may often be necessary to make a copy of the information so that it can be used later. The pointer returned in `error_message` points to a statically-defined string so it is safe to use that pointer if you have copied it out of the `error_message` field (which will be overwritten) before another Node-API function was called.
+返回的 `napi_extended_error_info` 的内容仅在同一环境上调用 Node-API 函数之前有效。这包括对 `napi_is_exception_pending` 的调用，因此可能经常需要复制信息以便以后使用。 `error_message` 中返回的指针指向一个静态定义的字符串，因此如果在调用另一个 Node-API 函数之前将它从 `error_message` 字段（将被覆盖）中复制出来，那么使用该指针是安全的。
 
-This API can be called even if there is a pending JavaScript exception.
+即使存在未处理的 JavaScript 异常，也可以调用此 API。
 
-### Helper Macro
+### 辅助宏
 
-That is why you can see that the `NAPI_CALL` macro is defined in the hello world example.
+这就是为什么可以看到在 hello world 示例中定义了 `NAPI_CALL` 宏。
 
 ```c {22,28-30}
 #define NAPI_CALL(env, the_call)                                \
@@ -123,120 +123,86 @@ NAPI_MODULE_INIT() {
 
 ## node-addon-api (C++)
 
-C++ exception is disabled by Emscripten default, but node-addon-api use C++ exceptions by default.
+Emscripten 默认禁用 C++ 异常，但 node-addon-api 默认使用 C++ 异常。
 
-To enable C++ exception, you should use `-sDISABLE_EXCEPTION_CATCHING=0`.
+要启用 C++ 异常，应该使用 `-sDISABLE_EXCEPTION_CATCHING=0`。
 
-To tell node-addon-api disable C++ exception, you should predefine `NAPI_DISABLE_CPP_EXCEPTIONS`.
+要告诉 node-addon-api 禁用 C++ 异常，应该预定义 `NAPI_DISABLE_CPP_EXCEPTIONS`。
 
-If you decide to use node-addon-api without C++ exceptions enabled, please consider enabling node-addon-api safe API type guards by predefining `NODE_ADDON_API_ENABLE_MAYBE` to ensure the proper exception handling pattern.
+`Napi::Error` 是对 JavaScript 错误对象的持久引用。此类的使用方式取决于是否在编译时启用了 C++ 异常。
 
-The `Napi::Error` is a persistent reference to a JavaScript error object. Use of this class depends on whether C++ exceptions are enabled at compile time.
+如果启用了 C++ 异常，则 `Napi::Error` 类继承 `std::exception` 并启用对 C++ 异常和 JavaScript 异常的集成错误处理。
 
-If C++ exceptions are enabled (for more info see: Setup), then the `Napi::Error` class extends `std::exception` and enables integrated error-handling for C++ exceptions and JavaScript exceptions.
+以下部分解释了每种情况的做法：
 
-The following sections explain the approach for each case:
+- [在启用 C++ 异常的情况下处理错误](#在启用-c-异常的情况下处理错误)
+- [在禁用 C++ 异常的情况下使用 Maybe 类型处理错误](#在禁用-c-异常的情况下使用-maybe-类型处理错误)
+- [在禁用 C++ 异常的情况下处理错误](#在禁用-c-异常的情况下处理错误)
 
-- [Handling Errors With C++ Exceptions](#handling-errors-with-c-exceptions)
-- [Handling Errors With Maybe Type and C++ Exceptions Disabled](#handling-errors-with-maybe-type-and-c-exceptions-disabled)
-- [Handling Errors Without C++ Exceptions](#handling-errors-without-c-exceptions)
+在大多数情况下，当发生错误时，原生代码应该做任何可能的清理工作，然后返回到 JavaScript 以便可以传播错误。
+在不太常见的情况下，原生代码也许能够从错误中恢复，清除错误然后继续。
 
-In most cases when an error occurs, the addon should do whatever cleanup is possible
-and then return to JavaScript so that the error can be propagated.  In less frequent
-cases the addon may be able to recover from the error, clear the error and then
-continue.
+### 在启用 C++ 异常的情况下处理错误
 
-### Handling Errors With C++ Exceptions
+当启用 C++ 异常时，try/catch 可用于捕获从调用 JavaScript 抛出的异常，然后可以在从原生函数返回之前对其进行处理或重新抛出。
 
-When C++ exceptions are enabled try/catch can be used to catch exceptions thrown
-from calls to JavaScript and then they can either be handled or rethrown before
-returning from a native method.
+如果 node-addon-api 调用失败而没有执行任何 JavaScript 代码（例如由于无效参数），则 node-addon-api 会自动转换并将错误作为 `Napi::Error` 类型的 C++ 异常抛出。
 
-If a node-addon-api call fails without executing any JavaScript code (for example due to
-an invalid argument), then node-addon-api automatically converts and throws
-the error as a C++ exception of type `Napi::Error`.
+如果 C++ 代码通过 node-addon-api 调用的 JavaScript 函数抛出 JavaScript 异常，则 node-addon-api 在从 JavaScript 代码返回到原生函数时自动将其转换为 `Napi::Error` 类型的 C++ 异常并抛出。
 
-If a JavaScript function called by C++ code via node-addon-api throws a JavaScript
-exception, then node-addon-api automatically converts and throws it as a C++
-exception of type `Napi::Error` on return from the JavaScript code to the native
-method.
+如果 `Napi::Error` 类型的 C++ 异常从 Node-API C++ 回调中逃逸，则 Node-API 包装器会自动将其转换为 JavaScript 异常并将其抛出。
 
-If a C++ exception of type `Napi::Error` escapes from a Node-API C++ callback, then
-the Node-API wrapper automatically converts and throws it as a JavaScript exception.
+从原生函数返回时，node-addon-api 将自动将待处理的 C++ 异常转换为 JavaScript 异常。
 
-On return from a native method, node-addon-api will automatically convert a pending C++
-exception to a JavaScript exception.
+### 启用 C++ 异常的例子
 
-When C++ exceptions are enabled try/catch can be used to catch exceptions thrown
-from calls to JavaScript and then they can either be handled or rethrown before
-returning from a native method.
-
-### Examples with C++ exceptions enabled
-
-#### Throwing a C++ exception
+#### 抛出 C++ 异常
 
 ```cpp
 Env env = ...
 throw Napi::Error::New(env, "Example exception");
-// other C++ statements
+// 其他 C++ 语句
 // ...
 ```
 
-The statements following the throw statement will not be executed. The exception
-will bubble up as a C++ exception of type `Napi::Error`, until it is either caught
-while still in C++, or else automatically propagated as a JavaScript exception
-when returning to JavaScript.
+throw 语句后面的语句将不会被执行。该异常将作为 `Napi::Error` 类型的 C++ 异常冒泡，直到它在仍在C++ 中时被捕获，或者在返回 JavaScript 时作为JavaScript 异常自动传播。
 
-#### Propagating a Node-API C++ exception
+#### 传播 Node-API C++ 异常
 
 ```cpp
 Napi::Function jsFunctionThatThrows = someValue.As<Napi::Function>();
 Napi::Value result = jsFunctionThatThrows({ arg1, arg2 });
-// other C++ statements
+// 其他 C++ 语句
 // ...
 ```
 
-The C++ statements following the call to the JavaScript function will not be
-executed. The exception will bubble up as a C++ exception of type `Napi::Error`,
-until it is either caught while still in C++, or else automatically propagated as
-a JavaScript exception when returning to JavaScript.
+调用 JavaScript 函数之后的 C++ 语句将不会被执行。该异常将作为 `Napi::Error` 类型的 C++ 异常冒泡，直到它仍然在 C++ 中时被捕获，或者在返回 JavaScript 时作为 JavaScript 异常自动传播。
 
-#### Handling a Node-API C++ exception
+#### 处理 Node-API C++ 异常
 
 ```cpp
 Napi::Function jsFunctionThatThrows = someValue.As<Napi::Function>();
 Napi::Value result;
 try {
     result = jsFunctionThatThrows({ arg1, arg2 });
-} catch (const Error& e) {
+} catch (const Napi::Error& e) {
     cerr << "Caught JavaScript exception: " + e.what();
 }
 ```
 
-Since the exception was caught here, it will not be propagated as a JavaScript
-exception.
+由于在此处捕获了异常，因此不会将其作为 JavaScript 异常传播。
 
-<a name="noexceptions-maybe"></a>
+### 在禁用 C++ 异常的情况下使用 Maybe 类型处理错误
 
-### Handling Errors With Maybe Type and C++ Exceptions Disabled
+如果你决定在未启用 C++ 异常的情况下使用 node-addon-api，请考虑通过预定义 `NODE_ADDON_API_ENABLE_MAYBE` 来启用 node-addon-api 安全 API 类型保护，以确保正确的异常处理模式。
 
-If C++ exceptions are disabled, then the
-`Napi::Error` class does not extend `std::exception`. This means that any calls to
-node-addon-api functions do not throw a C++ exceptions. Instead, these node-api
-functions that call into JavaScript are returning with `Maybe` boxed values.
-In that case, the calling side should convert the `Maybe` boxed values with
-checks to ensure that the call did succeed and therefore no exception is pending.
-If the check fails, that is to say, the returning value is _empty_, the calling
-side should determine what to do with `env.GetAndClearPendingException()` before
-attempting to call another node-api.
+如果禁用 C++ 异常，则 `Napi::Error` 类不会继承 `std::exception`。这意味着对 node-addon-api 函数的任何调用都不会抛出 C++ 异常。相反，这些调用 JavaScript 的 node-api 函数返回的是 `Maybe` 装箱的值。在这种情况下，调用方应该通过检查转换 `Maybe` 装箱的值，以确保调用确实成功且没有异常未处理。如果检查失败，即返回值为*空*，调用方应在尝试调用另一个 node-api 之前确定如何处理 `env.GetAndClearPendingException()`。
 
-The conversion from the `Maybe` boxed value to the actual return value is
-enforced by compilers so that the exceptions must be properly handled before
-continuing.
+从 `Maybe` 装箱值到实际返回值的转换由编译器强制执行，因此在继续之前必须正确处理异常。
 
-### Examples with Maybe Type and C++ exceptions disabled
+### 禁用 C++ 异常并使用 Maybe 类型的例子
 
-#### Throwing a JS exception
+#### 抛出 JS 异常
 
 ```cpp
 Napi::Env env = ...
@@ -244,10 +210,9 @@ Napi::Error::New(env, "Example exception").ThrowAsJavaScriptException();
 return;
 ```
 
-After throwing a JavaScript exception, the code should generally return
-immediately from the native callback, after performing any necessary cleanup.
+抛出 JavaScript 异常后，代码通常应在执行任何必要的清理后立即从原生回调中返回。
 
-#### Propagating a Node-API JS exception
+#### 传播 Node-API JS 异常
 
 ```cpp
 Napi::Env env = ...
@@ -255,17 +220,16 @@ Napi::Function jsFunctionThatThrows = someValue.As<Napi::Function>();
 Maybe<Napi::Value> maybeResult = jsFunctionThatThrows({ arg1, arg2 });
 Napi::Value result;
 if (!maybeResult.To(&result)) {
-    // The Maybe is empty, calling into js failed, cleaning up...
-    // It is recommended to return an empty Maybe if the procedure failed.
+    // Maybe 是空的，调用 JS 失败，清理 ...
+    // 建议返回一个空的 Maybe。
     return result;
 }
 ```
 
-If `maybeResult.To(&result)` returns false a JavaScript exception is pending.
-To let the exception propagate, the code should generally return immediately
-from the native callback, after performing any necessary cleanup.
+如果 `maybeResult.To(&result)` 返回 false，则 JavaScript 异常处于未处理状态。
+为了让异常传播，代码通常应该在执行任何必要的清理之后立即从原生回调中返回。
 
-#### Handling a Node-API JS exception
+#### 处理 Node-API JS 异常
 
 ```cpp
 Napi::Env env = ...
@@ -277,26 +241,15 @@ if (maybeResult.IsNothing()) {
 }
 ```
 
-Since the exception was cleared here, it will not be propagated as a JavaScript
-exception after the native callback returns.
+由于这里清除了异常，所以在原生回调返回后不会作为 JavaScript 异常传播。
 
-<a name="noexceptions"></a>
+### 在禁用 C++ 异常的情况下处理错误
 
-### Handling Errors Without C++ Exceptions
+如果禁用 C++ 异常，则 `Napi::Error` 类不会继承 `std::exception`。这意味着对 node-addon-api 函数的任何调用都不会抛出 C++ 异常。相反，它会引发*待处理*的 JavaScript 异常并返回一个*空*的 `Napi::Value`。调用代码应该在尝试使用返回值之前检查 `env.IsExceptionPending()`，并且可以使用 `Napi::Env` 类上的方法来检查、获取和清除未处理的 JavaScript 异常。如果未清除未处理的异常，将在原生代码返回 JavaScript 时抛出。
 
-If C++ exceptions are disabled, then the
-`Napi::Error` class does not extend `std::exception`. This means that any calls to
-node-addon-api function do not throw a C++ exceptions. Instead, it raises
-_pending_ JavaScript exceptions and returns an _empty_ `Napi::Value`.
-The calling code should check `env.IsExceptionPending()` before attempting to use a
-returned value, and may use methods on the `Napi::Env` class
-to check for, get, and clear a pending JavaScript exception.
-If the pending exception is not cleared, it will be thrown when the native code
-returns to JavaScript.
+### 禁用 C++ 异常的例子
 
-### Examples with C++ exceptions disabled
-
-#### Throwing a JS exception
+#### 抛出 JS 异常
 
 ```cpp
 Napi::Env env = ...
@@ -304,10 +257,9 @@ Napi::Error::New(env, "Example exception").ThrowAsJavaScriptException();
 return;
 ```
 
-After throwing a JavaScript exception, the code should generally return
-immediately from the native callback, after performing any necessary cleanup.
+抛出 JavaScript 异常后，代码通常应在执行任何必要的清理后立即从原生回调返回。
 
-### Propagating a Node-API JS exception
+### 传播 Node-API JS 异常
 
 ```cpp
 Napi::Env env = ...
@@ -319,11 +271,9 @@ if (env.IsExceptionPending()) {
 }
 ```
 
-If `env.IsExceptionPending()` returns true a JavaScript exception is pending. To
-let the exception propagate, the code should generally return immediately from
-the native callback, after performing any necessary cleanup.
+如果 `env.IsExceptionPending()` 返回 true，则 JavaScript 异常处于未处理状态。为了让异常传播，代码通常应该在执行任何必要的清理之后立即从原生回调返回。
 
-#### Handling a Node-API JS exception
+#### 处理 Node-API JS 异常
 
 ```cpp
 Napi::Env env = ...
@@ -335,36 +285,25 @@ if (env.IsExceptionPending()) {
 }
 ```
 
-Since the exception was cleared here, it will not be propagated as a JavaScript
-exception after the native callback returns.
+由于这里清除了异常，所以在原生回调返回后不会作为 JavaScript 异常传播。
 
-### Calling Node-API directly from a **node-addon-api** addon
+### 直接从调用 Node-API
 
-**node-addon-api** provides macros for throwing errors in response to non-OK
-`napi_status` results when calling Node-API
-functions from within a native addon. These macros are defined differently
-depending on whether C++ exceptions are enabled or not, but are available for
-use in either case.
+**node-addon-api** 提供了在调用 Node-API 函数时抛出错误以响应非 OK `napi_status` 结果的宏。
+根据是否启用 C++ 异常，这些宏的定义不同，但在任何一种情况下都可以使用。
 
 #### `NAPI_THROW(e, ...)`
 
-This macro accepts a `Napi::Error`, throws it, and returns the value given as
-the last parameter. If C++ exceptions are enabled (by defining
-`NAPI_CPP_EXCEPTIONS` during the build), the return value will be ignored.
+这个宏接受一个 `Napi::Error` 并抛出，返回最后一个参数给出的值。如果启用了 C++ 异常（通过在构建期间定义 `NAPI_CPP_EXCEPTIONS`），则返回值将被忽略。
 
 #### `NAPI_THROW_IF_FAILED(env, status, ...)`
 
-This macro accepts a `Napi::Env` and a `napi_status`. It constructs an error
-from the `napi_status`, throws it, and returns the value given as the last
-parameter. If C++ exceptions are enabled (by defining `NAPI_CPP_EXCEPTIONS`
-during the build), the return value will be ignored.
+这个宏接受一个 `Napi::Env` 和一个 `napi_status`。它从 `napi_status` 构造一个错误并抛出，返回最后一个参数给出的值。如果启用了 C++ 异常（通过在构建期间定义 `NAPI_CPP_EXCEPTIONS`），则返回值将被忽略。
 
 #### `NAPI_THROW_IF_FAILED_VOID(env, status)`
 
-This macro accepts a `Napi::Env` and a `napi_status`. It constructs an error
-from the `napi_status`, throws it, and returns.
+这个宏接受一个 `Napi::Env` 和一个 `napi_status`。它从 `napi_status` 构造一个错误并抛出，然后返回。
 
 #### `NAPI_FATAL_IF_FAILED(status, location, message)`
 
-This macro accepts a `napi_status`, a C string indicating the location where the
-error occurred, and a second C string for the message to display.
+此宏接受一个 `napi_status`、一个指示错误发生位置的 C 字符串，以及用于显示消息的第二个 C 字符串。

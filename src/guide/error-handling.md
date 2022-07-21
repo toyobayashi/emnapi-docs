@@ -1,7 +1,9 @@
 # Error handling
 
+The content of this section refers:
+
 - [Node-API documentation](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#error-handling)
-- [node-addon-api documentation](https://github.com/nodejs/node-addon-api/blob/main/doc/error_handling.md)
+- [node-addon-api documentation](https://github.com/nodejs/node-addon-api/blob/v5.0.0/doc/error_handling.md)
 
 ## Node-API (C)
 
@@ -44,8 +46,6 @@ In cases where a return value other than `napi_ok` or `napi_pending_exception` i
 napi_status napi_is_exception_pending(napi_env env, bool* result);
 ```
 
-The full set of possible `napi_status` values is defined in napi_api_types.h.
-
 The `napi_status` return value provides a VM-independent representation of the error which occurred. In some cases it is useful to be able to get more detailed information, including a string representing the error as well as VM (engine)-specific information.
 
 In order to retrieve this information `napi_get_last_error_info` is provided which returns a `napi_extended_error_info` structure.
@@ -64,7 +64,7 @@ typedef struct napi_extended_error_info {
 - `engine_error_code`: VM specific error code.
 - `error_code`: Node-API status code for the last error.
 
-### napi_get_last_error_info
+### Last Error Info
 
 `napi_get_last_error_info` returns the information for the last Node-API call that was made.
 
@@ -129,11 +129,9 @@ To enable C++ exception, you should use `-sDISABLE_EXCEPTION_CATCHING=0`.
 
 To tell node-addon-api disable C++ exception, you should predefine `NAPI_DISABLE_CPP_EXCEPTIONS`.
 
-If you decide to use node-addon-api without C++ exceptions enabled, please consider enabling node-addon-api safe API type guards by predefining `NODE_ADDON_API_ENABLE_MAYBE` to ensure the proper exception handling pattern.
-
 The `Napi::Error` is a persistent reference to a JavaScript error object. Use of this class depends on whether C++ exceptions are enabled at compile time.
 
-If C++ exceptions are enabled (for more info see: Setup), then the `Napi::Error` class extends `std::exception` and enables integrated error-handling for C++ exceptions and JavaScript exceptions.
+If C++ exceptions are enabled, then the `Napi::Error` class extends `std::exception` and enables integrated error-handling for C++ exceptions and JavaScript exceptions.
 
 The following sections explain the approach for each case:
 
@@ -141,9 +139,9 @@ The following sections explain the approach for each case:
 - [Handling Errors With Maybe Type and C++ Exceptions Disabled](#handling-errors-with-maybe-type-and-c-exceptions-disabled)
 - [Handling Errors Without C++ Exceptions](#handling-errors-without-c-exceptions)
 
-In most cases when an error occurs, the addon should do whatever cleanup is possible
+In most cases when an error occurs, the native code should do whatever cleanup is possible
 and then return to JavaScript so that the error can be propagated.  In less frequent
-cases the addon may be able to recover from the error, clear the error and then
+cases the native code may be able to recover from the error, clear the error and then
 continue.
 
 ### Handling Errors With C++ Exceptions
@@ -166,10 +164,6 @@ the Node-API wrapper automatically converts and throws it as a JavaScript except
 
 On return from a native method, node-addon-api will automatically convert a pending C++
 exception to a JavaScript exception.
-
-When C++ exceptions are enabled try/catch can be used to catch exceptions thrown
-from calls to JavaScript and then they can either be handled or rethrown before
-returning from a native method.
 
 ### Examples with C++ exceptions enabled
 
@@ -208,7 +202,7 @@ Napi::Function jsFunctionThatThrows = someValue.As<Napi::Function>();
 Napi::Value result;
 try {
     result = jsFunctionThatThrows({ arg1, arg2 });
-} catch (const Error& e) {
+} catch (const Napi::Error& e) {
     cerr << "Caught JavaScript exception: " + e.what();
 }
 ```
@@ -216,9 +210,9 @@ try {
 Since the exception was caught here, it will not be propagated as a JavaScript
 exception.
 
-<a name="noexceptions-maybe"></a>
-
 ### Handling Errors With Maybe Type and C++ Exceptions Disabled
+
+If you decide to use node-addon-api without C++ exceptions enabled, please consider enabling node-addon-api safe API type guards by predefining `NODE_ADDON_API_ENABLE_MAYBE` to ensure the proper exception handling pattern.
 
 If C++ exceptions are disabled, then the
 `Napi::Error` class does not extend `std::exception`. This means that any calls to
@@ -280,8 +274,6 @@ if (maybeResult.IsNothing()) {
 Since the exception was cleared here, it will not be propagated as a JavaScript
 exception after the native callback returns.
 
-<a name="noexceptions"></a>
-
 ### Handling Errors Without C++ Exceptions
 
 If C++ exceptions are disabled, then the
@@ -338,11 +330,11 @@ if (env.IsExceptionPending()) {
 Since the exception was cleared here, it will not be propagated as a JavaScript
 exception after the native callback returns.
 
-### Calling Node-API directly from a **node-addon-api** addon
+### Calling Node-API directly
 
 **node-addon-api** provides macros for throwing errors in response to non-OK
 `napi_status` results when calling Node-API
-functions from within a native addon. These macros are defined differently
+functions. These macros are defined differently
 depending on whether C++ exceptions are enabled or not, but are available for
 use in either case.
 

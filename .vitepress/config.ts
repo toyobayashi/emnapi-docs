@@ -71,7 +71,7 @@ function getSideBar (lang: Lang): DefaultTheme.MultiSideBarConfig {
 function getGuideSidebar (lang: Lang): DefaultTheme.SideBarItem[] {
   return [
     {
-      text: tr[lang].introduction,
+      text: tr[lang].guide,
       children: [
         { text: tr[lang].whatIsEmnapi, link: `${lang}guide/` },
         { text: tr[lang].gettingStarted, link: `${lang}guide/getting-started` },
