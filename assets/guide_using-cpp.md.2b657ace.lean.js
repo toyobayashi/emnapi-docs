@@ -1,0 +1,1 @@
+import{_ as n,c as a,o as s,a as o}from"./app.aefd0482.js";const h='{"title":"Using C++ Wrapper","description":"","frontmatter":{},"headers":[],"relativePath":"guide/using-cpp.md","lastUpdated":1658419677000}',t={},p=o("",7),e=[p];function c(l,u,i,r,d,k){return s(),a("div",null,e)}var b=n(t,[["render",c]]);export{h as __pageData,b as default};
