@@ -44,25 +44,16 @@ These APIs don't exist.
 
 Only `Object` and  `Function` can be referenced, `Symbol` is not support.
 
-These APIs require [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) and [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 engine v8.4+ / Node.js v14.6.0+), if the runtime does not support, all references are strong references no matter their reference count is 0 or not. The limitations of these APIs are listed below
+If the runtime does not support [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) and [WeakRef](https://www.caniuse.com/?search=WeakRef), The following APIs have some limitations, and all references are strong references no matter their reference count is 0 or not.
 
 :::
 
 #### js_native_api.h
 
 - ***napi_wrap***: `finalize_cb` and `result` must be `NULL`, user must call `napi_remove_wrap` later
-- ***napi_unwrap***: No limitation
-- ***napi_remove_wrap***: No limitation
----
 - ***napi_create_external***: `finalize_cb` must be `NULL`
-- ***napi_get_value_external***: No limitation
----
 - ***napi_create_reference***: Create strong reference even if `0` is passed to `initial_refcount`
-- ***napi_delete_reference***: No limitation
-- ***napi_reference_ref***: No limitation
 - ***napi_reference_unref***: The reference is still a strong reference even the count is `0`
-- ***napi_get_reference_value***: No limitation
----
 - ***napi_add_finalizer***: Unavailable, always throws error
 
 ### BigInt related
@@ -136,11 +127,11 @@ The `async_resource` and `async_resource_name` parameter have no effect.
 - ***napi_unref_threadsafe_function***
 - ***napi_ref_threadsafe_function***
 
-## Stable
+## Available Anytime
 
 ::: tip
 
-These APIs are stable!
+Feel free to use the following APIs.
 
 :::
 
@@ -241,6 +232,12 @@ These APIs are stable!
 - napi_object_seal
 - napi_type_tag_object
 - napi_check_object_type_tag
+- napi_unwrap
+- napi_remove_wrap
+- napi_get_value_external
+- napi_delete_reference
+- napi_reference_ref
+- napi_get_reference_value
 
 #### node_api.h
 

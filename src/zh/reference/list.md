@@ -44,25 +44,16 @@ sidebarDepth: 3
 
 只有 `Object` 和  `Function` 可以被引用，不支持 `Symbol`。
 
-以下 API 需要 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) 和 [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 引擎 v8.4+ / Node.js v14.6.0+)，如果运行时不支持，所有引用都是强引用，无论它们的引用计数是否为 0。下面列出了这些 API 的限制
+如果运行时不支持 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) 和 [WeakRef](https://www.caniuse.com/?search=WeakRef)，下面的 API 有一定的限制，无论引用计数是否为 0，所有引用都是强引用。
 
 :::
 
 #### js_native_api.h
 
 - ***napi_wrap***: `finalize_cb` 和 `result` 必须传 `NULL`, 稍后必须调用 `napi_remove_wrap`
-- ***napi_unwrap***: 无限制
-- ***napi_remove_wrap***: 无限制
----
 - ***napi_create_external***: `finalize_cb` 必须传 `NULL`
-- ***napi_get_value_external***: 无限制
----
 - ***napi_create_reference***: 即使传 `0` 给 `initial_refcount` 也创建强引用
-- ***napi_delete_reference***: 无限制
-- ***napi_reference_ref***: 无限制
 - ***napi_reference_unref***: 即使计数为 0，该引用仍然是强引用
-- ***napi_get_reference_value***: 无限制
----
 - ***napi_add_finalizer***: 不可用，总是抛出错误
 
 ### BigInt 相关
@@ -136,11 +127,11 @@ Cross-Origin-Embedder-Policy: require-corp
 - ***napi_unref_threadsafe_function***
 - ***napi_ref_threadsafe_function***
 
-## 稳定的 API
+## 任何时候都可用的 API
 
 ::: tip
 
-以下 API 稳定可用！
+请放心使用以下 API。
 
 :::
 
@@ -241,6 +232,12 @@ Cross-Origin-Embedder-Policy: require-corp
 - napi_object_seal
 - napi_type_tag_object
 - napi_check_object_type_tag
+- napi_unwrap
+- napi_remove_wrap
+- napi_get_value_external
+- napi_delete_reference
+- napi_reference_ref
+- napi_get_reference_value
 
 #### node_api.h
 
