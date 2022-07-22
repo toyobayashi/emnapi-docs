@@ -5,7 +5,7 @@ The content of this section refers:
 - [Node-API documentation](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#error-handling)
 - [node-addon-api documentation](https://github.com/nodejs/node-addon-api/blob/v5.0.0/doc/error_handling.md)
 
-## Node-API (C)
+## Node-API
 
 ### Return Values
 
@@ -121,7 +121,7 @@ NAPI_MODULE_INIT() {
 }
 ```
 
-## node-addon-api (C++)
+## node-addon-api
 
 C++ exception is disabled by Emscripten default, but node-addon-api use C++ exceptions by default.
 

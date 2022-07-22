@@ -15,7 +15,7 @@ Module.onRuntimeInitialized = function () {
 }
 ```
 
-### Node-API (C) Implementation
+### Node-API Implementation
 
 ```c
 #include <node_api.h>
@@ -85,7 +85,7 @@ NAPI_MODULE_INIT() {
 }
 ```
 
-### node-addon-api (C++) Implementation
+### node-addon-api Implementation
 
 ```cpp
 #include <napi.h>
@@ -139,7 +139,7 @@ Module.onRuntimeInitialized = function () {
 }
 ```
 
-### Node-API (C) Implementation
+### Node-API Implementation
 
 ```c
 static napi_value js_concat_string(napi_env env, napi_callback_info info) {
@@ -203,7 +203,7 @@ static napi_value js_concat_string(napi_env env, napi_callback_info info) {
 }
 ```
 
-### node-addon-api (C++) Implementation
+### node-addon-api Implementation
 
 ```cpp
 Napi::Value JsConcatString(const Napi::CallbackInfo& info) {

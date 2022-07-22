@@ -5,7 +5,7 @@
 - [Node-API 文档](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#error-handling)
 - [node-addon-api 文档](https://github.com/nodejs/node-addon-api/blob/v5.0.0/doc/error_handling.md)
 
-## Node-API (C)
+## Node-API
 
 ### 返回值
 
@@ -121,7 +121,7 @@ NAPI_MODULE_INIT() {
 }
 ```
 
-## node-addon-api (C++)
+## node-addon-api
 
 Emscripten 默认禁用 C++ 异常，但 node-addon-api 默认使用 C++ 异常。
 

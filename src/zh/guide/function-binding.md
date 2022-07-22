@@ -15,7 +15,7 @@ Module.onRuntimeInitialized = function () {
 }
 ```
 
-### Node-API (C) 实现
+### Node-API 实现
 
 ```c
 #include <node_api.h>
@@ -85,7 +85,7 @@ NAPI_MODULE_INIT() {
 }
 ```
 
-### node-addon-api (C++) 实现
+### node-addon-api 实现
 
 ```cpp
 #include <napi.h>
@@ -121,7 +121,7 @@ NODE_API_MODULE(NODE_GYP_MODULE_NAME, Init)
 
 ## 传递回调函数
 
-Let's change the example above, passing a JavaScript callback to receive the concat result.
+让我们改一下上面的例子，传递一个 JavaScript 回调函数来接收字符串连接的结果。
 
 ```ts
 export declare function concatString (
@@ -139,7 +139,7 @@ Module.onRuntimeInitialized = function () {
 }
 ```
 
-### Node-API (C) 实现
+### Node-API 实现
 
 ```c
 static napi_value js_concat_string(napi_env env, napi_callback_info info) {
@@ -205,7 +205,7 @@ static napi_value js_concat_string(napi_env env, napi_callback_info info) {
 }
 ```
 
-### node-addon-api (C++) 实现
+### node-addon-api 实现
 
 ```cpp
 Napi::Value JsConcatString(const Napi::CallbackInfo& info) {
