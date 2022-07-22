@@ -11,6 +11,7 @@ const tr = {
     usingCMake: 'Using CMake',
     errorHandling: 'Error Handling',
     functionBinding: 'Function Binding',
+    classBinding: 'Class Binding',
 
     advanced: 'Advanced',
     emnapiRuntime: 'emnapi Runtime',
@@ -31,6 +32,7 @@ const tr = {
     usingCMake: '使用 CMake',
     errorHandling: '错误处理',
     functionBinding: '函数绑定',
+    classBinding: '类绑定',
 
     advanced: '进阶',
     emnapiRuntime: 'emnapi 运行时',

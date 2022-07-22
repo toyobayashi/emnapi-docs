@@ -123,6 +123,13 @@ NAPI_MODULE_INIT() {
 
 ## node-addon-api
 
+::: warning
+
+You **can not** use node-addon-api 
+if the runtime does not support `FinalizationRegistry` and `WeakRef`.
+
+:::
+
 C++ exception is disabled by Emscripten default, but node-addon-api use C++ exceptions by default.
 
 To enable C++ exception, you should use `-sDISABLE_EXCEPTION_CATCHING=0`.

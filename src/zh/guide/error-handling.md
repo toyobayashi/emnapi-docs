@@ -123,6 +123,12 @@ NAPI_MODULE_INIT() {
 
 ## node-addon-api
 
+::: warning
+
+如果运行时不支持 `FinalizationRegistry` 和 `WeakRef`则**不能**使用 node-addon-api。
+
+:::
+
 Emscripten 默认禁用 C++ 异常，但 node-addon-api 默认使用 C++ 异常。
 
 要启用 C++ 异常，应该使用 `-sDISABLE_EXCEPTION_CATCHING=0`。

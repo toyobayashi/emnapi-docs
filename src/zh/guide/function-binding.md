@@ -87,6 +87,12 @@ NAPI_MODULE_INIT() {
 
 ### node-addon-api 实现
 
+::: warning
+
+如果运行时不支持 `FinalizationRegistry` 和 `WeakRef`则**不能**使用 node-addon-api。
+
+:::
+
 ```cpp
 #include <napi.h>
 
@@ -206,6 +212,12 @@ static napi_value js_concat_string(napi_env env, napi_callback_info info) {
 ```
 
 ### node-addon-api 实现
+
+::: warning
+
+如果运行时不支持 `FinalizationRegistry` 和 `WeakRef`则**不能**使用 node-addon-api。
+
+:::
 
 ```cpp
 Napi::Value JsConcatString(const Napi::CallbackInfo& info) {

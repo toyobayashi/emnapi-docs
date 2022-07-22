@@ -24,7 +24,11 @@ Building with `emcmake`, output `build/hello.js` and `build/hello.wasm`.
 
 ```bash
 mkdir build
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
+emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
+
+# Windows
+# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
+
 cmake --build build
 ```
 

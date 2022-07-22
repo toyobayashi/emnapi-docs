@@ -24,7 +24,11 @@ target_link_options(hello PRIVATE
 
 ```bash
 mkdir build
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
+emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
+
+# Windows
+# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
+
 cmake --build build
 ```
 

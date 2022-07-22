@@ -87,6 +87,13 @@ NAPI_MODULE_INIT() {
 
 ### node-addon-api Implementation
 
+::: warning
+
+You **can not** use node-addon-api 
+if the runtime does not support `FinalizationRegistry` and `WeakRef`.
+
+:::
+
 ```cpp
 #include <napi.h>
 
@@ -204,6 +211,13 @@ static napi_value js_concat_string(napi_env env, napi_callback_info info) {
 ```
 
 ### node-addon-api Implementation
+
+::: warning
+
+You **can not** use node-addon-api 
+if the runtime does not support `FinalizationRegistry` and `WeakRef`.
+
+:::
 
 ```cpp
 Napi::Value JsConcatString(const Napi::CallbackInfo& info) {
