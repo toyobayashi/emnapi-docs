@@ -1,6 +1,9 @@
+import { join, dirname } from 'path'
 import { defineConfig, DefaultTheme } from 'vitepress'
 import tr, { Lang } from './i18n'
-import { join, dirname } from 'node:path'
+
+const publicDir = join(dirname(import.meta.url.substring(8)), '../public')
+console.log(`publicDir: ${publicDir}`)
 
 export default defineConfig({
   base: process.env.EMNAPI_DOCS_BASE || '/',
@@ -12,7 +15,7 @@ export default defineConfig({
   scrollOffset: 'header',
 
   vite: {
-    publicDir: join(dirname(import.meta.url.substring(8)), '../public')
+    publicDir
   },
 
   locales: {
