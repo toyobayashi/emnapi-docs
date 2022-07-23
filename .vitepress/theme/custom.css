@@ -1,5 +1,9 @@
 
 :root {
-  --c-brand: #646cff;
-  --c-brand-light: #747bff;
+  --c-brand: #81a31c;
+  --c-brand-light: #8bb11b;
+}
+
+.nav-bar-title .logo {
+  height: 2rem;
 }

@@ -1,7 +1,7 @@
 ---
 home: true
-# heroImage: /logo.png
-# heroAlt: Logo image
+heroImage: /emnapi.svg
+heroAlt: emnapi image
 heroText: emnapi
 tagline: 适用于 Emscripten 的 Node-API 子集实现
 actionText: 开始使用

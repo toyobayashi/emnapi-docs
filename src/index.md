@@ -1,7 +1,7 @@
 ---
 home: true
-# heroImage: /logo.png
-# heroAlt: Logo image
+heroImage: /emnapi.svg
+heroAlt: emnapi image
 heroText: emnapi
 tagline: A Subset of Node-API Implementation for Emscripten
 actionText: Get Started

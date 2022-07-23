@@ -19,6 +19,7 @@ export default defineConfig({
   },
 
   themeConfig: {
+    logo: '/emnapi.svg',
     repo: 'toyobayashi/emnapi-docs',
     repoLabel: 'Docs Repo',
     docsBranch: 'main',
