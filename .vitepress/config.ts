@@ -1,8 +1,19 @@
-import { join, dirname } from 'path'
+import { join, dirname } from 'node:path'
 import { defineConfig, DefaultTheme } from 'vitepress'
 import tr, { Lang } from './i18n'
 
-const publicDir = join(dirname(import.meta.url.substring(8)), '../public')
+function getFilename () {
+  if (process.platform === 'win32') {
+    return import.meta.url.replace(/^file:\/+/, '').replace(/\//g, '\\')
+  }
+  return import.meta.url.substring(7)
+}
+
+function getDirname () {
+  return dirname(getFilename())
+}
+
+const publicDir = join(getDirname(), '../public')
 console.log(`publicDir: ${publicDir}`)
 
 export default defineConfig({
