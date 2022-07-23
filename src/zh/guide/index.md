@@ -2,9 +2,15 @@
 sidebarDepth: 2
 ---
 
+<script setup>
+
+import { withBase } from 'vitepress'
+
+</script>
+
 # 什么是 emnapi
 
-<img :src="'/emnapi.svg'" alt="emnapi logo" width="256" />
+<img :src="withBase('/emnapi.svg')" alt="emnapi logo" width="256" />
 
 `emnapi` 适用于 Emscripten 的 [Node-API](https://nodejs.org/docs/v16.15.0/api/n-api.html) 子集实现。
 
