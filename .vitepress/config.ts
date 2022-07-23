@@ -1,5 +1,6 @@
 import { defineConfig, DefaultTheme } from 'vitepress'
 import tr, { Lang } from './i18n'
+import { join, dirname } from 'node:path'
 
 export default defineConfig({
   base: process.env.EMNAPI_DOCS_BASE || '/',
@@ -9,6 +10,10 @@ export default defineConfig({
   lastUpdated: true,
   srcDir: 'src',
   scrollOffset: 'header',
+
+  vite: {
+    publicDir: join(dirname(import.meta.url.substring(8)), '../public')
+  },
 
   locales: {
     '/': { lang: 'en-US' },
