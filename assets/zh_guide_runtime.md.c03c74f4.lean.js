@@ -1,1 +1,0 @@
-import{_ as n,o as a,c as s,a as t}from"./app.1acbcc36.js";const g='{"title":"emnapi \u8FD0\u884C\u65F6","description":"","frontmatter":{},"headers":[],"relativePath":"zh/guide/runtime.md","lastUpdated":1658586974000}',p={},e=t("",4),o=[e];function c(l,i,u,r,k,d){return a(),s("div",null,o)}var _=n(p,[["render",c]]);export{g as __pageData,_ as default};
