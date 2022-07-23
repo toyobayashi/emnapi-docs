@@ -34,7 +34,7 @@ cmake --build build
 
 如果在 Windows 上未安装 `make` 或 `mingw32-make`，请在 `Visual Studio Developer Command Prompt` 中跑下面的构建命令。
 
-```bat
+```bash
 mkdir build
 emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=nmake -G "NMake Makefiles" -H. -Bbuild
 cmake --build build

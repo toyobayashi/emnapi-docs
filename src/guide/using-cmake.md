@@ -34,7 +34,7 @@ cmake --build build
 
 If you have not installed `make` or `mingw32-make` on Windows, execute commands below in `Visual Studio Developer Command Prompt`.
 
-```bat
+```bash
 mkdir build
 emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=nmake -G "NMake Makefiles" -H. -Bbuild
 cmake --build build

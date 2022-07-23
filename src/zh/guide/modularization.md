@@ -108,7 +108,7 @@ emcc -o glue.js -O3 --js-transform "emwrap --name=myWasmLib" main.c
 
 Windows:
 
-```bat
+```bash
 emcc -o glue.js -O3 --js-transform "emwrap.cmd --name=myWasmLib" main.c
 ```
 
