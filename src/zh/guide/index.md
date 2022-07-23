@@ -4,6 +4,8 @@ sidebarDepth: 2
 
 # 什么是 emnapi
 
+<img :src="'/emnapi.svg'" alt="emnapi logo" width="256" />
+
 `emnapi` 适用于 Emscripten 的 [Node-API](https://nodejs.org/docs/v16.15.0/api/n-api.html) 子集实现。
 
 ## 动机

@@ -4,6 +4,8 @@ sidebarDepth: 2
 
 # What is emnapi
 
+<img :src="'/emnapi.svg'" alt="emnapi logo" width="256" />
+
 `emnapi` is a subset of [**N**ode-**API**](https://nodejs.org/docs/v16.15.0/api/n-api.html) (named NAPI previously) implementation for **Em**scripten.
 
 ## Motivation
