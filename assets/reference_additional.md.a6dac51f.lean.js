@@ -1,0 +1,1 @@
+import{_ as e,o as n,c as a,a as s}from"./app.1acbcc36.js";const k='{"title":"Additional APIs","description":"","frontmatter":{},"headers":[],"relativePath":"reference/additional.md","lastUpdated":1658586974000}',t={},o=s("",27),i=[o];function p(c,r,d,l,u,h){return n(),a("div",null,i)}var m=e(t,[["render",p]]);export{k as __pageData,m as default};
