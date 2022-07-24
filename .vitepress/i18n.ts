@@ -13,6 +13,7 @@ const tr = {
     functionBinding: 'Function Binding',
     classBinding: 'Class Binding',
     multithreadedAsync: 'Multithreaded Asynchronous Operations',
+    faq: 'FAQ',
 
     advanced: 'Advanced',
     emnapiRuntime: 'emnapi Runtime',
@@ -35,6 +36,7 @@ const tr = {
     functionBinding: '函数绑定',
     classBinding: '类绑定',
     multithreadedAsync: '多线程异步',
+    faq: '常见问题',
 
     advanced: '进阶',
     emnapiRuntime: 'emnapi 运行时',
