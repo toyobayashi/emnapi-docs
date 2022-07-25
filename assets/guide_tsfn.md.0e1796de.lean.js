@@ -1,0 +1,1 @@
+import{_ as e,o as a,c as n,a as t}from"./app.ac372f24.js";const u='{"title":"Thread Safe function","description":"","frontmatter":{},"headers":[],"relativePath":"guide/tsfn.md","lastUpdated":1658753133000}',r={},s=t("",8),o=[s];function i(p,c,_,d,l,f){return a(),n("div",null,o)}var m=e(r,[["render",i]]);export{u as __pageData,m as default};

@@ -1,0 +1,1 @@
+import{_ as e,o as a,c as n,a as t}from"./app.ac372f24.js";const u='{"title":"\u7EBF\u7A0B\u5B89\u5168\u51FD\u6570","description":"","frontmatter":{},"headers":[],"relativePath":"zh/guide/tsfn.md","lastUpdated":1658753133000}',r={},s=t("",8),o=[s];function p(i,c,_,l,d,h){return a(),n("div",null,o)}var g=e(r,[["render",p]]);export{u as __pageData,g as default};

@@ -1,1 +1,0 @@
-import{_ as n,o as s,c as a,a as t}from"./app.f210b7a4.js";const g='{"title":"emnapi Runtime","description":"","frontmatter":{},"headers":[],"relativePath":"guide/runtime.md","lastUpdated":1658677689000}',p={},e=t("",4),o=[e];function c(i,l,u,r,k,d){return s(),a("div",null,o)}var _=n(p,[["render",c]]);export{g as __pageData,_ as default};
