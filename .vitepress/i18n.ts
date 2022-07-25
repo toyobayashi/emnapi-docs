@@ -13,6 +13,7 @@ const tr = {
     functionBinding: 'Function Binding',
     classBinding: 'Class Binding',
     multithreadedAsync: 'Multithreaded Asynchronous Operations',
+    tsfn: 'Thread Safe Function',
     faq: 'FAQ',
 
     advanced: 'Advanced',
@@ -36,6 +37,7 @@ const tr = {
     functionBinding: '函数绑定',
     classBinding: '类绑定',
     multithreadedAsync: '多线程异步',
+    tsfn: '线程安全函数',
     faq: '常见问题',
 
     advanced: '进阶',

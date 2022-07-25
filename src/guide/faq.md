@@ -12,9 +12,8 @@
 
 ## When should I use `emnapi`
 
-- You want to run the same C/C++ code on both Node.js and browser.
 - You prefer Node-API, and you are more familiar with Node-API than `embind`.
-- You want to port existing Node.js addon written in Node-API to WebAssembly.
+- You want to port your (or existing) Node.js addon written in Node-API to WebAssembly.
 
 ## When should I not use `emnapi`
 

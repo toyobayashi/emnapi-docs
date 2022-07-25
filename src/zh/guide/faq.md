@@ -12,9 +12,8 @@
 
 ## 我什么时候应该用 `emnapi`
 
-- 你想在 Node.js 和浏览器上运行同一套 C/C++ 代码。
 - 你更喜欢 Node-API，并且相比于 `embind` 你更熟悉 Node-API。
-- 你希望将现成的用 Node-API 编写的 Node.js 扩展移植到 WebAssembly。
+- 你希望将你的（或现成的）用 Node-API 编写的 Node.js 扩展移植到 WebAssembly。
 
 ## 我什么时候不应该用 `emnapi`
 

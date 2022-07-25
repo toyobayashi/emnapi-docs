@@ -106,6 +106,7 @@ function getGuideSidebar (lang: Lang): DefaultTheme.SideBarItem[] {
       text: tr[lang].advanced,
       children: [
         { text: tr[lang].multithreadedAsync, link: `${lang}guide/multithreaded-async` },
+        { text: tr[lang].tsfn, link: `${lang}guide/tsfn` },
         { text: tr[lang].emnapiRuntime, link: `${lang}guide/runtime` },
         { text: tr[lang].modularization, link: `${lang}guide/modularization` },
         { text: tr[lang].faq, link: `${lang}guide/faq` },
