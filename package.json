@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "vitepress",
     "build": "vitepress build",
-    "serve": "vitepress serve"
+    "serve": "vitepress serve",
+    "postinstall": "patch-package"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   "homepage": "https://github.com/toyobayashi/emnapi-docs#readme",
   "devDependencies": {
     "@types/node": "^16.11.45",
-    "vitepress": "^0.22.4"
+    "vitepress": "0.22.4",
+    "patch-package": "^6.4.7"
   }
 }
