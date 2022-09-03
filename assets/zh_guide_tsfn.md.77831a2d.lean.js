@@ -1,0 +1,1 @@
+import{_ as a,o as e,c as n,a as t}from"./app.0ba8a14d.js";const u='{"title":"\u7EBF\u7A0B\u5B89\u5168\u51FD\u6570","description":"","frontmatter":{},"headers":[],"relativePath":"zh/guide/tsfn.md","lastUpdated":1662189195000}',s={},r=t("",8),o=[r];function p(i,c,_,l,d,h){return e(),n("div",null,o)}var m=a(s,[["render",p]]);export{u as __pageData,m as default};
