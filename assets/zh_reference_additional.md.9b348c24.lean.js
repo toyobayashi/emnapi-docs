@@ -1,0 +1,1 @@
+import{_ as e,o as n,c as a,a as s}from"./app.0ba8a14d.js";const k='{"title":"\u989D\u5916\u65B0\u589E\u7684 API","description":"","frontmatter":{},"headers":[],"relativePath":"zh/reference/additional.md","lastUpdated":1662189747000}',t={},o=s("",27),i=[o];function p(c,r,d,l,u,h){return n(),a("div",null,i)}var m=e(t,[["render",p]]);export{k as __pageData,m as default};
