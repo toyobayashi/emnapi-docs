@@ -9,8 +9,7 @@
   "scripts": {
     "dev": "vitepress",
     "build": "vitepress build",
-    "serve": "vitepress serve",
-    "postinstall": "patch-package"
+    "serve": "vitepress serve"
   },
   "repository": {
     "type": "git",
