@@ -6,13 +6,25 @@ This section will help you build a Hello World example by using emnapi.
 
 You will need to install:
 
-- Node.js `>= v14.6.0`
-- Emscripten `>= v3.0.0` (`v2.x` may also works, not tested)
+- Node.js `>= v16.15.0`
+- npm `>= v8`
+- Emscripten `>= v3.1.9`
+- CMake `>= 3.13`
+- ninja / make
 
 ::: tip
 Set `$EMSDK` environment variable to the emsdk root path.
 
 Add `$EMSDK/upstream/emscripten` to `$PATH` environment variable.
+:::
+
+::: tip
+There are several choices to get `make` for Windows user
+
+- Install [mingw-w64](https://www.mingw-w64.org/downloads/), then use `mingw32-make`
+- Download [MSVC prebuilt binary of GNU make](https://github.com/toyobayashi/make-win-build/releases), add to `%Path%` then rename it to `mingw32-make`
+- Install [Visual Studio 2022](https://visualstudio.microsoft.com/) C++ desktop workload, use `nmake` in `Visual Studio Developer Command Prompt`
+- Install [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/), use `nmake` in `Visual Studio Developer Command Prompt`
 :::
 
 Verify your environment:
@@ -21,6 +33,16 @@ Verify your environment:
 node -v
 npm -v
 emcc -v
+cmake --version
+
+# if you use ninja
+ninja --version
+
+# if you use make
+make -v
+
+# if you use nmake in Visual Studio Developer Command Prompt
+nmake /?
 ```
 
 ## Installation
@@ -41,56 +63,17 @@ npm install -D @tybys/emnapi
 
 ### Install via CMake
 
-You will need to install:
-
-- CMake `>= 3.13`
-- make
-
-::: tip
-There are several choices to get `make` for Windows user
-
-- Install [mingw-w64](https://www.mingw-w64.org/downloads/), then use `mingw32-make`
-- Download [MSVC prebuilt binary of GNU make](https://github.com/toyobayashi/make-win-build/releases), add to `%Path%` then rename it to `mingw32-make`
-- Install [Visual Studio 2022](https://visualstudio.microsoft.com/) C++ desktop workload, use `nmake` in `Visual Studio Developer Command Prompt`
-- Install [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/), use `nmake` in `Visual Studio Developer Command Prompt`
-:::
-
-Verify your environment:
-
-```bash
-cmake --version
-make -v
-
-# Windows cmd
-# mingw32-make -v
-
-# Visual Studio Developer Command Prompt
-# nmake /?
-```
-
 Clone repository and build from source:
 
 ```bash
 git clone https://github.com/toyobayashi/emnapi
 cd ./emnapi
 
-npm run build
-
-cd ./packages/emnapi
-
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
-
-# Windows have mingw32-make installed
-# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
-
-# Windows Visual Studio Developer Command Prompt
-# emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=nmake -G "NMake Makefiles"  -H. -Bbuild
-
-cmake --build build
-cmake --install build [--prefix <sysroot>]
+npm run build             # output ./packages/*/dist
+node ./script/release.js  # output ./out
 ```
 
-Default `sysroot` is `$EMSDK/upstream/emscripten/cache/sysroot`.
+Then you can copy the `out` directory to `$EMSDK/upstream/emscripten/cache/sysroot`.
 
 ## Writing Source Code
 

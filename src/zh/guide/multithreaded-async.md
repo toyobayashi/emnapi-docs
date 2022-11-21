@@ -5,26 +5,80 @@
 - [napi_queue_async_work](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#napi_queue_async_work)
 - [napi_cancel_async_work](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#napi_cancel_async_work)
 
-多线程异步 API 需要启用 pthreads：
+多线程异步 API 需要启用 pthreads，并且需要编译额外的 C 源文件。推荐直接[使用 CMake](/zh/guide/using-cmake.html)。
+
+```cmake
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/node_modules/@tybys/emnapi")
+
+add_executable(hello hello.c)
+
+target_link_libraries(hello emnapi_full-mt)
+target_compile_options(hello PRIVATE "-sUSE_PTHREADS=1")
+target_link_options(hello PRIVATE
+  "-sALLOW_MEMORY_GROWTH=1"
+  "-sEXPORTED_FUNCTIONS=['_malloc','_free']"
+  "-sUSE_PTHREADS=1"
+  "-sPTHREAD_POOL_SIZE=4"
+)
+```
 
 ```bash
-emcc -sUSE_PTHREADS=1 ...
+emcmake cmake -DCMAKE_BUILD_TYPE=Release -DEMNAPI_WORKER_POOL_SIZE=4 -G Ninja -H. -Bbuild
+cmake --build build
 ```
 
 同时还建议指定线程池大小：
 
-```bash
-emcc -sUSE_PTHREADS=1 -sPTHREAD_POOL_SIZE=4 ...
+```cmake
+target_link_options(hello PRIVATE
+  "-sUSE_PTHREADS=1"
+  "-sPTHREAD_POOL_SIZE=4"
+)
 ```
 
-::: tip
+## 预处理宏选项
 
-如果你启用了 pthreads (`-sUSE_PTHREADS=1`)，
-输出的 JavaScript 就**不能**在 webpack 之类的打包器中使用。
+### `-DEMNAPI_WORKER_POOL_SIZE=4`
 
-:::
+等价于编译时的 [`UV_THREADPOOL_SIZE`](http://docs.libuv.org/en/v1.x/threadpool.html?highlight=UV_THREADPOOL_SIZE)，如果未定义，emnapi 会在运行时读取 Emscripten 的 `UV_THREADPOOL_SIZE` [环境变量](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#interacting-with-code-environment-variables)，你可以像这样设置 `UV_THREADPOOL_SIZE`：
 
-示例：
+```js
+Module.preRun = Module.preRun || [];
+Module.preRun.push(function () {
+  if (typeof ENV !== 'undefined') {
+    ENV.UV_THREADPOOL_SIZE = '2';
+  }
+});
+```
+
+它代表最大可并行执行的异步工作（`napi_queue_async_work`。默认未定义，运行时读取 `UV_THREADPOOL_SIZE` 环境变量。
+
+通常境况下你可以将 `PTHREAD_POOL_SIZE` 和 `EMNAPI_WORKER_POOL_SIZE` 都设置成 `CPU 核心数`。如果你使用了另外一个多线程库中的函数，它会在异步工作中创建 `N` 个子线程，你就需要把 `PTHREAD_POOL_SIZE` 设置为 `EMNAPI_WORKER_POOL_SIZE * (N + 1)`。
+
+这个选项仅当设置了 `-sUSE_PTHREADS` 才有效。emnapi 会在初始化时创建 `EMNAPI_WORKER_POOL_SIZE` 个线程，如果 `PTHREAD_POOL_SIZE < EMNAPI_WORKER_POOL_SIZE && PTHREAD_POOL_SIZE_STRICT == 2` 则会抛出错误。
+
+更多详情细节请查看 [Issue #8](https://github.com/toyobayashi/emnapi/issues/8)。
+
+### `-DEMNAPI_NEXTTICK_TYPE=0`
+
+这个选项仅当设置了 `-sUSE_PTHREADS` 才有效。默认是 `0`。告诉 emnapi 要如何在 `uv_async_send` / `uv__async_close` 中延迟执行异步工作。
+
+- `0`: 使用 `setImmediate()`（Node.js 原生 `setImmediate` 或浏览器的 `MessageChannel` 和 `port.postMessage`）
+- `1`: 使用 `Promise.resolve().then()`
+
+### `-DEMNAPI_USE_PROXYING=1`
+
+这个选项仅当设置了 `-sUSE_PTHREADS` 才有效。Emscripten 版本 `>= 3.1.9` 默认是 `1`，否则默认是 `0`。
+
+- `0`
+
+    使用 JavaScript 实现从工作线程发送异步工作，运行时代码将访问 Emscripten 内部的 `PThread` 对象来添加自定义的 Worker 消息监听器。
+
+- `1`:
+
+    使用 Emscripten 的 [proxying API](https://emscripten.org/docs/api_reference/proxying.h.html) 在 C 代码中从工作线程发送异步工作。如果你遇到任何问题，你可以把他设置为 `0` 并报告 Issue。
+
+## 示例
 
 在子线程中使用蒙特卡罗方法估计 π 的值。在 \[0,1]\[0,1] 平面上获取随机 x 和 y 值的 `points` 个点样本。
 计算对角线的长度可以告诉我们该点是位于从 0,1 到 1,0 的四分之一圆的内部还是外部。内部与外部的点数之比为我们提供了 π/4 的近似值。

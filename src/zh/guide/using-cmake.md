@@ -24,20 +24,12 @@ target_link_options(hello PRIVATE
 
 ```bash
 mkdir build
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
-
-# Windows
+emcmake cmake -DCMAKE_BUILD_TYPE=Release -G Ninja -H. -Bbuild
+# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -H. -Bbuild
 # emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
+# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles" -H. -Bbuild
 
 cmake --build build
 ```
 
-如果在 Windows 上未安装 `make` 或 `mingw32-make`，请在 `Visual Studio Developer Command Prompt` 中跑下面的构建命令。
-
-```bash
-mkdir build
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=nmake -G "NMake Makefiles" -H. -Bbuild
-cmake --build build
-```
-
-[开始使用]: /zh/guide/getting-started.html#cmake
+[开始使用]: /zh/guide/getting-started.html

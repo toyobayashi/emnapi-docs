@@ -6,13 +6,25 @@
 
 你需要安装：
 
-- Node.js `>= v14.6.0`
-- Emscripten `>= v3.0.0` (`v2.x` 未测试，也许可以正常工作)
+- Node.js `>= v16.15.0`
+- npm `>= v8`
+- Emscripten `>= v3.1.9`
+- CMake `>= 3.13`
+- ninja / make
 
 ::: tip
 设置 `$EMSDK` 环境变量为 emsdk 根目录。
 
 把 `$EMSDK/upstream/emscripten` 添加到 `$PATH` 环境变量中。
+:::
+
+::: tip
+Windows 用户有多种获取 `make` 的选择
+
+- 安装 [mingw-w64](https://www.mingw-w64.org/downloads/)，然后使用 `mingw32-make`
+- 下载 [make 的 MSVC 预构建二进制文件](https://github.com/toyobayashi/make-win-build/releases)，添加到 `%Path%` 后重命名为 `mingw32-make`
+- 安装 [Visual Studio 2022](https://visualstudio.microsoft.com/) C++ 桌面工作负载，在 `Visual Studio Developer Command Prompt` 中使用 `nmake`
+- 安装 [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)，在 `Visual Studio Developer Command Prompt` 中使用 `nmake`
 :::
 
 验证环境：
@@ -21,6 +33,16 @@
 node -v
 npm -v
 emcc -v
+cmake --version
+
+# 如果你使用 ninja
+ninja --version
+
+# 如果你使用 make
+make -v
+
+# 如果你在 Visual Studio Developer Command Prompt 使用 nmake
+nmake /?
 ```
 
 ## 安装
@@ -41,56 +63,17 @@ npm install -D @tybys/emnapi
 
 ### 通过 CMake 安装
 
-你需要安装：
-
-- CMake `>= 3.13`
-- make
-
-::: tip
-Windows 用户有多种获取 `make` 的选择
-
-- 安装 [mingw-w64](https://www.mingw-w64.org/downloads/)，然后使用 `mingw32-make`
-- 下载 [make 的 MSVC 预构建二进制文件](https://github.com/toyobayashi/make-win-build/releases)，添加到 `%Path%` 后重命名为 `mingw32-make`
-- 安装 [Visual Studio 2022](https://visualstudio.microsoft.com/) C++ 桌面工作负载，在 `Visual Studio Developer Command Prompt` 中使用 `nmake`
-- 安装 [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)，在 `Visual Studio Developer Command Prompt` 中使用 `nmake`
-:::
-
-验证环境：
-
-```bash
-cmake --version
-make -v
-
-# Windows cmd
-# mingw32-make -v
-
-# Visual Studio Developer Command Prompt
-# nmake /?
-```
-
 克隆仓库并从源码构建：
 
 ```bash
 git clone https://github.com/toyobayashi/emnapi
 cd ./emnapi
 
-npm run build
-
-cd ./packages/emnapi
-
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
-
-# Windows have mingw32-make installed
-# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
-
-# Windows Visual Studio Developer Command Prompt
-# emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=nmake -G "NMake Makefiles"  -H. -Bbuild
-
-cmake --build build
-cmake --install build [--prefix <sysroot>]
+npm run build             # output ./packages/*/dist
+node ./script/release.js  # output ./out
 ```
 
-默认的 `sysroot` 是 `$EMSDK/upstream/emscripten/cache/sysroot`。
+然后你可以复制输出的 `out` 目录到 `$EMSDK/upstream/emscripten/cache/sysroot`。
 
 ## 编写源码
 
