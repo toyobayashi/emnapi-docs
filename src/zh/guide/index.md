@@ -34,4 +34,8 @@ import { withBase } from 'vitepress'
 
 所有 Node.js 官方测试通过！功能可以得到保证。
 
-性能未经充分测试，应该在可接受的范围内，使用风险自负。你也可以试试[让 emnapi 变得更好](https://github.com/toyobayashi/emnapi/pulls)！
+经过简单的测试，常见的场景下它的性能几乎与 embind 处在同一水平，应该在可接受的范围内。
+
+1.0 版本即将到来，目前并没有发布，因为用于内部实现的运行时 API 可能还需要频繁重构与变更，但这不影响用户使用 Node-API 本身的稳定 API。
+
+你也可以试试[让 emnapi 变得更好](https://github.com/toyobayashi/emnapi/pulls)！

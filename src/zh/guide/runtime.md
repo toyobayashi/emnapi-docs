@@ -36,20 +36,35 @@ emnapi 的绝大多数 API 都是用 JavaScript 实现的，它们依赖于 `lib
 
         Just npm install `@tybys/emnapi-runtime` 
 
-    也可以显式指定 `emnapiRuntime`，这一步是可选的：
+4. (可选的) 也可以显式指定 `emnapiRuntime` 和 `emnapiContext`：
 
     ```html
     <script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
     <script>
       var Module = { /* ... */ };
-      Module.emnapiRuntime = window.__emnapi_runtime__;
+      Module.emnapiRuntime = window.emnapi;
+      var __emnapi_context__ = window.emnapi.createContext();
+      Module.emnapiContext = __emnapi_context__;
+
+      // 可以是同步函数也可以是返回 Promise 的异步函数
+      Module.emnapiRuntime = function () { return window.emnapi; };
+      Module.emnapiRuntime = function () { return Promise.resolve(window.emnapi); };
+      Module.emnapiContext = function (emnapiRuntime) { /* ... */ };
+      Module.emnapiContext = async function (emnapiRuntime) { /* ... */ };
     </script>
     <script src="your-wasm-glue.js"></script>
     ```
 
     ```js
-    // Node.js
-    Module.emnapiRuntime = require('@tybys/emnapi-runtime')
+    // Node.js CJS
+    const emnapi = require('@tybys/emnapi-runtime')
+    const Module1 = require('./your-wasm-glue1.js')
+    const Module2 = require('./your-wasm-glue2.js')
+    const ctx = emnapi.createContext()
+    Module1.emnapiRuntime = emnapi
+    Module1.emnapiContext = ctx
+    Module2.emnapiRuntime = emnapi
+    Module2.emnapiContext = ctx
     ```
 
 `@tybys/emnapi-runtime` 版本应与 `@tybys/emnapi` 版本保持一致。

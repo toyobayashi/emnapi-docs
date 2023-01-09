@@ -15,10 +15,6 @@
 - You prefer Node-API, and you are more familiar with Node-API than `embind`.
 - You want to port your (or existing) Node.js addon written in Node-API to WebAssembly.
 
-## When should I not use `emnapi`
-
-- High performance requirements, worry about the call overhead.
-
 ## How to port existing Node.js addon written in Node-API
 
 ::: warning

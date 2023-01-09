@@ -19,6 +19,9 @@ target_link_options(hello PRIVATE
   "-sEXPORTED_FUNCTIONS=['_malloc','_free']"
   "-sUSE_PTHREADS=1"
   "-sPTHREAD_POOL_SIZE=4"
+  # 如果你遇到了 pthread 相关的报错请尝试指定栈大小
+  "-sSTACK_SIZE=2MB"
+  "-sDEFAULT_PTHREAD_STACK_SIZE=2MB"
 )
 ```
 

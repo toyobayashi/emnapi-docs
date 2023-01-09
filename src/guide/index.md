@@ -34,4 +34,9 @@ Let's forget IE.
 
 All Node.js official test passed! The functionality could be guaranteed.
 
-The performance has not been tested enough, it should be within an acceptable range, use it at your own risk. You can also try to [make emnapi be better](https://github.com/toyobayashi/emnapi/pulls)!
+After simple testing, the performance is almost the same as that of embind in common scenarios,
+it should be within an acceptable range.
+
+1.0 is comming soon, currently is not released, as the runtime API for internal implementation may need to be refactored and changed frequently, but this does not affect users to use Node-API's own stable API.
+
+You can also try to [make emnapi be better](https://github.com/toyobayashi/emnapi/pulls)!

@@ -1,5 +1,5 @@
 ---
-sidebarDepth: 3
+sidebarDepth: 4
 ---
 
 # API List
@@ -12,22 +12,12 @@ These APIs don't exist.
 
 :::
 
-#### js_native_api.h
-
-- ~~napi_create_external_arraybuffer~~ (use [emnapi_create_external_uint8array][] instead)
-
 #### node_api.h
 
 - ~~napi_module_register~~
 - ~~napi_async_init~~
 - ~~napi_async_destroy~~
 - ~~napi_make_callback~~
-- ~~napi_create_buffer~~
-- ~~napi_create_external_buffer~~
-- ~~napi_create_buffer_copy~~
-- ~~napi_is_buffer~~
-- ~~napi_get_buffer_info~~
-- ~~napi_get_uv_event_loop~~
 - ~~napi_add_env_cleanup_hook~~
 - ~~napi_remove_env_cleanup_hook~~
 - ~~napi_open_callback_scope~~
@@ -75,18 +65,99 @@ These APIs require [BigInt](https://www.caniuse.com/?search=BigInt) (v8 engine v
 
 ### ArrayBuffer related
 
+|  API   | Condition of memory copy happening | `data` memory copy direction | `data` memory ownership |
+|  ----  | ----  | ----  | ----  |
+| `napi_create_arraybuffer` | user request `data` | `JS to WASM` | if copy happens, managed by `emnapi` if runtime support `FinalizationRegistry`, otherwise `user` should manually free returned `data` pointer |
+| `napi_create_external_arraybuffer` | always | `WASM to JS` | `user` |
+| `napi_get_arraybuffer_info` | (user request `data`) `&&` (ArrayBuffer not created by emnapi `\|\|` created by `napi_create_arraybuffer` but not request `data`) | `JS to WASM` | if copy happens, same rule as `napi_create_arraybuffer` |
+| `napi_get_typedarray_info` <br/><br/> `napi_get_dataview_info` <br/><br/> `napi_get_buffer_info` (`node_api.h`) | (user request `data`) `&&` (not wasm memory view) `&&` (same rule of `napi_get_arraybuffer_info` for its ArrayBuffer) | `JS to WASM` | if copy happens, same rule as `napi_create_arraybuffer` |
+| `napi_create_buffer` | Never copy. if user request `data`, allocate memory and create a Buffer from wasm memory of this address, otherwise create a Buffer by `Buffer.alloc` |  | if user request `data`, same rule as `napi_create_arraybuffer` |
+| `napi_create_external_buffer` | Never copy. Create a Buffer from wasm memory of `data` address |  | `user` |
+
+You can use `emnapi_sync_memory` or export runtime method `emnapiSyncMemory` to do memory sync between wasm and JS. It's necessary if wasm memory grows or copied memory changed.
+
+```c
+#include <emnapi.h>
+
+napi_status emnapi_sync_memory(napi_env env,
+                               bool js_to_wasm,
+                               napi_value* arraybuffer_or_view,
+                               size_t byte_offset,
+                               size_t length);
+
+void finalizer(napi_env env, void* finalize_data, void* finalize_hint) {
+   free(finalize_data);
+}
+
+napi_value createExternalArraybuffer(napi_env env, napi_callback_info info) {
+  uint8_t* external_data = malloc(3);
+  external_data[0] = 0;
+  external_data[1] = 1;
+  external_data[2] = 2;
+  napi_value array_buffer;
+  napi_create_external_arraybuffer(env, external_data, 3, finalizer, NULL, &array_buffer);
+
+  external_data[0] = 3; // JavaScript ArrayBuffer memory will not change
+  emnapi_sync_memory(env, false, array_buffer, 0, NAPI_AUTO_LENGTH);
+  // after sync memory, new Uint8Array(array_buffer)[0] === 3
+
+  return array_buffer;
+}
+```
+
+```js
+declare function emnapiSyncMemory (
+  jsToWasm: boolean,
+  arrayBufferOrView: ArrayBuffer | ArrayBufferView,
+  byteOffset?: number,
+  length?: number
+): void
+
+const array_buffer = Module.emnapiExports.createExternalArraybuffer()
+new Uint8Array(array_buffer)[1] === 4
+Module.emnapiSyncMemory(true, array_buffer)
+```
+
+You can use `emnapi_get_memory_address` or export runtime method `emnapiGetMemoryAddress` to check if the memory should be released manually.
+
+```c
+#include <emnapi.h>
+
+void* data;
+napi_get_typedarray_info(env, typedarray, NULL, NULL, &data, NULL, NULL);
+
+void* address;
+emnapi_ownership ownership;
+bool runtime_allocated;
+emnapi_get_memory_address(env, typedarray, &address, &ownership, &runtime_allocated);
+assert(address == data);
+if (data != NULL && runtime_allocated && ownership == emnapi_userland) {
+  // user should free data
+  // free(data);
+}
+```
+
 ::: warning
 
-These APIs may return `NULL` data pointer
+`emnapi_get_memory_address` on wasm memory views may return wrong `ownership` and `runtime_allocated`. For example, you created an `ArrayBuffer` by using `napi_create_arraybuffer` and requested a copied `data`, then use `napi_create_external_buffer` to create a view from the `data`.
 
 :::
 
-#### js_native_api.h
+### Buffer related
 
-- ***napi_create_arraybuffer*** (`data` is always `NULL`, no way to implement in JS)
-- ***napi_get_arraybuffer_info*** (Require `FinalizationRegistry`, data is a copy in wasm memory)
-- ***napi_get_typedarray_info*** (Require `FinalizationRegistry`, data is a copy in wasm memory)
-- ***napi_get_dataview_info*** (Require `FinalizationRegistry`, data is a copy in wasm memory)
+::: warning
+
+These APIs require `globalThis.Buffer`, otherwise return `napi_invalid_arg` or `napi_pending_exception`.
+
+If you would use them in browsers, you can use [feross/buffer](https://github.com/feross/buffer).
+
+:::
+
+- ***napi_create_buffer***
+- ***napi_create_external_buffer***
+- ***napi_create_buffer_copy***
+- ***napi_is_buffer***
+- ***napi_get_buffer_info***
 
 ### Memory management
 
@@ -126,6 +197,12 @@ The `async_resource` and `async_resource_name` parameter have no effect.
 - ***napi_release_threadsafe_function***
 - ***napi_unref_threadsafe_function***
 - ***napi_ref_threadsafe_function***
+
+### Other API
+
+#### node_api.h
+
+- ***napi_get_uv_event_loop***: Returns fake `uv_loop_t` used by thread pool related functions if pthread is enabled.
 
 ## Available Anytime
 
