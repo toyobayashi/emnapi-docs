@@ -1,0 +1,1 @@
+import{_ as e,o as a,c as t,a as r}from"./app.ccbb5984.js";const u='{"title":"\u7EBF\u7A0B\u5B89\u5168\u51FD\u6570","description":"","frontmatter":{},"headers":[],"relativePath":"zh/guide/tsfn.md","lastUpdated":1673618247000}',n={},o=r("",4),i=[o];function _(s,d,p,c,l,h){return a(),t("div",null,i)}var g=e(n,[["render",_]]);export{u as __pageData,g as default};
