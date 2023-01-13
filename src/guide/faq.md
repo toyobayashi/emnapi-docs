@@ -28,4 +28,5 @@ if the runtime does not support `FinalizationRegistry` and `WeakRef`.
 
 1. Checking if all APIs used in the addon are implemented in `emnapi`. See [API List](/reference/list.html).
 2. Checking runtime weak reference support by using [emnapi_is_support_weakref](/reference/additional.html#emnapi-is-support-weakref) before calling `napi_create_reference` / `napi_wrap`.
-3. Writing CMakeLists. node-gyp is not supported.
+3. Checking if it is necessary to sync wasm memory according to [ArrayBuffer Related API](/reference/list.html#arraybuffer-related)
+4. Writing CMakeLists. node-gyp is not supported.

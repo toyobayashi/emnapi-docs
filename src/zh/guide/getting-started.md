@@ -55,11 +55,14 @@ nmake /?
 ### 通过 NPM 安装
 
 ```bash
-npm install -D @tybys/emnapi
-
-# 可选的，请阅读 "emnapi 运行时" 章节了解更多
-# npm install -D @tybys/emnapi-runtime
+npm install -D @tybys/emnapi @tybys/emnapi-runtime
 ```
+
+::: tip
+
+`@tybys/emnapi-runtime` 版本与 `@tybys/emnapi` 的版本对应。
+
+:::
 
 ### 通过 CMake 安装
 
@@ -164,29 +167,30 @@ emcc -O3 \
 
 ## 在浏览器上运行
 
-把输出的 JS 引入进 HTML 使用，默认导出在 [Module](https://emscripten.org/docs/api_reference/module.html) 对象上的 `emnapiExports`。可通过预定义 `NODE_GYP_MODULE_NAME` 修改默认的导出键值。`onEmnapiInitialized` 将在 `onRuntimeInitialized` 之前被调用。
+创建 `index.html`，使用输出的 js 文件。 初始化 emnapi 需要先导入 emnapi 运行时，通过 `createContext` 创建 `Context`，然后在 emscripten 运行时初始化后调用 `Module.emnapiInit`。 每个上下文都拥有独立的 Node-API 对象，例如 `napi_env`、`napi_value`、`napi_ref`。 如果你有多个 emnapi 模块，你应该在它们之间重用相同的 `Context`。 `Module.emnapiInit` 只初始化一次，初始化成功后总是返回相同的绑定导出。
 
 ```html
+<script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
 <script src="hello.js"></script>
 <script>
-// Emscripten js glue code will create a global `Module` object
-Module.onEmnapiInitialized = function (err, emnapiExports) {
-  if (err) {
-    // error handling
-    // emnapiExports === undefined
-    // Module[NODE_GYP_MODULE_NAME] === undefined
-    console.error(err);
-  } else {
-    // emnapiExports === Module[NODE_GYP_MODULE_NAME]
-  }
-};
+var emnapiContext = emnapi.createContext();
 
 Module.onRuntimeInitialized = function () {
-  if (!('emnapiExports' in Module)) return;
-  var binding = Module.emnapiExports;
+  var binding;
+  try {
+    binding = Module.emnapiInit({ context: emnapiContext });
+  } catch (err) {
+    console.error(err);
+    return;
+  }
   var msg = 'hello ' + binding.hello();
   window.alert(msg);
 };
+
+// if -sMODULARIZE=1
+Module({ /* Emscripten module init options */ }).then(function (Module) {
+  var binding = Module.emnapiInit({ context: emnapiContext });
+});
 </script>
 ```
 
@@ -197,18 +201,26 @@ Module.onRuntimeInitialized = function () {
 创建 `index.js`。
 
 ```js
+const emnapi = require('@tybys/emnapi-runtime')
 const Module = require('./hello.js')
-
-Module.onEmnapiInitialized = function (err, emnapiExports) {
-  // ...
-}
+const emnapiContext = emnapi.createContext()
 
 Module.onRuntimeInitialized = function () {
-  if (!('emnapiExports' in Module)) return
-  const binding = Module.emnapiExports
+  let binding
+  try {
+    binding = Module.emnapiInit({ context: emnapiContext })
+  } catch (err) {
+    console.error(err)
+    return
+  }
   const msg = `hello ${binding.hello()}`
   console.log(msg)
 }
+
+// if -sMODULARIZE=1
+Module({ /* Emscripten module init options */ }).then((Module) => {
+  const binding = Module.emnapiInit({ context: emnapiContext })
+})
 ```
 
 执行脚本。
@@ -218,5 +230,3 @@ node ./index.js
 ```
 
 然后你就可以看到 hello world 的输出了。
-
-如果在运行时初始化时抛出 JS 错误，Node.js 进程将会退出。可以使用`-sNODEJS_CATCH_EXIT=0` 并自己添加`uncaughtException`。或者可以使用 `Module.onEmnapiInitialized` 来捕获异常。

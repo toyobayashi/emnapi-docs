@@ -27,4 +27,5 @@
 
 1. 检查扩展中使用的所有 API 是否在 `emnapi` 中已被实现。请参阅 [API 列表](/zh/reference/list.html)。
 2. 在调用 `napi_create_reference` / `napi_wrap` 之前使用 [emnapi_is_support_weakref](/zh/reference/additional.html#emnapi-is-support-weakref) 检查运行时的弱引用支持。
-3. 编写 CMakeLists。不支持 node-gyp。
+3. 检查是否需要同步 wasm 内存，根据 [ArrayBuffer 相关的 API](/zh/reference/list.html#arraybuffer-相关)
+4. 编写 CMakeLists。不支持 node-gyp。

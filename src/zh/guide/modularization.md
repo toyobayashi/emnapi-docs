@@ -58,92 +58,19 @@ else if (typeof exports === 'object')
 
 返回的 Promise 在 wasm 编译完成时成功解析 Module 对象，类似于 `onRuntimeInitialized` 回调。使用 `-sMODULARIZE` 时不需要使用 `onRuntimeInitialized` 回调。
 
-工厂函数接受 1 个参数，一个具有 Module 默认值的对象，你可以在这里设置 emnapi 运行时或初始化回调：
+工厂函数接受 1 个参数，一个具有 Module 默认值的对象：
 
 ```js
 createModule({
-  emnapiRuntime: window.__emnapi_runtime__,
-  onEmnapiInitialized (err, emnapiExports) {
-    // ...
-  }
+  // Emscripten module init options
 }).then((Module) => {
-  // access Module.emnapiExports
+  const binding = Module.emnapiInit({ context })
 })
 
 // or
 
 const Module = await createModule({
-  emnapiRuntime: window.__emnapi_runtime__,
-  onEmnapiInitialized: function (err, emnapiExports) {
-    // ...
-  }
+  // Emscripten module init options
 })
-```
-
-## 使用 `emwrap`
-
-我做了一个叫 [emwrap](https://github.com/toyobayashi/emwrap) 的 Node.js CLI 工具，可以实现更灵活的模块化。
-
-特性：
-
-- 支持 UMD / CommonJS / ESM / Node.js ESM 格式
-- 支持微信小程序中的 `WXWebAssembly`
-- 缓存 Promise 结果，意味着多次调用初始化函数时只会获取和编译一次 wasm
-
-```bash
-npm install -D @tybys/emwrap
-```
-
-::: tip
-
-使用 emwrap 时应当避免将 `-sMODULARIZE=1` 或 `-o .mjs` 后缀传给 emcc / em++。
-
-:::
-
-你可以使用 [`--js-transform`](https://emscripten.org/docs/tools_reference/emcc.html#emcc-minify) 选项：
-
-```bash
-emcc -o glue.js -O3 --js-transform "emwrap --name=myWasmLib" main.c
-```
-
-Windows:
-
-```bash
-emcc -o glue.js -O3 --js-transform "emwrap.cmd --name=myWasmLib" main.c
-```
-
-或分成两个步骤：
-
-```bash
-emcc -o glue.js -O3 main.c
-emwrap --name=myWasmLib --minify glue.js
-```
-
-浏览器 `<script>`:
-
-```html
-<script src="glue.js"></script>
-<script>
-  myWasmLib.default().then(function (ctx) {
-    var Module = ctx.Module;
-    Module.myfunction();
-  });
-</script>
-```
-
-Webpack:
-
-```js
-import init from './glue.js'
-// const init = require('./glue.js').default
-init().then(({ Module }) => { Module.myfunction() })
-```
-
-CMake:
-
-```cmake
-add_custom_command(TARGET yourtarget POST_BUILD
-  COMMAND npx emwrap "--name=umdname" "$<TARGET_FILE:yourtarget>"
-  # COMMAND node "./other-script.js"
-)
+const binding = Module.emnapiInit({ context })
 ```

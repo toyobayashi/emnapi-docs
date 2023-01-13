@@ -64,92 +64,19 @@ similar to the `onRuntimeInitialized` callback. You do not need to use the
 `onRuntimeInitialized` callback when using `-sMODULARIZE`.
 
 The factory function accepts 1 parameter, an object with default values for
-the module instance, you can set emnapi runtime or initialization callback here:
+the module instance:
 
 ```js
 createModule({
-  emnapiRuntime: window.__emnapi_runtime__,
-  onEmnapiInitialized (err, emnapiExports) {
-    // ...
-  }
+  // Emscripten module init options
 }).then((Module) => {
-  // access Module.emnapiExports
+  const binding = Module.emnapiInit({ context })
 })
 
 // or
 
 const Module = await createModule({
-  emnapiRuntime: window.__emnapi_runtime__,
-  onEmnapiInitialized: function (err, emnapiExports) {
-    // ...
-  }
+  // Emscripten module init options
 })
-```
-
-## Using `emwrap`
-
-I built another Node.js CLI application named [emwrap](https://github.com/toyobayashi/emwrap) for more flexible modularization.
-
-Features:
-
-- Support wrapping Emscripten code to UMD / CommonJS / ESM / Node.js ESM format
-- Support `WXWebAssembly` in WeChat miniprogram environment
-- Cache the promise result, means that fetch and compile wasm only once when calling factory function multiple times
-
-```bash
-npm install -D @tybys/emwrap
-```
-
-::: tip
-
-You should avoid passing `-sMODULARIZE=1` or `-o mjs` extension to emcc / em++.
-
-:::
-
-You can use [`--js-transform`](https://emscripten.org/docs/tools_reference/emcc.html#emcc-minify) option:
-
-```bash
-emcc -o glue.js -O3 --js-transform "emwrap --name=myWasmLib" main.c
-```
-
-Windows:
-
-```bash
-emcc -o glue.js -O3 --js-transform "emwrap.cmd --name=myWasmLib" main.c
-```
-
-or in two steps:
-
-```bash
-emcc -o glue.js -O3 main.c
-emwrap --name=myWasmLib --minify glue.js
-```
-
-Browser `<script>`:
-
-```html
-<script src="glue.js"></script>
-<script>
-  myWasmLib.default().then(function (ctx) {
-    var Module = ctx.Module;
-    Module.myfunction();
-  });
-</script>
-```
-
-Webpack:
-
-```js
-import init from './glue.js'
-// const init = require('./glue.js').default
-init().then(({ Module }) => { Module.myfunction() })
-```
-
-CMake:
-
-```cmake
-add_custom_command(TARGET yourtarget POST_BUILD
-  COMMAND npx emwrap "--name=umdname" "$<TARGET_FILE:yourtarget>"
-  # COMMAND node "./other-script.js"
-)
+const binding = Module.emnapiInit({ context })
 ```
