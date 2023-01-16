@@ -168,7 +168,26 @@ If you have the environment setting ok, this step will output `hello.js` and `he
 
 ## Running on Browser
 
-Create `index.html`, use the output js file. To initialize emnapi, you need to import the emnapi runtime to create a `Context` by `createContext` first, then call `Module.emnapiInit` after emscripten runtime initialized. Each context owns isolated Node-API object such as `napi_env`, `napi_value`, `napi_ref`. If you have multiple emnapi modules, you should reuse the same `Context` across them. `Module.emnapiInit` only do initialization once, it will always return the same binding exports after successfully initialized.
+Create `index.html`, use the output js file. To initialize emnapi, you need to import the emnapi runtime to create a `Context` by `createContext` first, then call `Module.emnapiInit` after emscripten runtime initialized.
+
+```ts
+declare namespace emnapi {
+  // module '@tybys/emnapi-runtime'
+  export class Context { /* ... */ }
+  export function createContext (): Context
+  // ...
+}
+
+declare namespace Module {
+  interface EmnapiInitOptions {
+    context: emnapi.Context
+    filename?: string
+  }
+  export function emnapiInit (options: EmnapiInitOptions): any
+}
+```
+
+Each context owns isolated Node-API object such as `napi_env`, `napi_value`, `napi_ref`. If you have multiple emnapi modules, you should reuse the same `Context` across them. `Module.emnapiInit` only do initialization once, it will always return the same binding exports after successfully initialized.
 
 ```html
 <script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>

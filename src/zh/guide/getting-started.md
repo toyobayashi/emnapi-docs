@@ -167,7 +167,26 @@ emcc -O3 \
 
 ## 在浏览器上运行
 
-创建 `index.html`，使用输出的 js 文件。 初始化 emnapi 需要先导入 emnapi 运行时，通过 `createContext` 创建 `Context`，然后在 emscripten 运行时初始化后调用 `Module.emnapiInit`。 每个上下文都拥有独立的 Node-API 对象，例如 `napi_env`、`napi_value`、`napi_ref`。 如果你有多个 emnapi 模块，你应该在它们之间重用相同的 `Context`。 `Module.emnapiInit` 只初始化一次，初始化成功后总是返回相同的绑定导出。
+创建 `index.html`，使用输出的 js 文件。 初始化 emnapi 需要先导入 emnapi 运行时，通过 `createContext` 创建 `Context`，然后在 emscripten 运行时初始化后调用 `Module.emnapiInit`。
+
+```ts
+declare namespace emnapi {
+  // module '@tybys/emnapi-runtime'
+  export class Context { /* ... */ }
+  export function createContext (): Context
+  // ...
+}
+
+declare namespace Module {
+  interface EmnapiInitOptions {
+    context: emnapi.Context
+    filename?: string
+  }
+  export function emnapiInit (options: EmnapiInitOptions): any
+}
+```
+
+每个 `Context` 都拥有独立的 Node-API 对象，例如 `napi_env`、`napi_value`、`napi_ref`。 如果你有多个 emnapi 模块，你应该在它们之间重用相同的 `Context`。 `Module.emnapiInit` 只初始化一次，初始化成功后总是返回相同的绑定导出。
 
 ```html
 <script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
