@@ -18,13 +18,8 @@ These APIs don't exist.
 - ~~napi_async_init~~
 - ~~napi_async_destroy~~
 - ~~napi_make_callback~~
-- ~~napi_add_env_cleanup_hook~~
-- ~~napi_remove_env_cleanup_hook~~
 - ~~napi_open_callback_scope~~
 - ~~napi_close_callback_scope~~
-- ~~napi_add_async_cleanup_hook~~
-- ~~napi_remove_async_cleanup_hook~~
-- ~~node_api_get_module_file_name~~
 
 ## Limited
 
@@ -159,6 +154,23 @@ If you would use them in browsers, you can use [feross/buffer](https://github.co
 - ***napi_is_buffer***
 - ***napi_get_buffer_info***
 
+### Cleanup hook related
+
+::: tip
+
+Cleanup hooks are added on `Context`, they will be called if the `Context` dispose.
+
+On Node.js, `Context.prototype.dispose` will be called automatically on process `beforeExit` event.
+
+:::
+
+#### node_api.h
+
+- ***napi_add_env_cleanup_hook***
+- ***napi_remove_env_cleanup_hook***
+- ***napi_add_async_cleanup_hook***
+- ***napi_remove_async_cleanup_hook***
+
 ### Memory management
 
 #### js_native_api.h
@@ -203,6 +215,8 @@ The `async_resource` and `async_resource_name` parameter have no effect.
 #### node_api.h
 
 - ***napi_get_uv_event_loop***: Returns fake `uv_loop_t` used by thread pool related functions if pthread is enabled.
+- ***napi_fatal_exception***: Calls `process._fatalException` on Node.js. Returns `napi_generic_failure` on non-Node.js environment.
+- ***node_api_get_module_file_name***: Returns the filename which is passed to `Module.emnapiInit({ context, filename })`.
 
 ## Available Anytime
 

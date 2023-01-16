@@ -18,13 +18,8 @@ sidebarDepth: 4
 - ~~napi_async_init~~
 - ~~napi_async_destroy~~
 - ~~napi_make_callback~~
-- ~~napi_add_env_cleanup_hook~~
-- ~~napi_remove_env_cleanup_hook~~
 - ~~napi_open_callback_scope~~
 - ~~napi_close_callback_scope~~
-- ~~napi_add_async_cleanup_hook~~
-- ~~napi_remove_async_cleanup_hook~~
-- ~~node_api_get_module_file_name~~
 
 ## 受限的 API
 
@@ -159,6 +154,23 @@ if (data != NULL && runtime_allocated && ownership == emnapi_userland) {
 - ***napi_is_buffer***
 - ***napi_get_buffer_info***
 
+### 清理钩子相关
+
+::: tip
+
+清理钩子会被添加在 `Context` 上，当 `Context` dispose 时它们会被调用。
+
+特别地，在 Node.js 环境中，`Context.prototype.dispose` 会在 process `beforeExit` 事件中自动调用。
+
+:::
+
+#### node_api.h
+
+- ***napi_add_env_cleanup_hook***
+- ***napi_remove_env_cleanup_hook***
+- ***napi_add_async_cleanup_hook***
+- ***napi_remove_async_cleanup_hook***
+
 ### 内存管理
 
 #### js_native_api.h
@@ -203,6 +215,8 @@ Cross-Origin-Embedder-Policy: require-corp
 #### node_api.h
 
 - ***napi_get_uv_event_loop***: 如果启用了 pthread，则返回线程池相关函数使用的假 `uv_loop_t`。
+- ***napi_fatal_exception***: 在 Node.js 环境中调用 `process._fatalException`。在非 Node.js 环境中返回 `napi_generic_failure`。
+- ***node_api_get_module_file_name***: 返回 `Module.emnapiInit({ context, filename })` 传入的 filename。
 
 ## 任何时候都可用的 API
 
