@@ -1,1 +1,0 @@
-import{_ as n,o as a,c as s,a as e}from"./app.ccbb5984.js";const b='{"title":"Using C++ Wrapper","description":"","frontmatter":{},"headers":[],"relativePath":"guide/using-cpp.md","lastUpdated":1673845773000}',o={},t=e("",7),p=[t];function c(l,u,i,r,d,k){return a(),s("div",null,p)}var h=n(o,[["render",c]]);export{b as __pageData,h as default};

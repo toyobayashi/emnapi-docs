@@ -1,1 +1,0 @@
-import{_ as n,o as a,c as s,a as o}from"./app.ccbb5984.js";const b='{"title":"\u4F7F\u7528 C++ \u5305\u88C5\u5668","description":"","frontmatter":{},"headers":[],"relativePath":"zh/guide/using-cpp.md","lastUpdated":1673845773000}',t={},p=o("",7),e=[p];function c(l,u,i,r,k,d){return a(),s("div",null,e)}var h=n(t,[["render",c]]);export{b as __pageData,h as default};

@@ -1,0 +1,1 @@
+import{_ as e,o as a,c as t,a as r}from"./app.96092cb2.js";const u=JSON.parse('{"title":"Thread Safe function","description":"","frontmatter":{},"headers":[],"relativePath":"guide/tsfn.md","lastUpdated":1674282702000}'),n={name:"guide/tsfn.md"},i=r("",4),s=[i];function o(_,d,f,c,h,l){return a(),t("div",null,s)}const m=e(n,[["render",o]]);export{u as __pageData,m as default};
