@@ -1,0 +1,23 @@
+diff --git a/node_modules/vitepress/dist/client/theme-default/components/VPAlgoliaSearchBox.vue b/node_modules/vitepress/dist/client/theme-default/components/VPAlgoliaSearchBox.vue
+index 63681db..b4820c3 100644
+--- a/node_modules/vitepress/dist/client/theme-default/components/VPAlgoliaSearchBox.vue
++++ b/node_modules/vitepress/dist/client/theme-default/components/VPAlgoliaSearchBox.vue
+@@ -87,6 +87,18 @@ function initialize(userOptions: DefaultTheme.AlgoliaSearchOptions) {
+ 
+ function getRelativePath(absoluteUrl: string) {
+   const { pathname, hash } = new URL(absoluteUrl)
++
++  const url = new URL(window.location.href)
++  if (url.hostname.endsWith('github.io')) {
++    const pathSplit = url.pathname.split('/')
++    if (pathSplit[1]) {
++      return ('/' + pathSplit[1] + pathname).replace(
++        /\.html$/,
++        site.value.cleanUrls === 'disabled' ? '.html' : ''
++      ) + hash
++    }
++  }
++
+   return (
+     pathname.replace(
+       /\.html$/,
