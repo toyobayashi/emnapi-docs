@@ -6,11 +6,18 @@ hero:
   image:
     src: /emnapi.svg
     alt: emnapi image
-  text: emnapi
-  tagline: 适用于 Emscripten 的 Node-API 子集实现
+  name: emnapi
+  text: 适用于 Emscripten 的Node-API 实现
+  tagline: |
+
+    将 Node.js 原生模块带到浏览器！
   actions:
-  - text: 开始使用
+  - theme: brand
+    text: 开始使用
     link: /zh/guide/
+  - theme: alt
+    text: 在 Github 上查看
+    link: https://github.com/toyobayashi/emnapi
 
 features:
   - title: 可移植

@@ -6,11 +6,16 @@ hero:
   image:
     src: /emnapi.svg
     alt: emnapi image
-  text: emnapi
-  tagline: A Subset of Node-API Implementation for Emscripten
+  name: emnapi
+  text: Node-API Implementation for Emscripten
+  tagline: Bring Node.js native addon to browser!
   actions:
-  - text: Get Started
+  - theme: brand
+    text: Get Started
     link: ./guide/
+  - theme: alt
+    text: View on Github
+    link: https://github.com/toyobayashi/emnapi
 
 features:
   - title: Portable
