@@ -6,45 +6,17 @@ This section will help you build a Hello World example by using emnapi.
 
 You will need to install:
 
-- Node.js `>= v14.6.0`
-- Emscripten `>= v3.0.0` (`v2.x` may also works, not tested)
+- Node.js `>= v16.15.0`
+- npm `>= v8`
+- Emscripten `>= v3.1.9`
+- CMake `>= 3.13`
+- ninja / make
 
 ::: tip
 Set `$EMSDK` environment variable to the emsdk root path.
 
 Add `$EMSDK/upstream/emscripten` to `$PATH` environment variable.
 :::
-
-Verify your environment:
-
-```bash
-node -v
-npm -v
-emcc -v
-```
-
-## Installation
-
-There are two methods to install emnapi.
-
-- Install `emnapi` package to local project via `npm` (recommended)
-- Build `emnapi` from source via `cmake` and install to custom sysroot path
-
-### Install via NPM
-
-```bash
-npm install -D @tybys/emnapi
-
-# optional, see "emnapi Runtime" chapter for more details
-# npm install -D @tybys/emnapi-runtime
-```
-
-### Install via CMake
-
-You will need to install:
-
-- CMake `>= 3.13`
-- make
 
 ::: tip
 There are several choices to get `make` for Windows user
@@ -58,15 +30,42 @@ There are several choices to get `make` for Windows user
 Verify your environment:
 
 ```bash
+node -v
+npm -v
+emcc -v
 cmake --version
+
+# if you use ninja
+ninja --version
+
+# if you use make
 make -v
 
-# Windows cmd
-# mingw32-make -v
-
-# Visual Studio Developer Command Prompt
-# nmake /?
+# if you use nmake in Visual Studio Developer Command Prompt
+nmake /?
 ```
+
+## Installation
+
+There are two methods to install emnapi.
+
+- Install `emnapi` package to local project via `npm` (recommended)
+- Build `emnapi` from source via `cmake` and install to custom sysroot path
+
+### Install via NPM
+
+```bash
+npm install -D @tybys/emnapi @tybys/emnapi-runtime
+```
+
+::: tip
+
+`@tybys/emnapi-runtime` version should match `@tybys/emnapi` version.
+
+:::
+
+
+### Install via CMake
 
 Clone repository and build from source:
 
@@ -74,23 +73,11 @@ Clone repository and build from source:
 git clone https://github.com/toyobayashi/emnapi
 cd ./emnapi
 
-npm run build
-
-cd ./packages/emnapi
-
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
-
-# Windows have mingw32-make installed
-# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
-
-# Windows Visual Studio Developer Command Prompt
-# emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=nmake -G "NMake Makefiles"  -H. -Bbuild
-
-cmake --build build
-cmake --install build [--prefix <sysroot>]
+npm run build             # output ./packages/*/dist
+node ./script/release.js  # output ./out
 ```
 
-Default `sysroot` is `$EMSDK/upstream/emscripten/cache/sysroot`.
+Then you can copy the `out` directory to `$EMSDK/upstream/emscripten/cache/sysroot`.
 
 ## Writing Source Code
 
@@ -181,29 +168,49 @@ If you have the environment setting ok, this step will output `hello.js` and `he
 
 ## Running on Browser
 
-Create `index.html`, use the output js file. The default export key is `emnapiExports` on [Module](https://emscripten.org/docs/api_reference/module.html) object. You can change the key by predefining `NODE_GYP_MODULE_NAME`. `onEmnapiInitialized` will be called before `onRuntimeInitialized`.
+Create `index.html`, use the output js file. To initialize emnapi, you need to import the emnapi runtime to create a `Context` by `createContext` first, then call `Module.emnapiInit` after emscripten runtime initialized.
+
+```ts
+declare namespace emnapi {
+  // module '@tybys/emnapi-runtime'
+  export class Context { /* ... */ }
+  export function createContext (): Context
+  // ...
+}
+
+declare namespace Module {
+  interface EmnapiInitOptions {
+    context: emnapi.Context
+    filename?: string
+  }
+  export function emnapiInit (options: EmnapiInitOptions): any
+}
+```
+
+Each context owns isolated Node-API object such as `napi_env`, `napi_value`, `napi_ref`. If you have multiple emnapi modules, you should reuse the same `Context` across them. `Module.emnapiInit` only do initialization once, it will always return the same binding exports after successfully initialized.
 
 ```html
+<script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
 <script src="hello.js"></script>
 <script>
-// Emscripten js glue code will create a global `Module` object
-Module.onEmnapiInitialized = function (err, emnapiExports) {
-  if (err) {
-    // error handling
-    // emnapiExports === undefined
-    // Module[NODE_GYP_MODULE_NAME] === undefined
-    console.error(err);
-  } else {
-    // emnapiExports === Module[NODE_GYP_MODULE_NAME]
-  }
-};
+var emnapiContext = emnapi.createContext();
 
 Module.onRuntimeInitialized = function () {
-  if (!('emnapiExports' in Module)) return;
-  var binding = Module.emnapiExports;
+  var binding;
+  try {
+    binding = Module.emnapiInit({ context: emnapiContext });
+  } catch (err) {
+    console.error(err);
+    return;
+  }
   var msg = 'hello ' + binding.hello();
   window.alert(msg);
 };
+
+// if -sMODULARIZE=1
+Module({ /* Emscripten module init options */ }).then(function (Module) {
+  var binding = Module.emnapiInit({ context: emnapiContext });
+});
 </script>
 ```
 
@@ -214,18 +221,26 @@ If you are using `Visual Studio Code` and have `Live Server` extension installed
 Create `index.js`.
 
 ```js
+const emnapi = require('@tybys/emnapi-runtime')
 const Module = require('./hello.js')
-
-Module.onEmnapiInitialized = function (err, emnapiExports) {
-  // ...
-}
+const emnapiContext = emnapi.createContext()
 
 Module.onRuntimeInitialized = function () {
-  if (!('emnapiExports' in Module)) return
-  const binding = Module.emnapiExports
+  let binding
+  try {
+    binding = Module.emnapiInit({ context: emnapiContext })
+  } catch (err) {
+    console.error(err)
+    return
+  }
   const msg = `hello ${binding.hello()}`
   console.log(msg)
 }
+
+// if -sMODULARIZE=1
+Module({ /* Emscripten module init options */ }).then((Module) => {
+  const binding = Module.emnapiInit({ context: emnapiContext })
+})
 ```
 
 Run the script.
@@ -235,5 +250,3 @@ node ./index.js
 ```
 
 Then you can see the hello world output.
-
-If a JS error is thrown on runtime initialization, Node.js process will exit. You can use `-sNODEJS_CATCH_EXIT=0` and add `ununcaughtException` handler yourself to avoid this. Alternatively, you can use `Module.onEmnapiInitialized` callback to catch error.

@@ -1,5 +1,5 @@
 ---
-sidebarDepth: 3
+sidebarDepth: 4
 ---
 
 # API 列表
@@ -12,29 +12,14 @@ sidebarDepth: 3
 
 :::
 
-#### js_native_api.h
-
-- ~~napi_create_external_arraybuffer~~ (use [emnapi_create_external_uint8array][] instead)
-
 #### node_api.h
 
 - ~~napi_module_register~~
 - ~~napi_async_init~~
 - ~~napi_async_destroy~~
 - ~~napi_make_callback~~
-- ~~napi_create_buffer~~
-- ~~napi_create_external_buffer~~
-- ~~napi_create_buffer_copy~~
-- ~~napi_is_buffer~~
-- ~~napi_get_buffer_info~~
-- ~~napi_get_uv_event_loop~~
-- ~~napi_add_env_cleanup_hook~~
-- ~~napi_remove_env_cleanup_hook~~
 - ~~napi_open_callback_scope~~
 - ~~napi_close_callback_scope~~
-- ~~napi_add_async_cleanup_hook~~
-- ~~napi_remove_async_cleanup_hook~~
-- ~~node_api_get_module_file_name~~
 
 ## 受限的 API
 
@@ -42,23 +27,19 @@ sidebarDepth: 3
 
 ::: warning
 
-以下 API 需要 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) 和 [WeakRef](https://www.caniuse.com/?search=WeakRef) (v8 引擎 v8.4+ / Node.js v14.6.0+)，如果运行时不支持，传入 `finalize_cb` 将导致抛错。只有 `Object` 和  `Function` 可以被引用，不支持 `Symbol`。
+只有 `Object` 和  `Function` 可以被引用，不支持 `Symbol`。
+
+如果运行时不支持 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) 和 [WeakRef](https://www.caniuse.com/?search=WeakRef)，下面的 API 有一定的限制，无论引用计数是否为 0，所有引用都是强引用。
 
 :::
 
 #### js_native_api.h
 
-- ***napi_wrap***
-- ***napi_unwrap***
-- ***napi_remove_wrap***
-- ***napi_create_external***
-- ***napi_get_value_external***
-- ***napi_create_reference***
-- ***napi_delete_reference***
-- ***napi_reference_ref***
-- ***napi_reference_unref***
-- ***napi_get_reference_value***
-- ***napi_add_finalizer***
+- ***napi_wrap***: `finalize_cb` 和 `result` 必须传 `NULL`, 稍后必须调用 `napi_remove_wrap`
+- ***napi_create_external***: `finalize_cb` 必须传 `NULL`
+- ***napi_create_reference***: 即使传 `0` 给 `initial_refcount` 也创建强引用
+- ***napi_reference_unref***: 即使计数为 0，该引用仍然是强引用
+- ***napi_add_finalizer***: 不可用，总是抛出错误
 
 ### BigInt 相关
 
@@ -79,18 +60,116 @@ sidebarDepth: 3
 
 ### ArrayBuffer 相关
 
+|  API   | 内存复制发生的条件 | `data` 复制方向 | `data` 所有权 |
+|  ----  | ----  | ----  | ----  |
+| `napi_create_arraybuffer` | 用户请求返回 `data` | `从 JS 到 WASM` | 如果发生了内存复制，且运行时支持 `FinalizationRegistry`，则由 `emnapi` 管理，否则用户需要手动释放 `data` 内存 |
+| `napi_create_external_arraybuffer` | 总是复制 | `从 WASM 到 JS` | 用户 |
+| `napi_get_arraybuffer_info` | (用户请求返回 `data`) `&&` (ArrayBuffer 不是由 emnapi 创建的 `\|\|` 由 `napi_create_arraybuffer` 创建但用户未请求返回 `data`) | `从 JS 到 WASM` | 如果发生了内存复制，规则与 `napi_create_arraybuffer` 相同 |
+| `napi_get_typedarray_info` <br/><br/> `napi_get_dataview_info` <br/><br/> `napi_get_buffer_info` (`node_api.h`) | (用户请求返回 `data`) `&&` (不是 wasm 内存视图) `&&` (`napi_get_arraybuffer_info` 规则同样适用于它的 ArrayBuffer) | `从 JS 到 WASM` | 如果发生了内存复制，规则与 `napi_create_arraybuffer` 相同 |
+| `napi_create_buffer` | 不会发生复制。如果用户请求返回 `data`，则新分配内存然后直接从这块内存创建 Buffer 视图，否则用 `Buffer.alloc` 创建 Buffer |  | 如果用户请求返回 `data`，规则与 `napi_create_arraybuffer` 相同 |
+| `napi_create_external_buffer` | 不会发生复制。从 `data` 地址直接创建 Buffer 视图 |  | 用户 |
+
+你可以使用 `emnapi_sync_memory` 或导出运行时方法 `emnapiSyncMemory` 来同步 wasm 和 JS 的内存。当 wasm 内存增长或单边内存变化时，它是必要的。
+
+```c
+#include <emnapi.h>
+
+napi_status emnapi_sync_memory(napi_env env,
+                               bool js_to_wasm,
+                               napi_value* arraybuffer_or_view,
+                               size_t byte_offset,
+                               size_t length);
+
+void finalizer(napi_env env, void* finalize_data, void* finalize_hint) {
+   free(finalize_data);
+}
+
+napi_value createExternalArraybuffer(napi_env env, napi_callback_info info) {
+  uint8_t* external_data = malloc(3);
+  external_data[0] = 0;
+  external_data[1] = 1;
+  external_data[2] = 2;
+  napi_value array_buffer;
+  napi_create_external_arraybuffer(env, external_data, 3, finalizer, NULL, &array_buffer);
+
+  external_data[0] = 3; // JavaScript ArrayBuffer 内存不会改变
+  emnapi_sync_memory(env, false, array_buffer, 0, NAPI_AUTO_LENGTH);
+  // 同步后，new Uint8Array(array_buffer)[0] === 3
+
+  return array_buffer;
+}
+```
+
+```js
+declare function emnapiSyncMemory (
+  jsToWasm: boolean,
+  arrayBufferOrView: ArrayBuffer | ArrayBufferView,
+  byteOffset?: number,
+  length?: number
+): void
+
+const array_buffer = Module.emnapiExports.createExternalArraybuffer()
+new Uint8Array(array_buffer)[1] === 4
+Module.emnapiSyncMemory(true, array_buffer)
+```
+
+你可以使用 `emnapi_get_memory_address` 或导出运行时方法 `emnapiGetMemoryAddress` 来检查内存是否需要由你来手动释放。
+
+```c
+#include <emnapi.h>
+
+void* data;
+napi_get_typedarray_info(env, typedarray, NULL, NULL, &data, NULL, NULL);
+
+void* address;
+emnapi_ownership ownership;
+bool runtime_allocated;
+emnapi_get_memory_address(env, typedarray, &address, &ownership, &runtime_allocated);
+assert(address == data);
+if (data != NULL && runtime_allocated && ownership == emnapi_userland) {
+  // 用户需要手动释放内存
+  // free(data);
+}
+```
+
 ::: warning
 
-`data` 指针返回值可能为 `NULL` 的 API：
+`emnapi_get_memory_address` 对 wasm 内存视图可能会返回错误的 `ownership` 和 `runtime_allocated`。比如说，你使用 `napi_create_arraybuffer` 创建了一个 `ArrayBbuffer` 并且请求了返回 `data` 地址，然后用 `napi_create_external_buffer` 从 `data` 创建了一个视图。
 
 :::
 
-#### js_native_api.h
+### Buffer 相关
 
-- ***napi_create_arraybuffer*** (`data` 总是返回 `NULL`，JS 无法实现)
-- ***napi_get_arraybuffer_info*** (需要 `FinalizationRegistry`，data 是 wasm 内存中的一份拷贝)
-- ***napi_get_typedarray_info*** (需要 `FinalizationRegistry`，data 是 wasm 内存中的一份拷贝)
-- ***napi_get_dataview_info*** (需要 `FinalizationRegistry`，data 是 wasm 内存中的一份拷贝)
+::: warning
+
+以下 API 需要 `globalThis.Buffer`，否则将返回 `napi_invalid_arg` 或 `napi_pending_exception`。
+
+如果你想在浏览器中使用它们，你可以引入 [feross/buffer](https://github.com/feross/buffer)。
+
+:::
+
+- ***napi_create_buffer***
+- ***napi_create_external_buffer***
+- ***napi_create_buffer_copy***
+- ***napi_is_buffer***
+- ***napi_get_buffer_info***
+
+### 清理钩子相关
+
+::: tip
+
+清理钩子会被添加在 `Context` 上，当 `Context` dispose 时它们会被调用。
+
+特别地，在 Node.js 环境中，`Context.prototype.dispose` 会在 process `beforeExit` 事件中自动调用。
+
+:::
+
+#### node_api.h
+
+- ***napi_add_env_cleanup_hook***
+- ***napi_remove_env_cleanup_hook***
+- ***napi_add_async_cleanup_hook***
+- ***napi_remove_async_cleanup_hook***
 
 ### 内存管理
 
@@ -131,11 +210,19 @@ Cross-Origin-Embedder-Policy: require-corp
 - ***napi_unref_threadsafe_function***
 - ***napi_ref_threadsafe_function***
 
-## 稳定的 API
+### Other API
+
+#### node_api.h
+
+- ***napi_get_uv_event_loop***: 如果启用了 pthread，则返回线程池相关函数使用的假 `uv_loop_t`。
+- ***napi_fatal_exception***: 在 Node.js 环境中调用 `process._fatalException`。在非 Node.js 环境中返回 `napi_generic_failure`。
+- ***node_api_get_module_file_name***: 返回 `Module.emnapiInit({ context, filename })` 传入的 filename。
+
+## 任何时候都可用的 API
 
 ::: tip
 
-以下 API 稳定可用！
+请放心使用以下 API。
 
 :::
 
@@ -236,6 +323,12 @@ Cross-Origin-Embedder-Policy: require-corp
 - napi_object_seal
 - napi_type_tag_object
 - napi_check_object_type_tag
+- napi_unwrap
+- napi_remove_wrap
+- napi_get_value_external
+- napi_delete_reference
+- napi_reference_ref
+- napi_get_reference_value
 
 #### node_api.h
 

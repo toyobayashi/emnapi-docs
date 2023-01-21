@@ -3,6 +3,9 @@ title: emnapi
 layout: home
 
 hero:
+  image:
+    src: /emnapi.svg
+    alt: emnapi image
   text: emnapi
   tagline: 适用于 Emscripten 的 Node-API 子集实现
   actions:

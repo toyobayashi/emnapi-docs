@@ -24,16 +24,13 @@ Building with `emcmake`, output `build/hello.js` and `build/hello.wasm`.
 
 ```bash
 mkdir build
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
+
+emcmake cmake -DCMAKE_BUILD_TYPE=Release -G Ninja -H. -Bbuild
+# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -H. -Bbuild
+# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
+# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles" -H. -Bbuild
+
 cmake --build build
 ```
 
-If you have not installed `make` or `mingw32-make` on Windows, execute commands below in `Visual Studio Developer Command Prompt`.
-
-```bat
-mkdir build
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=nmake -G "NMake Makefiles" -H. -Bbuild
-cmake --build build
-```
-
-[Getting Started]: /guide/getting-started.html#cmake
+[Getting Started]: /guide/getting-started.html

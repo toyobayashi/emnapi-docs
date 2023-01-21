@@ -2,7 +2,15 @@
 sidebarDepth: 2
 ---
 
+<script setup>
+
+import { withBase } from 'vitepress'
+
+</script>
+
 # 什么是 emnapi
+
+<img :src="withBase('/emnapi.svg')" alt="emnapi logo" width="256" />
 
 `emnapi` 适用于 Emscripten 的 [Node-API](https://nodejs.org/docs/v16.15.0/api/n-api.html) 子集实现。
 
@@ -14,7 +22,7 @@ sidebarDepth: 2
 
 如果你不需要在浏览器和 Node.js 上运行相同的 Node-API 绑定代码，`embind` 非常好。使用 `embind` 编译成 wasm 也可以让你的代码同时在浏览器和 Node.js 上运行，但是当以 Node.js 为目标时，我们更倾向于编译到 Node.js 原生模块而不是 wasm 以获得原生性能。因此，在这种情况下，你可能需要为 Node.js 编写 Node-API 绑定，并为 Emscripten WebAssembly 编写 `embind` 绑定。你只是想让你的原生依赖项可以在 JavaScript 世界中使用，但你正在做重复的事情。
 
-事实上，在调用绑定函数时，`emnapi` 应该比 `embind` 更慢且更昂贵。但是当你非常希望共享 Node-API 绑定代码时，它仍然值得使用。
+事实上，在调用绑定函数时，`emnapi` 应该比 `embind` 更慢且效率低下。但是当你非常希望共享 Node-API 绑定代码时，它仍然值得使用。
 
 ## 浏览器兼容性
 
@@ -26,4 +34,8 @@ sidebarDepth: 2
 
 所有 Node.js 官方测试通过！功能可以得到保证。
 
-性能未经充分测试，应该在可接受的范围内，使用风险自负。你也可以试试[让 emnapi 变得更好](https://github.com/toyobayashi/emnapi/pulls)！
+经过简单的测试，常见的场景下它的性能几乎与 embind 处在同一水平，应该在可接受的范围内。
+
+1.0 版本即将到来，目前并没有发布，因为用于内部实现的运行时 API 可能还需要频繁重构与变更，但这不影响用户使用 Node-API 本身的稳定 API。
+
+你也可以试试[让 emnapi 变得更好](https://github.com/toyobayashi/emnapi/pulls)！

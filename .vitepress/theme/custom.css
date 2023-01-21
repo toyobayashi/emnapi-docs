@@ -1,5 +1,10 @@
 
 :root {
-  --vp-c-brand: #646cff;
-  --vp-c-brand-light: #747bff;
+  --vp-c-brand: #81a31c;
+  --vp-c-brand-light: #8bb11b;
+  --vp-button-brand-border: transparent;
+}
+
+.nav-bar-title .logo {
+  height: 2rem;
 }

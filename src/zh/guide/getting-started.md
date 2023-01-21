@@ -6,45 +6,17 @@
 
 你需要安装：
 
-- Node.js `>= v14.6.0`
-- Emscripten `>= v3.0.0` (`v2.x` 未测试，也许可以正常工作)
+- Node.js `>= v16.15.0`
+- npm `>= v8`
+- Emscripten `>= v3.1.9`
+- CMake `>= 3.13`
+- ninja / make
 
 ::: tip
 设置 `$EMSDK` 环境变量为 emsdk 根目录。
 
 把 `$EMSDK/upstream/emscripten` 添加到 `$PATH` 环境变量中。
 :::
-
-验证环境：
-
-```bash
-node -v
-npm -v
-emcc -v
-```
-
-## 安装
-
-安装 emnapi 有两种方法。
-
-- 通过 `npm` 将 `emnapi` 安装到本地项目中（推荐）
-- 通过 `cmake` 从源码构建 `emnapi` 然后安装到自定义的 sysroot 路径
-
-### 通过 NPM 安装
-
-```bash
-npm install -D @tybys/emnapi
-
-# 可选的，请阅读 "emnapi 运行时" 章节了解更多
-# npm install -D @tybys/emnapi-runtime
-```
-
-### 通过 CMake 安装
-
-你需要安装：
-
-- CMake `>= 3.13`
-- make
 
 ::: tip
 Windows 用户有多种获取 `make` 的选择
@@ -58,15 +30,41 @@ Windows 用户有多种获取 `make` 的选择
 验证环境：
 
 ```bash
+node -v
+npm -v
+emcc -v
 cmake --version
+
+# 如果你使用 ninja
+ninja --version
+
+# 如果你使用 make
 make -v
 
-# Windows cmd
-# mingw32-make -v
-
-# Visual Studio Developer Command Prompt
-# nmake /?
+# 如果你在 Visual Studio Developer Command Prompt 使用 nmake
+nmake /?
 ```
+
+## 安装
+
+安装 emnapi 有两种方法。
+
+- 通过 `npm` 将 `emnapi` 安装到本地项目中（推荐）
+- 通过 `cmake` 从源码构建 `emnapi` 然后安装到自定义的 sysroot 路径
+
+### 通过 NPM 安装
+
+```bash
+npm install -D @tybys/emnapi @tybys/emnapi-runtime
+```
+
+::: tip
+
+`@tybys/emnapi-runtime` 版本与 `@tybys/emnapi` 的版本对应。
+
+:::
+
+### 通过 CMake 安装
 
 克隆仓库并从源码构建：
 
@@ -74,23 +72,11 @@ make -v
 git clone https://github.com/toyobayashi/emnapi
 cd ./emnapi
 
-npm run build
-
-cd ./packages/emnapi
-
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild
-
-# Windows have mingw32-make installed
-# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
-
-# Windows Visual Studio Developer Command Prompt
-# emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=nmake -G "NMake Makefiles"  -H. -Bbuild
-
-cmake --build build
-cmake --install build [--prefix <sysroot>]
+npm run build             # output ./packages/*/dist
+node ./script/release.js  # output ./out
 ```
 
-默认的 `sysroot` 是 `$EMSDK/upstream/emscripten/cache/sysroot`。
+然后你可以复制输出的 `out` 目录到 `$EMSDK/upstream/emscripten/cache/sysroot`。
 
 ## 编写源码
 
@@ -181,29 +167,49 @@ emcc -O3 \
 
 ## 在浏览器上运行
 
-把输出的 JS 引入进 HTML 使用，默认导出在 [Module](https://emscripten.org/docs/api_reference/module.html) 对象上的 `emnapiExports`。可通过预定义 `NODE_GYP_MODULE_NAME` 修改默认的导出键值。`onEmnapiInitialized` 将在 `onRuntimeInitialized` 之前被调用。
+创建 `index.html`，使用输出的 js 文件。 初始化 emnapi 需要先导入 emnapi 运行时，通过 `createContext` 创建 `Context`，然后在 emscripten 运行时初始化后调用 `Module.emnapiInit`。
+
+```ts
+declare namespace emnapi {
+  // module '@tybys/emnapi-runtime'
+  export class Context { /* ... */ }
+  export function createContext (): Context
+  // ...
+}
+
+declare namespace Module {
+  interface EmnapiInitOptions {
+    context: emnapi.Context
+    filename?: string
+  }
+  export function emnapiInit (options: EmnapiInitOptions): any
+}
+```
+
+每个 `Context` 都拥有独立的 Node-API 对象，例如 `napi_env`、`napi_value`、`napi_ref`。 如果你有多个 emnapi 模块，你应该在它们之间重用相同的 `Context`。 `Module.emnapiInit` 只初始化一次，初始化成功后总是返回相同的绑定导出。
 
 ```html
+<script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
 <script src="hello.js"></script>
 <script>
-// Emscripten js glue code will create a global `Module` object
-Module.onEmnapiInitialized = function (err, emnapiExports) {
-  if (err) {
-    // error handling
-    // emnapiExports === undefined
-    // Module[NODE_GYP_MODULE_NAME] === undefined
-    console.error(err);
-  } else {
-    // emnapiExports === Module[NODE_GYP_MODULE_NAME]
-  }
-};
+var emnapiContext = emnapi.createContext();
 
 Module.onRuntimeInitialized = function () {
-  if (!('emnapiExports' in Module)) return;
-  var binding = Module.emnapiExports;
+  var binding;
+  try {
+    binding = Module.emnapiInit({ context: emnapiContext });
+  } catch (err) {
+    console.error(err);
+    return;
+  }
   var msg = 'hello ' + binding.hello();
   window.alert(msg);
 };
+
+// if -sMODULARIZE=1
+Module({ /* Emscripten module init options */ }).then(function (Module) {
+  var binding = Module.emnapiInit({ context: emnapiContext });
+});
 </script>
 ```
 
@@ -214,18 +220,26 @@ Module.onRuntimeInitialized = function () {
 创建 `index.js`。
 
 ```js
+const emnapi = require('@tybys/emnapi-runtime')
 const Module = require('./hello.js')
-
-Module.onEmnapiInitialized = function (err, emnapiExports) {
-  // ...
-}
+const emnapiContext = emnapi.createContext()
 
 Module.onRuntimeInitialized = function () {
-  if (!('emnapiExports' in Module)) return
-  const binding = Module.emnapiExports
+  let binding
+  try {
+    binding = Module.emnapiInit({ context: emnapiContext })
+  } catch (err) {
+    console.error(err)
+    return
+  }
   const msg = `hello ${binding.hello()}`
   console.log(msg)
 }
+
+// if -sMODULARIZE=1
+Module({ /* Emscripten module init options */ }).then((Module) => {
+  const binding = Module.emnapiInit({ context: emnapiContext })
+})
 ```
 
 执行脚本。
@@ -235,5 +249,3 @@ node ./index.js
 ```
 
 然后你就可以看到 hello world 的输出了。
-
-如果在运行时初始化时抛出 JS 错误，Node.js 进程将会退出。可以使用`-sNODEJS_CATCH_EXIT=0` 并自己添加`uncaughtException`。或者可以使用 `Module.onEmnapiInitialized` 来捕获异常。

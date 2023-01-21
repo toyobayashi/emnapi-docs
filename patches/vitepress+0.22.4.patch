@@ -1,0 +1,19 @@
+diff --git a/node_modules/vitepress/dist/client/theme-default/components/AlgoliaSearchBox.vue b/node_modules/vitepress/dist/client/theme-default/components/AlgoliaSearchBox.vue
+index 510e15d..82da304 100644
+--- a/node_modules/vitepress/dist/client/theme-default/components/AlgoliaSearchBox.vue
++++ b/node_modules/vitepress/dist/client/theme-default/components/AlgoliaSearchBox.vue
+@@ -38,7 +38,13 @@ function isSpecialClick(event: MouseEvent) {
+ 
+ function getRelativePath(absoluteUrl: string) {
+   const { pathname, hash } = new URL(absoluteUrl)
+-
++  const url = new URL(window.location.href)
++  if (url.hostname.endsWith('github.io')) {
++    const pathSplit = url.pathname.split('/')
++    if (pathSplit[1]) {
++      return '/' + pathSplit[1] + pathname + hash
++    }
++  }
+   return pathname + hash
+ }
+ 

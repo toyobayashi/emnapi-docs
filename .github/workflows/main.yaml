@@ -24,6 +24,9 @@ jobs:
       - name: Install
         run: npm install
 
+      - name: Patch
+        run: npx patch-package
+
       - name: Build
         run: npm run build
         env:

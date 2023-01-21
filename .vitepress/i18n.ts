@@ -10,6 +10,11 @@ const tr = {
     usingCppWrapper: 'Using C++ Wrapper',
     usingCMake: 'Using CMake',
     errorHandling: 'Error Handling',
+    functionBinding: 'Function Binding',
+    classBinding: 'Class Binding',
+    multithreadedAsync: 'Multithreaded Asynchronous Operations',
+    tsfn: 'Thread Safe Function',
+    faq: 'FAQ',
 
     advanced: 'Advanced',
     emnapiRuntime: 'emnapi Runtime',
@@ -30,6 +35,11 @@ const tr = {
     usingCppWrapper: '使用 C++ 包装器',
     usingCMake: '使用 CMake',
     errorHandling: '错误处理',
+    functionBinding: '函数绑定',
+    classBinding: '类绑定',
+    multithreadedAsync: '多线程异步',
+    tsfn: '线程安全函数',
+    faq: '常见问题',
 
     advanced: '进阶',
     emnapiRuntime: 'emnapi 运行时',

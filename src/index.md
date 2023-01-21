@@ -3,6 +3,9 @@ title: emnapi
 layout: home
 
 hero:
+  image:
+    src: /emnapi.svg
+    alt: emnapi image
   text: emnapi
   tagline: A Subset of Node-API Implementation for Emscripten
   actions:
