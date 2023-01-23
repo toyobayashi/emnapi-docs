@@ -1,1 +1,0 @@
-import{_ as e,o as a,c as t,a as r}from"./app.96092cb2.js";const u=JSON.parse('{"title":"线程安全函数","description":"","frontmatter":{},"headers":[],"relativePath":"zh/guide/tsfn.md","lastUpdated":1674282702000}'),n={name:"zh/guide/tsfn.md"},i=r("",4),_=[i];function s(o,d,c,h,l,p){return a(),t("div",null,_)}const m=e(n,[["render",s]]);export{u as __pageData,m as default};
