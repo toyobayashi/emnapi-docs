@@ -15,9 +15,6 @@ sidebarDepth: 4
 #### node_api.h
 
 - ~~napi_module_register~~
-- ~~napi_async_init~~
-- ~~napi_async_destroy~~
-- ~~napi_make_callback~~
 - ~~napi_open_callback_scope~~
 - ~~napi_close_callback_scope~~
 
@@ -177,6 +174,21 @@ if (data != NULL && runtime_allocated && ownership == emnapi_userland) {
 
 - ***napi_adjust_external_memory*** (内部调用 `emscripten_resize_heap`, `change_in_bytes` 必须是正整数)
 
+### Node.js 上的异步操作
+
+#### node_api.h
+
+::: warning
+
+以下 API 仅在 Node.js 运行时支持，并且需要 `@tybys/emnapi-node-binding` 并在调用 `emnapiInit` 时传入。
+
+:::
+
+- ***napi_async_init***
+- ***napi_async_destroy***
+- ***napi_make_callback***
+
+
 ### 多线程相关
 
 ::: warning
@@ -192,7 +204,7 @@ Cross-Origin-Embedder-Policy: require-corp
 
 在响应头中。
 
-`async_resource` 和 `async_resource_name` 参数没有效果。
+`async_resource` 和 `async_resource_name` 参数在浏览器环境中没有效果，仅在 Node.js 运行时支持，并且需要 `@tybys/emnapi-node-binding` 并在调用 `emnapiInit` 时传入。
 
 :::
 

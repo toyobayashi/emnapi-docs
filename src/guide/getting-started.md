@@ -181,7 +181,21 @@ declare namespace emnapi {
 declare namespace Module {
   interface EmnapiInitOptions {
     context: emnapi.Context
+
+    /** node_api_get_module_file_name */
     filename?: string
+
+    /**
+     * Support following async_hooks related things
+     * on Node.js runtime only
+     * 
+     * napi_async_init,
+     * napi_async_destroy,
+     * napi_make_callback,
+     * async resource parameter of
+     * napi_create_async_work and napi_create_threadsafe_function
+     */
+    nodeBinding?: typeof import('@tybys/emnapi-node-binding')
   }
   export function emnapiInit (options: EmnapiInitOptions): any
 }

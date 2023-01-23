@@ -22,6 +22,14 @@ int emnapi_is_support_bigint();
 
 Returns `1` if the runtime support `BigInt`, else returns `0`.
 
+#### emnapi_is_node_binding_available
+
+```c
+int emnapi_is_node_binding_available();
+```
+
+Returns `1` if the `nodeBinding` option of `emnapiInit` is provided, else returns `0`.
+
 #### emnapi_get_module_object
 
 ```c

@@ -1,6 +1,6 @@
 # Using C++ Wrapper
 
-Alternatively, you can also use [node-addon-api](https://github.com/nodejs/node-addon-api) which is official Node-API header-only C++ wrapper, already shipped ([v5.1.0](https://github.com/nodejs/node-addon-api/releases/tag/v5.1.0)) in `emnapi` but without Node.js specific API such as `AsyncContext`, `Function::MakeCallback`, etc.
+Alternatively, you can also use [node-addon-api](https://github.com/nodejs/node-addon-api) which is official Node-API header-only C++ wrapper, already shipped ([v5.1.0](https://github.com/nodejs/node-addon-api/releases/tag/v5.1.0)) in `emnapi` but without Node.js specific API such as `CallbackScope`.
 
 ::: warning
 

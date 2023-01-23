@@ -180,7 +180,21 @@ declare namespace emnapi {
 declare namespace Module {
   interface EmnapiInitOptions {
     context: emnapi.Context
+
+    /** node_api_get_module_file_name */
     filename?: string
+
+    /**
+     * 只有在 Node.js 运行时中支持以下
+     * 与 async_hooks 相关的 API
+     * 
+     * napi_async_init,
+     * napi_async_destroy,
+     * napi_make_callback,
+     * napi_create_async_work 和 napi_create_threadsafe_function
+     * 的 async resource 参数
+     */
+    nodeBinding?: typeof import('@tybys/emnapi-node-binding')
   }
   export function emnapiInit (options: EmnapiInitOptions): any
 }

@@ -15,9 +15,6 @@ These APIs don't exist.
 #### node_api.h
 
 - ~~napi_module_register~~
-- ~~napi_async_init~~
-- ~~napi_async_destroy~~
-- ~~napi_make_callback~~
 - ~~napi_open_callback_scope~~
 - ~~napi_close_callback_scope~~
 
@@ -177,6 +174,20 @@ On Node.js, `Context.prototype.dispose` will be called automatically on process 
 
 - ***napi_adjust_external_memory*** (call `emscripten_resize_heap` internally, `change_in_bytes` must be a positive integer)
 
+### Asynchronous operation on Node.js
+
+#### node_api.h
+
+::: warning
+
+These APIs only work on Node.js and require `@tybys/emnapi-node-binding` when calling `emnapiInit`.
+
+:::
+
+- ***napi_async_init***
+- ***napi_async_destroy***
+- ***napi_make_callback***
+
 ### Multithread related
 
 ::: warning
@@ -192,7 +203,8 @@ Cross-Origin-Embedder-Policy: require-corp
 
 in response headers.
 
-The `async_resource` and `async_resource_name` parameter have no effect.
+The `async_resource` and `async_resource_name` parameter have no effect on browser,
+only work on Node.js and require `@tybys/emnapi-node-binding` when calling `emnapiInit`.
 
 :::
 

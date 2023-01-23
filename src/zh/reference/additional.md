@@ -22,6 +22,14 @@ int emnapi_is_support_bigint();
 
 如果运行时支持 `BigInt`，则返回 `1`，否则返回 `0`。
 
+#### emnapi_is_node_binding_available
+
+```c
+int emnapi_is_node_binding_available();
+```
+
+如果调用 `emnapiInit` 时传入了 `nodeBinding`，则返回 `1`，否则返回 `0`。
+
 #### emnapi_get_module_object
 
 ```c
