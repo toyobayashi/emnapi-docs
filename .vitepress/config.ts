@@ -104,6 +104,7 @@ function getGuideSidebar (lang: Lang): DefaultTheme.SidebarGroup[] {
         { text: tr[lang].gettingStarted, link: `${lang}guide/getting-started` },
         { text: tr[lang].usingCppWrapper, link: `${lang}guide/using-cpp` },
         { text: tr[lang].usingCMake, link: `${lang}guide/using-cmake` },
+        { text: tr[lang].usingRust, link: `${lang}guide/using-rust` },
         { text: tr[lang].errorHandling, link: `${lang}guide/error-handling` },
         { text: tr[lang].functionBinding, link: `${lang}guide/function-binding` },
         { text: tr[lang].classBinding, link: `${lang}guide/class-binding` },
@@ -116,7 +117,6 @@ function getGuideSidebar (lang: Lang): DefaultTheme.SidebarGroup[] {
         { text: tr[lang].modularization, link: `${lang}guide/modularization` },
         { text: tr[lang].multithreadedAsync, link: `${lang}guide/multithreaded-async` },
         { text: tr[lang].tsfn, link: `${lang}guide/tsfn` },
-        { text: tr[lang].modularization, link: `${lang}guide/modularization` },
         { text: tr[lang].faq, link: `${lang}guide/faq` },
       ]
     },

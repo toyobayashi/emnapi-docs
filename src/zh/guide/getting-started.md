@@ -8,9 +8,10 @@
 
 - Node.js `>= v16.15.0`
 - npm `>= v8`
-- Emscripten `>= v3.1.9`
-- CMake `>= 3.13`
-- ninja / make
+- Emscripten `>= v3.1.9` / wasi-sdk / LLVM clang with wasm support
+- (可选) CMake `>= v3.13`
+- (可选) ninja
+- (可选) make
 
 ::: tip
 设置 `$EMSDK` 环境变量为 emsdk 根目录。
@@ -33,6 +34,10 @@ Windows 用户有多种获取 `make` 的选择
 node -v
 npm -v
 emcc -v
+
+# clang -v
+# clang -print-targets # 确保支持 wasm32
+
 cmake --version
 
 # 如果你使用 ninja
@@ -47,36 +52,20 @@ nmake /?
 
 ## 安装
 
-安装 emnapi 有两种方法。
-
-- 通过 `npm` 将 `emnapi` 安装到本地项目中（推荐）
-- 通过 `cmake` 从源码构建 `emnapi` 然后安装到自定义的 sysroot 路径
-
-### 通过 NPM 安装
 
 ```bash
-npm install -D @tybys/emnapi @tybys/emnapi-runtime
+npm install -D @tybys/emnapi
+npm install @tybys/emnapi-runtime
+
+# for non-emscripten
+npm install @tybys/emnapi-core
 ```
 
 ::: tip
 
-`@tybys/emnapi-runtime` 版本与 `@tybys/emnapi` 的版本对应。
+每个包的版本必须对应一致。
 
 :::
-
-### 通过 CMake 安装
-
-克隆仓库并从源码构建：
-
-```bash
-git clone https://github.com/toyobayashi/emnapi
-cd ./emnapi
-
-npm run build             # output ./packages/*/dist
-node ./script/release.js  # output ./out
-```
-
-然后你可以复制输出的 `out` 目录到 `$EMSDK/upstream/emscripten/cache/sysroot`。
 
 ## 编写源码
 
@@ -84,7 +73,6 @@ node ./script/release.js  # output ./out
 
 ```c
 #include <node_api.h>
-#include <string.h>
 
 #define NAPI_CALL(env, the_call)                                \
   do {                                                          \
@@ -107,8 +95,7 @@ node ./script/release.js  # output ./out
 static napi_value js_hello(napi_env env, napi_callback_info info) {
   napi_value world;
   const char* str = "world";
-  size_t str_len = strlen(str);
-  NAPI_CALL(env, napi_create_string_utf8(env, str, str_len, &world));
+  NAPI_CALL(env, napi_create_string_utf8(env, str, NAPI_AUTO_LENGTH, &world));
   return world;
 }
 
@@ -138,36 +125,66 @@ module.exports = (function (exports) {
 
 ## 构建源码
 
-使用 `emcc` 编译 `hello.c`，通过 `-I` 设置包含目录，导出 `_malloc` 和 `_free`，通过 `--js-library` 链接emnapi JavaScript库。
+::: code-group
 
-```bash
+```bash [emscripten]
 emcc -O3 \
      -I./node_modules/@tybys/emnapi/include \
+     -L./node_modules/@tybys/emnapi/lib/wasm32-emscripten \
      --js-library=./node_modules/@tybys/emnapi/dist/library_napi.js \
-     -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
+     -sEXPORTED_FUNCTIONS="['_malloc','_free']" \
      -o hello.js \
-     ./node_modules/@tybys/emnapi/src/emnapi.c \
-     hello.c
+     hello.c \
+     -lemnapi
 ```
 
-如果你通过 `cmake --install` 安装 `emnapi`，请运行：
-
-```bash
-emcc -O3 \
-     -I<sysroot>/include/emnapi \
-     -L<sysroot>/lib/emnapi \
-     --js-library=<sysroot>/lib/emnapi/library_napi.js \
-     -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
-     -o hello.js \
-     -lemnapi \
-     hello.c
+```bash [wasi-sdk]
+clang -O3 \
+      -I./node_modules/@tybys/emnapi/include \
+      -L./node_modules/@tybys/emnapi/lib/wasm32-wasi \
+      --target=wasm32-wasi \
+      --sysroot=$WASI_SDK_PATH/share/wasi-sysroot \
+      -mexec-model=reactor \
+      -Wl,--initial-memory=16777216 \
+      -Wl,--export-dynamic \
+      -Wl,--export=malloc \
+      -Wl,--export=free \
+      -Wl,--export=napi_register_wasm_v1 \
+      -Wl,--import-undefined \
+      -Wl,--export-table \
+      -o hello.wasm \
+      hello.c \
+      -lemnapi
 ```
 
-如果上面的环境准备没有问题，这一步将会输出 `hello.js` 和 `hello.wasm`。
+```bash [clang]
+# 你可以链接 `@tybys/emnapi/lib/wasm32/libdlmalloc.a`
+# 以获得 `malloc` 和 `free` 实现
 
-## 在浏览器上运行
+clang -O3 \
+      -I./node_modules/@tybys/emnapi/include \
+      -L./node_modules/@tybys/emnapi/lib/wasm32 \
+      --target=wasm32 \
+      -nostdlib \
+      -Wl,--no-entry \
+      -Wl,--initial-memory=16777216 \
+      -Wl,--export-dynamic \
+      -Wl,--export=malloc \
+      -Wl,--export=free \
+      -Wl,--export=napi_register_wasm_v1 \
+      -Wl,--import-undefined \
+      -Wl,--export-table \
+      -o hello.wasm \
+      hello.c \
+      -lemnapi \
+      -ldlmalloc
+```
 
-创建 `index.html`，使用输出的 js 文件。 初始化 emnapi 需要先导入 emnapi 运行时，通过 `createContext` 创建 `Context`，然后在 emscripten 运行时初始化后调用 `Module.emnapiInit`。
+:::
+
+## 初始化
+
+初始化 emnapi 需要先导入 emnapi 运行时，通过 `createContext` 创建 `Context`，每个 `Context` 都拥有独立的 Node-API 对象，例如 `napi_env`、`napi_value`、`napi_ref`。 如果你有多个 emnapi 模块，你应该在它们之间重用相同的 `Context`。
 
 ```ts
 declare namespace emnapi {
@@ -176,7 +193,13 @@ declare namespace emnapi {
   export function createContext (): Context
   // ...
 }
+```
 
+::: details emscripten
+
+然后在 emscripten 运行时初始化后调用 `Module.emnapiInit`。 `Module.emnapiInit` 只初始化一次，初始化成功后总是返回相同的绑定导出。
+
+```ts
 declare namespace Module {
   interface EmnapiInitOptions {
     context: emnapi.Context
@@ -200,9 +223,9 @@ declare namespace Module {
 }
 ```
 
-每个 `Context` 都拥有独立的 Node-API 对象，例如 `napi_env`、`napi_value`、`napi_ref`。 如果你有多个 emnapi 模块，你应该在它们之间重用相同的 `Context`。 `Module.emnapiInit` 只初始化一次，初始化成功后总是返回相同的绑定导出。
+::: code-group
 
-```html
+```html [Browser]
 <script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
 <script src="hello.js"></script>
 <script>
@@ -227,13 +250,19 @@ Module({ /* Emscripten module init options */ }).then(function (Module) {
 </script>
 ```
 
-如果你正在使用 `Visual Studio Code` 并安装了 `Live Server` 扩展，则可以右键单击 Visual Studio Code 源代码树中的 HTML 文件再单击 `Open With Live Server`，然后你就可以看到 hello world 弹窗了！
+```js [Webpack]
+import { createContext } from '@tybys/emnapi-runtime'
+// emcc -sMODULARIZE=1
+import * as init from './hello.js'
 
-## 在 Node.js 上运行
+const emnapiContext = createContext()
 
-创建 `index.js`。
+init({ /* Emscripten module init options */ }).then((Module) => {
+  const binding = Module.emnapiInit({ context: emnapiContext })
+})
+```
 
-```js
+```js [Node.js]
 const emnapi = require('@tybys/emnapi-runtime')
 const Module = require('./hello.js')
 const emnapiContext = emnapi.createContext()
@@ -256,10 +285,207 @@ Module({ /* Emscripten module init options */ }).then((Module) => {
 })
 ```
 
-执行脚本。
+:::
 
-```bash
-node ./index.js
+::: details wasi-sdk or clang
+
+对于非 emscripten，你可以使用 `@tybys/emnapi-core`，初始化流程与 emscripten 类似。
+
+::: code-group
+
+```html [Browser]
+<script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
+<script src="node_modules/@tybys/emnapi-core/dist/emnapi-core.min.js"></script>
+<script>
+const context = emnapi.createContext()
+const napiModule = emnapiCore.createNapiModule({ context })
+
+fetch('./hello.wasm').then(res => res.arrayBuffer()).then(wasmBuffer => {
+  return WebAssembly.instantiate(wasmBuffer, {
+    env: {
+      ...napiModule.imports.env,
+      // Currently napi-rs imports all symbols from env module
+      ...napiModule.imports.napi,
+      ...napiModule.imports.emnapi
+    },
+    // clang
+    napi: napiModule.imports.napi,
+    emnapi: napiModule.imports.emnapi
+  })
+}).then(({ instance }) => {
+  const binding = napiModule.init(
+    instance, // WebAssembly.Instance
+    instance.exports.memory, // WebAssembly.Memory
+    instance.exports.__indirect_function_table // WebAssembly.Table
+  )
+  // binding === napiModule.exports
+})
+</script>
 ```
 
-然后你就可以看到 hello world 的输出了。
+```js [Webpack]
+import { createNapiModule } from '@tybys/emnapi-core'
+import { createContext } from '@tybys/emnapi-runtime'
+import base64 from './hello.wasm' // configure load wasm as base64
+
+const context = createContext()
+const napiModule = createNapiModule({ context })
+
+fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).then(wasmBuffer => {
+  return WebAssembly.instantiate(wasmBuffer, {
+    env: {
+      ...napiModule.imports.env,
+      // Currently napi-rs imports all symbols from env module
+      ...napiModule.imports.napi,
+      ...napiModule.imports.emnapi
+    },
+    // clang
+    napi: napiModule.imports.napi,
+    emnapi: napiModule.imports.emnapi
+  })
+}).then(({ instance }) => {
+  const binding = napiModule.init(
+    instance,
+    instance.exports.memory,
+    instance.exports.__indirect_function_table
+  )
+  // binding === napiModule.exports
+})
+```
+
+```js [Node.js]
+const { createNapiModule } = require('@tybys/emnapi-core')
+const { createContext } = require('@tybys/emnapi-runtime')
+
+const context = createContext()
+const napiModule = createNapiModule({ context })
+
+WebAssembly.instantiate(wasmBuffer, {
+  env: {
+    ...napiModule.imports.env,
+    // Currently napi-rs imports all symbols from env module
+    ...napiModule.imports.napi,
+    ...napiModule.imports.emnapi
+  },
+  // clang
+  napi: napiModule.imports.napi,
+  emnapi: napiModule.imports.emnapi
+}).then(({ instance }) => {
+  const binding = napiModule.init(
+    instance,
+    instance.exports.memory,
+    instance.exports.__indirect_function_table
+  )
+  // binding === napiModule.exports
+})
+```
+
+```js [Node.js WASI]
+const { createNapiModule } = require('@tybys/emnapi-core')
+const { createContext } = require('@tybys/emnapi-runtime')
+const { WASI } = require('wasi')
+
+const context = createContext()
+const napiModule = createNapiModule({ context })
+
+const wasi = new WASI({ /* ... */ })
+
+WebAssembly.instantiate(require('fs').readFileSync('./hello.wasm'), {
+  wasi_snapshot_preview1: wasi.wasiImport,
+  env: {
+    ...napiModule.imports.env,
+    // Currently napi-rs imports all symbols from env module
+    ...napiModule.imports.napi,
+    ...napiModule.imports.emnapi
+  },
+  // clang
+  napi: napiModule.imports.napi,
+  emnapi: napiModule.imports.emnapi
+}).then(({ instance }) => {
+  wasi.initialize(instance)
+  const binding = napiModule.init(
+    instance,
+    instance.exports.memory,
+    instance.exports.__indirect_function_table
+  )
+  // binding === napiModule.exports
+})
+```
+
+```js [Bundler WASI]
+// 你可以在 [wasm-util](https://github.com/toyobayashi/wasm-util) 找到 WASI 的 polyfill，
+// 还有 [memfs-browser](https://github.com/toyobayashi/memfs-browser)
+
+import { createNapiModule } from '@tybys/emnapi-core'
+import { createContext } from '@tybys/emnapi-runtime'
+import { WASI } from '@tybys/wasm-util'
+import { Volumn, createFsFromVolume } from 'memfs-browser'
+import base64 from './hello.wasm' // configure load wasm as base64
+
+const context = createContext()
+const napiModule = createNapiModule({ context })
+
+const fs = createFsFromVolume(Volume.from({ /* ... */ }))
+const wasi = WASI.createSync({ fs, /* ... */ })
+
+fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).then(wasmBuffer => {
+  return WebAssembly.instantiate(wasmBuffer, {
+    wasi_snapshot_preview1: wasi.wasiImport,
+    env: {
+      ...napiModule.imports.env,
+      // Currently napi-rs imports all symbols from env module
+      ...napiModule.imports.napi,
+      ...napiModule.imports.emnapi
+    },
+    // clang
+    napi: napiModule.imports.napi,
+    emnapi: napiModule.imports.emnapi
+  })
+}).then(({ instance }) => {
+  wasi.initialize(instance)
+  const binding = napiModule.init(
+    instance,
+    instance.exports.memory,
+    instance.exports.__indirect_function_table
+  )
+  // binding === napiModule.exports
+})
+```
+
+```html [Browser WASI]
+<script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
+<script src="node_modules/@tybys/emnapi-core/dist/emnapi-core.min.js"></script>
+<script src="node_modules/@tybys/wasm-util/dist/wasm-util.min.js"></script>
+<script src="node_modules/memfs-browser/dist/memfs.min.js"></script>
+<script>
+const context = createContext()
+const napiModule = createNapiModule({ context })
+
+const fs = memfs.createFsFromVolume(Volume.from({ /* ... */ }))
+const wasi = wasmUtil.WASI.createSync({ fs, /* ... */ })
+
+fetch('./hello.wasm').then(res => res.arrayBuffer()).then(wasmBuffer => {
+  return WebAssembly.instantiate(wasmBuffer, {
+    env: {
+      ...napiModule.imports.env,
+      // Currently napi-rs imports all symbols from env module
+      ...napiModule.imports.napi,
+      ...napiModule.imports.emnapi
+    },
+    // clang
+    napi: napiModule.imports.napi,
+    emnapi: napiModule.imports.emnapi
+  })
+}).then(({ instance }) => {
+  wasi.initialize(instance)
+  const binding = napiModule.init(
+    instance, // WebAssembly.Instance
+    instance.exports.memory, // WebAssembly.Memory
+    instance.exports.__indirect_function_table // WebAssembly.Table
+  )
+  // binding === napiModule.exports
+})
+</script>
+```
+
+:::

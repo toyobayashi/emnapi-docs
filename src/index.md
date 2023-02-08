@@ -7,7 +7,7 @@ hero:
     src: /emnapi.svg
     alt: emnapi image
   name: emnapi
-  text: Node-API Implementation for Emscripten
+  text: Node-API Implementation for Emscripten, wasi-sdk, clang and napi-rs
   tagline: Bring Node.js native addon to browser!
   actions:
   - theme: brand

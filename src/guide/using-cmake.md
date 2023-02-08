@@ -12,12 +12,27 @@ project(emnapiexample)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/node_modules/@tybys/emnapi")
 
 add_executable(hello hello.c)
-# or add_executable(hello hello.cpp)
 
-target_link_libraries(hello emnapi_full)
-target_link_options(hello PRIVATE
-  "-sEXPORTED_FUNCTIONS=['_malloc','_free']"
-)
+target_link_libraries(hello emnapi)
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  target_link_options(hello PRIVATE
+    "-sEXPORTED_FUNCTIONS=\"['_malloc','_free']\""
+  )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "WASI")
+  target_link_options(hello PRIVATE
+    "-mexec-model=reactor"
+    "-Wl,--export=napi_register_wasm_v1"
+    "-Wl,--initial-memory=16777216,--export-dynamic,--export=malloc,--export=free,--import-undefined,--export-table"
+  )
+elseif((CMAKE_C_COMPILER_TARGET STREQUAL "wasm32") OR (CMAKE_C_COMPILER_TARGET STREQUAL "wasm32-unknown-unknown"))
+  target_link_options(hello PRIVATE
+    "-nostdlib"
+    "-Wl,--export=napi_register_wasm_v1"
+    "-Wl,--no-entry"
+    "-Wl,--initial-memory=16777216,--export-dynamic,--export=malloc,--export=free,--import-undefined,--export-table"
+  )
+  target_link_libraries(hello dlmalloc)
+endif()
 ```
 
 Building with `emcmake`, output `build/hello.js` and `build/hello.wasm`.
@@ -25,10 +40,20 @@ Building with `emcmake`, output `build/hello.js` and `build/hello.wasm`.
 ```bash
 mkdir build
 
+# emscripten
 emcmake cmake -DCMAKE_BUILD_TYPE=Release -G Ninja -H. -Bbuild
-# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -H. -Bbuild
-# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -H. -Bbuild
-# emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles" -H. -Bbuild
+
+# wasi-sdk
+cmake -DCMAKE_TOOLCHAIN_FILE=$WASI_SDK_PATH/share/cmake/wasi-sdk.cmake \
+      -DWASI_SDK_PREFIX=$WASI_SDK_PATH \
+      -DCMAKE_BUILD_TYPE=Release \
+      -G Ninja -H. -Bbuild
+
+# wasm32
+cmake -DCMAKE_TOOLCHAIN_FILE=node_modules/@tybys/emnapi/cmake/wasm32.cmake \
+      -DLLVM_PREFIX=$WASI_SDK_PATH \
+      -DCMAKE_BUILD_TYPE=Release \
+      -G Ninja -H. -Bbuild
 
 cmake --build build
 ```

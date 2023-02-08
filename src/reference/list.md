@@ -172,7 +172,7 @@ On Node.js, `Context.prototype.dispose` will be called automatically on process 
 
 #### js_native_api.h
 
-- ***napi_adjust_external_memory*** (call `emscripten_resize_heap` internally, `change_in_bytes` must be a positive integer)
+- ***napi_adjust_external_memory*** (`change_in_bytes` must be a positive integer)
 
 ### Asynchronous operation on Node.js
 
@@ -192,7 +192,7 @@ These APIs only work on Node.js and require `@tybys/emnapi-node-binding` when ca
 
 ::: warning
 
-These APIs added in emnapi v0.15.0 require Emscripten pthread support (`-sUSE_PTHREADS=1`), also recommand to specifying thread pool size explicitly (`-sPTHREAD_POOL_SIZE=4`).
+These APIs added in emnapi v0.15.0 require Emscripten pthread support (`-sUSE_PTHREADS=1`), also recommand to specifying thread pool size explicitly (`-sPTHREAD_POOL_SIZE=4`), wasi-sdk has not supported thread yet.
 
 Require target environment has `Worker` and `SharedArrayBuffer` support. If target environment is browser, require
 

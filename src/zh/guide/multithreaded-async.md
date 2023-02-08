@@ -1,5 +1,11 @@
 # 多线程异步
 
+::: tip
+
+仅在 Emscripten 中支持
+
+:::
+
 - [napi_create_async_work](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#napi_create_async_work)
 - [napi_delete_async_work](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#napi_delete_async_work)
 - [napi_queue_async_work](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#napi_queue_async_work)

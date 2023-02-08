@@ -7,7 +7,7 @@ hero:
     src: /emnapi.svg
     alt: emnapi image
   name: emnapi
-  text: 适用于 Emscripten 的Node-API 实现
+  text: 适用于 Emscripten / wasi-sdk / clang / napi-rs 的 Node-API 实现
   tagline: |
 
     将 Node.js 原生模块带到浏览器！

@@ -8,9 +8,10 @@ You will need to install:
 
 - Node.js `>= v16.15.0`
 - npm `>= v8`
-- Emscripten `>= v3.1.9`
-- CMake `>= 3.13`
-- ninja / make
+- Emscripten `>= v3.1.9` / wasi-sdk / LLVM clang with wasm support
+- (Optional) CMake `>= v3.13`
+- (Optional) ninja
+- (Optional) make
 
 ::: tip
 Set `$EMSDK` environment variable to the emsdk root path.
@@ -33,6 +34,10 @@ Verify your environment:
 node -v
 npm -v
 emcc -v
+
+# clang -v
+# clang -print-targets # ensure wasm32 target exists
+
 cmake --version
 
 # if you use ninja
@@ -47,37 +52,19 @@ nmake /?
 
 ## Installation
 
-There are two methods to install emnapi.
-
-- Install `emnapi` package to local project via `npm` (recommended)
-- Build `emnapi` from source via `cmake` and install to custom sysroot path
-
-### Install via NPM
-
 ```bash
-npm install -D @tybys/emnapi @tybys/emnapi-runtime
+npm install -D @tybys/emnapi
+npm install @tybys/emnapi-runtime
+
+# for non-emscripten
+npm install @tybys/emnapi-core
 ```
 
 ::: tip
 
-`@tybys/emnapi-runtime` version should match `@tybys/emnapi` version.
+Each package should match the same version.
 
 :::
-
-
-### Install via CMake
-
-Clone repository and build from source:
-
-```bash
-git clone https://github.com/toyobayashi/emnapi
-cd ./emnapi
-
-npm run build             # output ./packages/*/dist
-node ./script/release.js  # output ./out
-```
-
-Then you can copy the `out` directory to `$EMSDK/upstream/emscripten/cache/sysroot`.
 
 ## Writing Source Code
 
@@ -85,7 +72,6 @@ Create `hello.c`
 
 ```c
 #include <node_api.h>
-#include <string.h>
 
 #define NAPI_CALL(env, the_call)                                \
   do {                                                          \
@@ -108,8 +94,7 @@ Create `hello.c`
 static napi_value js_hello(napi_env env, napi_callback_info info) {
   napi_value world;
   const char* str = "world";
-  size_t str_len = strlen(str);
-  NAPI_CALL(env, napi_create_string_utf8(env, str, str_len, &world));
+  NAPI_CALL(env, napi_create_string_utf8(env, str, NAPI_AUTO_LENGTH, &world));
   return world;
 }
 
@@ -139,36 +124,67 @@ module.exports = (function (exports) {
 
 ## Buiding Source Code
 
-Compile `hello.c` using `emcc`, set include directory by `-I`, export `_malloc` and `_free`, link emnapi JavaScript library by `--js-library`.
+::: code-group
 
-```bash
+```bash [emscripten]
 emcc -O3 \
      -I./node_modules/@tybys/emnapi/include \
+     -L./node_modules/@tybys/emnapi/lib/wasm32-emscripten \
      --js-library=./node_modules/@tybys/emnapi/dist/library_napi.js \
-     -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
+     -sEXPORTED_FUNCTIONS="['_malloc','_free']" \
      -o hello.js \
-     ./node_modules/@tybys/emnapi/src/emnapi.c \
-     hello.c
+     hello.c \
+     -lemnapi
 ```
 
-If you installed `emnapi` via `cmake --install`, run:
-
-```bash
-emcc -O3 \
-     -I<sysroot>/include/emnapi \
-     -L<sysroot>/lib/emnapi \
-     --js-library=<sysroot>/lib/emnapi/library_napi.js \
-     -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
-     -o hello.js \
-     -lemnapi \
-     hello.c
+```bash [wasi-sdk]
+clang -O3 \
+      -I./node_modules/@tybys/emnapi/include \
+      -L./node_modules/@tybys/emnapi/lib/wasm32-wasi \
+      --target=wasm32-wasi \
+      --sysroot=$WASI_SDK_PATH/share/wasi-sysroot \
+      -mexec-model=reactor \
+      -Wl,--initial-memory=16777216 \
+      -Wl,--export-dynamic \
+      -Wl,--export=malloc \
+      -Wl,--export=free \
+      -Wl,--export=napi_register_wasm_v1 \
+      -Wl,--import-undefined \
+      -Wl,--export-table \
+      -o hello.wasm \
+      hello.c \
+      -lemnapi
 ```
 
-If you have the environment setting ok, this step will output `hello.js` and `hello.wasm`.
+```bash [clang]
+# You can link against `@tybys/emnapi/lib/wasm32/libdlmalloc.a`
+# for `malloc` and `free`
 
-## Running on Browser
+clang -O3 \
+      -I./node_modules/@tybys/emnapi/include \
+      -L./node_modules/@tybys/emnapi/lib/wasm32 \
+      --target=wasm32 \
+      -nostdlib \
+      -Wl,--no-entry \
+      -Wl,--initial-memory=16777216 \
+      -Wl,--export-dynamic \
+      -Wl,--export=malloc \
+      -Wl,--export=free \
+      -Wl,--export=napi_register_wasm_v1 \
+      -Wl,--import-undefined \
+      -Wl,--export-table \
+      -o hello.wasm \
+      hello.c \
+      -lemnapi \
+      -ldlmalloc
+```
 
-Create `index.html`, use the output js file. To initialize emnapi, you need to import the emnapi runtime to create a `Context` by `createContext` first, then call `Module.emnapiInit` after emscripten runtime initialized.
+:::
+
+## Initialzation
+
+To initialize emnapi, you need to import the emnapi runtime to create a `Context` by `createContext` first.
+Each context owns isolated Node-API object such as `napi_env`, `napi_value`, `napi_ref`. If you have multiple emnapi modules, you should reuse the same `Context` across them. 
 
 ```ts
 declare namespace emnapi {
@@ -177,7 +193,14 @@ declare namespace emnapi {
   export function createContext (): Context
   // ...
 }
+```
 
+::: details emscripten
+
+then call `Module.emnapiInit` after emscripten runtime initialized.
+`Module.emnapiInit` only do initialization once, it will always return the same binding exports after successfully initialized.
+
+```ts
 declare namespace Module {
   interface EmnapiInitOptions {
     context: emnapi.Context
@@ -201,9 +224,9 @@ declare namespace Module {
 }
 ```
 
-Each context owns isolated Node-API object such as `napi_env`, `napi_value`, `napi_ref`. If you have multiple emnapi modules, you should reuse the same `Context` across them. `Module.emnapiInit` only do initialization once, it will always return the same binding exports after successfully initialized.
+::: code-group
 
-```html
+```html [Browser]
 <script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
 <script src="hello.js"></script>
 <script>
@@ -228,13 +251,19 @@ Module({ /* Emscripten module init options */ }).then(function (Module) {
 </script>
 ```
 
-If you are using `Visual Studio Code` and have `Live Server` extension installed, you can right click the HTML file in Visual Studio Code source tree and click `Open With Live Server`, then you can see the hello world alert!
+```js [Webpack]
+import { createContext } from '@tybys/emnapi-runtime'
+// emcc -sMODULARIZE=1
+import * as init from './hello.js'
 
-## Running on Node.js
+const emnapiContext = createContext()
 
-Create `index.js`.
+init({ /* Emscripten module init options */ }).then((Module) => {
+  const binding = Module.emnapiInit({ context: emnapiContext })
+})
+```
 
-```js
+```js [Node.js]
 const emnapi = require('@tybys/emnapi-runtime')
 const Module = require('./hello.js')
 const emnapiContext = emnapi.createContext()
@@ -257,10 +286,207 @@ Module({ /* Emscripten module init options */ }).then((Module) => {
 })
 ```
 
-Run the script.
+:::
 
-```bash
-node ./index.js
+::: details wasi-sdk or clang
+
+For non-emscripten, you need to use `@tybys/emnapi-core`. The initialization is similar to emscripten.
+
+::: code-group
+
+```html [Browser]
+<script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
+<script src="node_modules/@tybys/emnapi-core/dist/emnapi-core.min.js"></script>
+<script>
+const context = emnapi.createContext()
+const napiModule = emnapiCore.createNapiModule({ context })
+
+fetch('./hello.wasm').then(res => res.arrayBuffer()).then(wasmBuffer => {
+  return WebAssembly.instantiate(wasmBuffer, {
+    env: {
+      ...napiModule.imports.env,
+      // Currently napi-rs imports all symbols from env module
+      ...napiModule.imports.napi,
+      ...napiModule.imports.emnapi
+    },
+    // clang
+    napi: napiModule.imports.napi,
+    emnapi: napiModule.imports.emnapi
+  })
+}).then(({ instance }) => {
+  const binding = napiModule.init(
+    instance, // WebAssembly.Instance
+    instance.exports.memory, // WebAssembly.Memory
+    instance.exports.__indirect_function_table // WebAssembly.Table
+  )
+  // binding === napiModule.exports
+})
+</script>
 ```
 
-Then you can see the hello world output.
+```js [Webpack]
+import { createNapiModule } from '@tybys/emnapi-core'
+import { createContext } from '@tybys/emnapi-runtime'
+import base64 from './hello.wasm' // configure load wasm as base64
+
+const context = createContext()
+const napiModule = createNapiModule({ context })
+
+fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).then(wasmBuffer => {
+  return WebAssembly.instantiate(wasmBuffer, {
+    env: {
+      ...napiModule.imports.env,
+      // Currently napi-rs imports all symbols from env module
+      ...napiModule.imports.napi,
+      ...napiModule.imports.emnapi
+    },
+    // clang
+    napi: napiModule.imports.napi,
+    emnapi: napiModule.imports.emnapi
+  })
+}).then(({ instance }) => {
+  const binding = napiModule.init(
+    instance,
+    instance.exports.memory,
+    instance.exports.__indirect_function_table
+  )
+  // binding === napiModule.exports
+})
+```
+
+```js [Node.js]
+const { createNapiModule } = require('@tybys/emnapi-core')
+const { createContext } = require('@tybys/emnapi-runtime')
+
+const context = createContext()
+const napiModule = createNapiModule({ context })
+
+WebAssembly.instantiate(wasmBuffer, {
+  env: {
+    ...napiModule.imports.env,
+    // Currently napi-rs imports all symbols from env module
+    ...napiModule.imports.napi,
+    ...napiModule.imports.emnapi
+  },
+  // clang
+  napi: napiModule.imports.napi,
+  emnapi: napiModule.imports.emnapi
+}).then(({ instance }) => {
+  const binding = napiModule.init(
+    instance,
+    instance.exports.memory,
+    instance.exports.__indirect_function_table
+  )
+  // binding === napiModule.exports
+})
+```
+
+```js [Node.js WASI]
+const { createNapiModule } = require('@tybys/emnapi-core')
+const { createContext } = require('@tybys/emnapi-runtime')
+const { WASI } = require('wasi')
+
+const context = createContext()
+const napiModule = createNapiModule({ context })
+
+const wasi = new WASI({ /* ... */ })
+
+WebAssembly.instantiate(require('fs').readFileSync('./hello.wasm'), {
+  wasi_snapshot_preview1: wasi.wasiImport,
+  env: {
+    ...napiModule.imports.env,
+    // Currently napi-rs imports all symbols from env module
+    ...napiModule.imports.napi,
+    ...napiModule.imports.emnapi
+  },
+  // clang
+  napi: napiModule.imports.napi,
+  emnapi: napiModule.imports.emnapi
+}).then(({ instance }) => {
+  wasi.initialize(instance)
+  const binding = napiModule.init(
+    instance,
+    instance.exports.memory,
+    instance.exports.__indirect_function_table
+  )
+  // binding === napiModule.exports
+})
+```
+
+```js [Bundler WASI]
+// you can use WASI polyfill in [wasm-util](https://github.com/toyobayashi/wasm-util)
+// and [memfs-browser](https://github.com/toyobayashi/memfs-browser)
+
+import { createNapiModule } from '@tybys/emnapi-core'
+import { createContext } from '@tybys/emnapi-runtime'
+import { WASI } from '@tybys/wasm-util'
+import { Volumn, createFsFromVolume } from 'memfs-browser'
+import base64 from './hello.wasm' // configure load wasm as base64
+
+const context = createContext()
+const napiModule = createNapiModule({ context })
+
+const fs = createFsFromVolume(Volume.from({ /* ... */ }))
+const wasi = WASI.createSync({ fs, /* ... */ })
+
+fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).then(wasmBuffer => {
+  return WebAssembly.instantiate(wasmBuffer, {
+    wasi_snapshot_preview1: wasi.wasiImport,
+    env: {
+      ...napiModule.imports.env,
+      // Currently napi-rs imports all symbols from env module
+      ...napiModule.imports.napi,
+      ...napiModule.imports.emnapi
+    },
+    // clang
+    napi: napiModule.imports.napi,
+    emnapi: napiModule.imports.emnapi
+  })
+}).then(({ instance }) => {
+  wasi.initialize(instance)
+  const binding = napiModule.init(
+    instance,
+    instance.exports.memory,
+    instance.exports.__indirect_function_table
+  )
+  // binding === napiModule.exports
+})
+```
+
+```html [Browser WASI]
+<script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
+<script src="node_modules/@tybys/emnapi-core/dist/emnapi-core.min.js"></script>
+<script src="node_modules/@tybys/wasm-util/dist/wasm-util.min.js"></script>
+<script src="node_modules/memfs-browser/dist/memfs.min.js"></script>
+<script>
+const context = createContext()
+const napiModule = createNapiModule({ context })
+
+const fs = memfs.createFsFromVolume(Volume.from({ /* ... */ }))
+const wasi = wasmUtil.WASI.createSync({ fs, /* ... */ })
+
+fetch('./hello.wasm').then(res => res.arrayBuffer()).then(wasmBuffer => {
+  return WebAssembly.instantiate(wasmBuffer, {
+    env: {
+      ...napiModule.imports.env,
+      // Currently napi-rs imports all symbols from env module
+      ...napiModule.imports.napi,
+      ...napiModule.imports.emnapi
+    },
+    // clang
+    napi: napiModule.imports.napi,
+    emnapi: napiModule.imports.emnapi
+  })
+}).then(({ instance }) => {
+  wasi.initialize(instance)
+  const binding = napiModule.init(
+    instance, // WebAssembly.Instance
+    instance.exports.memory, // WebAssembly.Memory
+    instance.exports.__indirect_function_table // WebAssembly.Table
+  )
+  // binding === napiModule.exports
+})
+</script>
+```
+
+:::
