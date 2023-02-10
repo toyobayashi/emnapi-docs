@@ -158,7 +158,7 @@ clang -O3 \
 ```
 
 ```bash [clang]
-# 你可以链接 `@tybys/emnapi/lib/wasm32/libdlmalloc.a`
+# 你可以选择链接 `libdlmalloc.a` 或者 `libemmalloc.a`
 # 以获得 `malloc` 和 `free` 实现
 
 clang -O3 \
@@ -177,7 +177,7 @@ clang -O3 \
       -o hello.wasm \
       hello.c \
       -lemnapi \
-      -ldlmalloc
+      -ldlmalloc # -lemmalloc
 ```
 
 :::

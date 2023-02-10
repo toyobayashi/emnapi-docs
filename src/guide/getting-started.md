@@ -157,8 +157,7 @@ clang -O3 \
 ```
 
 ```bash [clang]
-# You can link against `@tybys/emnapi/lib/wasm32/libdlmalloc.a`
-# for `malloc` and `free`
+# Choose `libdlmalloc.a` or `libemmalloc.a` for `malloc` and `free`.
 
 clang -O3 \
       -I./node_modules/@tybys/emnapi/include \
@@ -176,7 +175,7 @@ clang -O3 \
       -o hello.wasm \
       hello.c \
       -lemnapi \
-      -ldlmalloc
+      -ldlmalloc # -lemmalloc
 ```
 
 :::

@@ -47,7 +47,7 @@ target = [
 rustflags = [
   "-L./node_modules/@tybys/emnapi/lib/wasm32",
   "-lemnapi",
-  "-ldlmalloc",
+  "-ldlmalloc", # "-lemmalloc",
   "-C", "link-arg=--no-entry",
   "-C", "link-arg=--initial-memory=16777216",
   "-C", "link-arg=--export-dynamic",

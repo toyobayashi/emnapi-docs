@@ -87,7 +87,7 @@ clang++ -O3 \
         -o node_api_c_api_only.wasm \
         node_api_c_api_only.cpp \
         -lemnapi \
-        -ldlmalloc
+        -ldlmalloc # -lemmalloc
 ```
 
 :::
