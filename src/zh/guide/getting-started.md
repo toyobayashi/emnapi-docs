@@ -184,13 +184,16 @@ clang -O3 \
 
 ## 初始化
 
-初始化 emnapi 需要先导入 emnapi 运行时，通过 `createContext` 创建 `Context`，每个 `Context` 都拥有独立的 Node-API 对象，例如 `napi_env`、`napi_value`、`napi_ref`。 如果你有多个 emnapi 模块，你应该在它们之间重用相同的 `Context`。
+初始化 emnapi 需要先导入 emnapi 运行时，通过 `createContext` 或 `getDefaultContext` 获得 `Context`，每个 `Context` 都拥有独立的 Node-API 对象，例如 `napi_env`、`napi_value`、`napi_ref`。 如果你有多个 emnapi 模块，你应该在它们之间重用相同的 `Context`。
 
 ```ts
 declare namespace emnapi {
   // module '@tybys/emnapi-runtime'
   export class Context { /* ... */ }
+  /** 创建一个新的 context */
   export function createContext (): Context
+  /** 懒惰创建 */
+  export function getDefaultContext (): Context
   // ...
 }
 ```
@@ -229,12 +232,10 @@ declare namespace Module {
 <script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
 <script src="hello.js"></script>
 <script>
-var emnapiContext = emnapi.createContext();
-
 Module.onRuntimeInitialized = function () {
   var binding;
   try {
-    binding = Module.emnapiInit({ context: emnapiContext });
+    binding = Module.emnapiInit({ context: emnapi.getDefaultContext() });
   } catch (err) {
     console.error(err);
     return;
@@ -245,32 +246,29 @@ Module.onRuntimeInitialized = function () {
 
 // if -sMODULARIZE=1
 Module({ /* Emscripten module init options */ }).then(function (Module) {
-  var binding = Module.emnapiInit({ context: emnapiContext });
+  var binding = Module.emnapiInit({ context: emnapi.getDefaultContext() });
 });
 </script>
 ```
 
 ```js [Webpack]
-import { createContext } from '@tybys/emnapi-runtime'
+import { getDefaultContext } from '@tybys/emnapi-runtime'
 // emcc -sMODULARIZE=1
 import * as init from './hello.js'
 
-const emnapiContext = createContext()
-
 init({ /* Emscripten module init options */ }).then((Module) => {
-  const binding = Module.emnapiInit({ context: emnapiContext })
+  const binding = Module.emnapiInit({ context: getDefaultContext() })
 })
 ```
 
 ```js [Node.js]
 const emnapi = require('@tybys/emnapi-runtime')
 const Module = require('./hello.js')
-const emnapiContext = emnapi.createContext()
 
 Module.onRuntimeInitialized = function () {
   let binding
   try {
-    binding = Module.emnapiInit({ context: emnapiContext })
+    binding = Module.emnapiInit({ context: emnapi.getDefaultContext() })
   } catch (err) {
     console.error(err)
     return
@@ -281,7 +279,7 @@ Module.onRuntimeInitialized = function () {
 
 // if -sMODULARIZE=1
 Module({ /* Emscripten module init options */ }).then((Module) => {
-  const binding = Module.emnapiInit({ context: emnapiContext })
+  const binding = Module.emnapiInit({ context: emnapi.getDefaultContext() })
 })
 ```
 
@@ -297,8 +295,7 @@ Module({ /* Emscripten module init options */ }).then((Module) => {
 <script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
 <script src="node_modules/@tybys/emnapi-core/dist/emnapi-core.min.js"></script>
 <script>
-const context = emnapi.createContext()
-const napiModule = emnapiCore.createNapiModule({ context })
+const napiModule = emnapiCore.createNapiModule({ context: emnapi.getDefaultContext() })
 
 fetch('./hello.wasm').then(res => res.arrayBuffer()).then(wasmBuffer => {
   return WebAssembly.instantiate(wasmBuffer, {
@@ -325,11 +322,10 @@ fetch('./hello.wasm').then(res => res.arrayBuffer()).then(wasmBuffer => {
 
 ```js [Webpack]
 import { createNapiModule } from '@tybys/emnapi-core'
-import { createContext } from '@tybys/emnapi-runtime'
+import { getDefaultContext } from '@tybys/emnapi-runtime'
 import base64 from './hello.wasm' // configure load wasm as base64
 
-const context = createContext()
-const napiModule = createNapiModule({ context })
+const napiModule = createNapiModule({ context: getDefaultContext() })
 
 fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).then(wasmBuffer => {
   return WebAssembly.instantiate(wasmBuffer, {
@@ -355,10 +351,9 @@ fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).t
 
 ```js [Node.js]
 const { createNapiModule } = require('@tybys/emnapi-core')
-const { createContext } = require('@tybys/emnapi-runtime')
+const { getDefaultContext } = require('@tybys/emnapi-runtime')
 
-const context = createContext()
-const napiModule = createNapiModule({ context })
+const napiModule = createNapiModule({ context: getDefaultContext() })
 
 WebAssembly.instantiate(wasmBuffer, {
   env: {
@@ -382,11 +377,10 @@ WebAssembly.instantiate(wasmBuffer, {
 
 ```js [Node.js WASI]
 const { createNapiModule } = require('@tybys/emnapi-core')
-const { createContext } = require('@tybys/emnapi-runtime')
+const { getDefaultContext } = require('@tybys/emnapi-runtime')
 const { WASI } = require('wasi')
 
-const context = createContext()
-const napiModule = createNapiModule({ context })
+const napiModule = createNapiModule({ context: getDefaultContext() })
 
 const wasi = new WASI({ /* ... */ })
 
@@ -417,13 +411,12 @@ WebAssembly.instantiate(require('fs').readFileSync('./hello.wasm'), {
 // 还有 [memfs-browser](https://github.com/toyobayashi/memfs-browser)
 
 import { createNapiModule } from '@tybys/emnapi-core'
-import { createContext } from '@tybys/emnapi-runtime'
+import { getDefaultContext } from '@tybys/emnapi-runtime'
 import { WASI } from '@tybys/wasm-util'
 import { Volumn, createFsFromVolume } from 'memfs-browser'
 import base64 from './hello.wasm' // configure load wasm as base64
 
-const context = createContext()
-const napiModule = createNapiModule({ context })
+const napiModule = createNapiModule({ context: getDefaultContext() })
 
 const fs = createFsFromVolume(Volume.from({ /* ... */ }))
 const wasi = WASI.createSync({ fs, /* ... */ })
@@ -458,8 +451,7 @@ fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).t
 <script src="node_modules/@tybys/wasm-util/dist/wasm-util.min.js"></script>
 <script src="node_modules/memfs-browser/dist/memfs.min.js"></script>
 <script>
-const context = createContext()
-const napiModule = createNapiModule({ context })
+const napiModule = createNapiModule({ context: emnapi.getDefaultContext() })
 
 const fs = memfs.createFsFromVolume(Volume.from({ /* ... */ }))
 const wasi = wasmUtil.WASI.createSync({ fs, /* ... */ })
