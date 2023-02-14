@@ -16,7 +16,7 @@ add_executable(hello hello.c)
 target_link_libraries(hello emnapi)
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   target_link_options(hello PRIVATE
-    "-sEXPORTED_FUNCTIONS=\"['_malloc','_free']\""
+    "-sEXPORTED_FUNCTIONS=['_malloc','_free']"
   )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "WASI")
   target_link_options(hello PRIVATE
