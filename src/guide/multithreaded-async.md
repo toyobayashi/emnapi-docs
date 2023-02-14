@@ -15,7 +15,7 @@ Multithreaded asynchronous APIs require pthreads enabled and you need to compile
 Recommend [use CMake](/guide/using-cmake.html) directly.
 
 ```cmake
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/node_modules/@tybys/emnapi")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/node_modules/emnapi")
 
 add_executable(hello hello.c)
 

@@ -54,11 +54,11 @@ nmake /?
 
 
 ```bash
-npm install -D @tybys/emnapi
-npm install @tybys/emnapi-runtime
+npm install -D emnapi
+npm install @emnapi/runtime
 
 # for non-emscripten
-npm install @tybys/emnapi-core
+npm install @emnapi/core
 ```
 
 ::: tip
@@ -129,9 +129,9 @@ module.exports = (function (exports) {
 
 ```bash [emscripten]
 emcc -O3 \
-     -I./node_modules/@tybys/emnapi/include \
-     -L./node_modules/@tybys/emnapi/lib/wasm32-emscripten \
-     --js-library=./node_modules/@tybys/emnapi/dist/library_napi.js \
+     -I./node_modules/emnapi/include \
+     -L./node_modules/emnapi/lib/wasm32-emscripten \
+     --js-library=./node_modules/emnapi/dist/library_napi.js \
      -sEXPORTED_FUNCTIONS="['_malloc','_free']" \
      -o hello.js \
      hello.c \
@@ -140,8 +140,8 @@ emcc -O3 \
 
 ```bash [wasi-sdk]
 clang -O3 \
-      -I./node_modules/@tybys/emnapi/include \
-      -L./node_modules/@tybys/emnapi/lib/wasm32-wasi \
+      -I./node_modules/emnapi/include \
+      -L./node_modules/emnapi/lib/wasm32-wasi \
       --target=wasm32-wasi \
       --sysroot=$WASI_SDK_PATH/share/wasi-sysroot \
       -mexec-model=reactor \
@@ -162,8 +162,8 @@ clang -O3 \
 # 以获得 `malloc` 和 `free` 实现
 
 clang -O3 \
-      -I./node_modules/@tybys/emnapi/include \
-      -L./node_modules/@tybys/emnapi/lib/wasm32 \
+      -I./node_modules/emnapi/include \
+      -L./node_modules/emnapi/lib/wasm32 \
       --target=wasm32 \
       -nostdlib \
       -Wl,--no-entry \
@@ -188,7 +188,7 @@ clang -O3 \
 
 ```ts
 declare namespace emnapi {
-  // module '@tybys/emnapi-runtime'
+  // module '@emnapi/runtime'
   export class Context { /* ... */ }
   /** 创建一个新的 context */
   export function createContext (): Context
@@ -220,7 +220,7 @@ declare namespace Module {
      * napi_create_async_work 和 napi_create_threadsafe_function
      * 的 async resource 参数
      */
-    nodeBinding?: typeof import('@tybys/emnapi-node-binding')
+    nodeBinding?: typeof import('@emnapi/node-binding')
   }
   export function emnapiInit (options: EmnapiInitOptions): any
 }
@@ -229,7 +229,7 @@ declare namespace Module {
 ::: code-group
 
 ```html [Browser]
-<script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
+<script src="node_modules/@emnapi/runtime/dist/emnapi.min.js"></script>
 <script src="hello.js"></script>
 <script>
 Module.onRuntimeInitialized = function () {
@@ -252,7 +252,7 @@ Module({ /* Emscripten module init options */ }).then(function (Module) {
 ```
 
 ```js [Webpack]
-import { getDefaultContext } from '@tybys/emnapi-runtime'
+import { getDefaultContext } from '@emnapi/runtime'
 // emcc -sMODULARIZE=1
 import * as init from './hello.js'
 
@@ -262,7 +262,7 @@ init({ /* Emscripten module init options */ }).then((Module) => {
 ```
 
 ```js [Node.js]
-const emnapi = require('@tybys/emnapi-runtime')
+const emnapi = require('@emnapi/runtime')
 const Module = require('./hello.js')
 
 Module.onRuntimeInitialized = function () {
@@ -287,13 +287,13 @@ Module({ /* Emscripten module init options */ }).then((Module) => {
 
 ::: details wasi-sdk or clang
 
-对于非 emscripten，你可以使用 `@tybys/emnapi-core`，初始化流程与 emscripten 类似。
+对于非 emscripten，你可以使用 `@emnapi/core`，初始化流程与 emscripten 类似。
 
 ::: code-group
 
 ```html [Browser]
-<script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
-<script src="node_modules/@tybys/emnapi-core/dist/emnapi-core.min.js"></script>
+<script src="node_modules/@emnapi/runtime/dist/emnapi.min.js"></script>
+<script src="node_modules/@emnapi/core/dist/emnapi-core.min.js"></script>
 <script>
 const napiModule = emnapiCore.createNapiModule({ context: emnapi.getDefaultContext() })
 
@@ -321,8 +321,8 @@ fetch('./hello.wasm').then(res => res.arrayBuffer()).then(wasmBuffer => {
 ```
 
 ```js [Webpack]
-import { createNapiModule } from '@tybys/emnapi-core'
-import { getDefaultContext } from '@tybys/emnapi-runtime'
+import { createNapiModule } from '@emnapi/core'
+import { getDefaultContext } from '@emnapi/runtime'
 import base64 from './hello.wasm' // configure load wasm as base64
 
 const napiModule = createNapiModule({ context: getDefaultContext() })
@@ -350,8 +350,8 @@ fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).t
 ```
 
 ```js [Node.js]
-const { createNapiModule } = require('@tybys/emnapi-core')
-const { getDefaultContext } = require('@tybys/emnapi-runtime')
+const { createNapiModule } = require('@emnapi/core')
+const { getDefaultContext } = require('@emnapi/runtime')
 
 const napiModule = createNapiModule({ context: getDefaultContext() })
 
@@ -376,8 +376,8 @@ WebAssembly.instantiate(wasmBuffer, {
 ```
 
 ```js [Node.js WASI]
-const { createNapiModule } = require('@tybys/emnapi-core')
-const { getDefaultContext } = require('@tybys/emnapi-runtime')
+const { createNapiModule } = require('@emnapi/core')
+const { getDefaultContext } = require('@emnapi/runtime')
 const { WASI } = require('wasi')
 
 const napiModule = createNapiModule({ context: getDefaultContext() })
@@ -410,8 +410,8 @@ WebAssembly.instantiate(require('fs').readFileSync('./hello.wasm'), {
 // 你可以在 [wasm-util](https://github.com/toyobayashi/wasm-util) 找到 WASI 的 polyfill，
 // 还有 [memfs-browser](https://github.com/toyobayashi/memfs-browser)
 
-import { createNapiModule } from '@tybys/emnapi-core'
-import { getDefaultContext } from '@tybys/emnapi-runtime'
+import { createNapiModule } from '@emnapi/core'
+import { getDefaultContext } from '@emnapi/runtime'
 import { WASI } from '@tybys/wasm-util'
 import { Volumn, createFsFromVolume } from 'memfs-browser'
 import base64 from './hello.wasm' // configure load wasm as base64
@@ -446,8 +446,8 @@ fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).t
 ```
 
 ```html [Browser WASI]
-<script src="node_modules/@tybys/emnapi-runtime/dist/emnapi.min.js"></script>
-<script src="node_modules/@tybys/emnapi-core/dist/emnapi-core.min.js"></script>
+<script src="node_modules/@emnapi/runtime/dist/emnapi.min.js"></script>
+<script src="node_modules/@emnapi/core/dist/emnapi-core.min.js"></script>
 <script src="node_modules/@tybys/wasm-util/dist/wasm-util.min.js"></script>
 <script src="node_modules/memfs-browser/dist/memfs.min.js"></script>
 <script>

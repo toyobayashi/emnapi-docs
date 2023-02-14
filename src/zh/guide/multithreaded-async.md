@@ -14,7 +14,7 @@
 多线程异步 API 需要启用 pthreads，并且需要编译额外的 C 源文件。推荐直接[使用 CMake](/zh/guide/using-cmake.html)。
 
 ```cmake
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/node_modules/@tybys/emnapi")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/node_modules/emnapi")
 
 add_executable(hello hello.c)
 

@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.13)
 
 project(emnapiexample)
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/node_modules/@tybys/emnapi")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/node_modules/emnapi")
 
 add_executable(hello hello.c)
 
@@ -50,7 +50,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$WASI_SDK_PATH/share/cmake/wasi-sdk.cmake \
       -G Ninja -H. -Bbuild
 
 # wasm32
-cmake -DCMAKE_TOOLCHAIN_FILE=node_modules/@tybys/emnapi/cmake/wasm32.cmake \
+cmake -DCMAKE_TOOLCHAIN_FILE=node_modules/emnapi/cmake/wasm32.cmake \
       -DLLVM_PREFIX=$WASI_SDK_PATH \
       -DCMAKE_BUILD_TYPE=Release \
       -G Ninja -H. -Bbuild

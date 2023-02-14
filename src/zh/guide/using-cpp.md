@@ -35,9 +35,9 @@ NODE_API_MODULE(NODE_GYP_MODULE_NAME, Init)
 em++ -O3 \
      -DNAPI_DISABLE_CPP_EXCEPTIONS \
      -DNODE_ADDON_API_ENABLE_MAYBE \
-     -I./node_modules/@tybys/emnapi/include \
-     -L./node_modules/@tybys/emnapi/lib/wasm32-emscripten \
-     --js-library=./node_modules/@tybys/emnapi/dist/library_napi.js \
+     -I./node_modules/emnapi/include \
+     -L./node_modules/emnapi/lib/wasm32-emscripten \
+     --js-library=./node_modules/emnapi/dist/library_napi.js \
      -sEXPORTED_FUNCTIONS="['_malloc','_free']" \
      -o hello.js \
      hello.cpp \
@@ -48,8 +48,8 @@ em++ -O3 \
 clang++ -O3 \
         -DNAPI_DISABLE_CPP_EXCEPTIONS \
         -DNODE_ADDON_API_ENABLE_MAYBE \
-        -I./node_modules/@tybys/emnapi/include \
-        -L./node_modules/@tybys/emnapi/lib/wasm32-wasi \
+        -I./node_modules/emnapi/include \
+        -L./node_modules/emnapi/lib/wasm32-wasi \
         --target=wasm32-wasi \
         --sysroot=$WASI_SDK_PATH/share/wasi-sysroot \
         -mexec-model=reactor \
@@ -72,8 +72,8 @@ clang++ -O3 \
 # if you use Node-API C API only in C++.
 
 clang++ -O3 \
-        -I./node_modules/@tybys/emnapi/include \
-        -L./node_modules/@tybys/emnapi/lib/wasm32 \
+        -I./node_modules/emnapi/include \
+        -L./node_modules/emnapi/lib/wasm32 \
         --target=wasm32 \
         -nostdlib \
         -Wl,--no-entry \

@@ -180,7 +180,7 @@ On Node.js, `Context.prototype.dispose` will be called automatically on process 
 
 ::: warning
 
-These APIs only work on Node.js and require `@tybys/emnapi-node-binding` when calling `emnapiInit`.
+These APIs only work on Node.js and require `@emnapi/node-binding` when calling `emnapiInit`.
 
 :::
 
@@ -204,7 +204,7 @@ Cross-Origin-Embedder-Policy: require-corp
 in response headers.
 
 The `async_resource` and `async_resource_name` parameter have no effect on browser,
-only work on Node.js and require `@tybys/emnapi-node-binding` when calling `emnapiInit`.
+only work on Node.js and require `@emnapi/node-binding` when calling `emnapiInit`.
 
 :::
 

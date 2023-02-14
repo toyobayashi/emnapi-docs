@@ -45,7 +45,7 @@ target = [
 
 [target.wasm32-unknown-unknown]
 rustflags = [
-  "-L./node_modules/@tybys/emnapi/lib/wasm32",
+  "-L./node_modules/emnapi/lib/wasm32",
   "-lemnapi",
   "-ldlmalloc", # "-lemmalloc",
   "-C", "link-arg=--no-entry",
@@ -60,7 +60,7 @@ rustflags = [
 
 [target.wasm32-wasi]
 rustflags = [
-  "-L./node_modules/@tybys/emnapi/lib/wasm32-wasi",
+  "-L./node_modules/emnapi/lib/wasm32-wasi",
   "-lemnapi",
   "-C", "link-arg=--initial-memory=16777216",
   "-C", "link-arg=--export-dynamic",

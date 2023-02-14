@@ -180,7 +180,7 @@ if (data != NULL && runtime_allocated && ownership == emnapi_userland) {
 
 ::: warning
 
-以下 API 仅在 Node.js 运行时支持，并且需要 `@tybys/emnapi-node-binding` 并在调用 `emnapiInit` 时传入。
+以下 API 仅在 Node.js 运行时支持，并且需要 `@emnapi/node-binding` 并在调用 `emnapiInit` 时传入。
 
 :::
 
@@ -204,7 +204,7 @@ Cross-Origin-Embedder-Policy: require-corp
 
 在响应头中。
 
-`async_resource` 和 `async_resource_name` 参数在浏览器环境中没有效果，仅在 Node.js 运行时支持，并且需要 `@tybys/emnapi-node-binding` 并在调用 `emnapiInit` 时传入。
+`async_resource` 和 `async_resource_name` 参数在浏览器环境中没有效果，仅在 Node.js 运行时支持，并且需要 `@emnapi/node-binding` 并在调用 `emnapiInit` 时传入。
 
 :::
 
