@@ -8,13 +8,12 @@ sidebarDepth: 4
 
 ::: danger
 
-These APIs don't exist.
+These APIs are unavailable, throws JavaScript Error.
 
 :::
 
 #### node_api.h
 
-- ~~napi_module_register~~
 - ~~napi_open_callback_scope~~
 - ~~napi_close_callback_scope~~
 

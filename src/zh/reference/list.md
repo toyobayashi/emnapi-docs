@@ -8,13 +8,12 @@ sidebarDepth: 4
 
 ::: danger
 
-以下 API 不存在。
+以下 API 不可用，在运行时抛出 JavaScript Error。
 
 :::
 
 #### node_api.h
 
-- ~~napi_module_register~~
 - ~~napi_open_callback_scope~~
 - ~~napi_close_callback_scope~~
 
