@@ -309,12 +309,13 @@ fetch('./hello.wasm').then(res => res.arrayBuffer()).then(wasmBuffer => {
     napi: napiModule.imports.napi,
     emnapi: napiModule.imports.emnapi
   })
-}).then(({ instance }) => {
-  const binding = napiModule.init(
+}).then(({ instance, module }) => {
+  const binding = napiModule.init({
     instance, // WebAssembly.Instance
-    instance.exports.memory, // WebAssembly.Memory
-    instance.exports.__indirect_function_table // WebAssembly.Table
-  )
+    module, // WebAssembly.Module
+    memory: instance.exports.memory, // WebAssembly.Memory
+    table: instance.exports.__indirect_function_table // WebAssembly.Table
+  })
   // binding === napiModule.exports
 })
 </script>
@@ -339,12 +340,13 @@ fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).t
     napi: napiModule.imports.napi,
     emnapi: napiModule.imports.emnapi
   })
-}).then(({ instance }) => {
-  const binding = napiModule.init(
+}).then(({ instance, module }) => {
+  const binding = napiModule.init({
     instance,
-    instance.exports.memory,
-    instance.exports.__indirect_function_table
-  )
+    module,
+    memory: instance.exports.memory,
+    table: instance.exports.__indirect_function_table
+  })
   // binding === napiModule.exports
 })
 ```
@@ -365,12 +367,13 @@ WebAssembly.instantiate(wasmBuffer, {
   // clang
   napi: napiModule.imports.napi,
   emnapi: napiModule.imports.emnapi
-}).then(({ instance }) => {
-  const binding = napiModule.init(
+}).then(({ instance, module }) => {
+  const binding = napiModule.init({
     instance,
-    instance.exports.memory,
-    instance.exports.__indirect_function_table
-  )
+    module,
+    memory: instance.exports.memory,
+    table: instance.exports.__indirect_function_table
+  })
   // binding === napiModule.exports
 })
 ```
@@ -395,13 +398,14 @@ WebAssembly.instantiate(require('fs').readFileSync('./hello.wasm'), {
   // clang
   napi: napiModule.imports.napi,
   emnapi: napiModule.imports.emnapi
-}).then(({ instance }) => {
+}).then(({ instance, module }) => {
   wasi.initialize(instance)
-  const binding = napiModule.init(
+  const binding = napiModule.init({
     instance,
-    instance.exports.memory,
-    instance.exports.__indirect_function_table
-  )
+    module,
+    memory: instance.exports.memory,
+    table: instance.exports.__indirect_function_table
+  })
   // binding === napiModule.exports
 })
 ```
@@ -419,7 +423,7 @@ import base64 from './hello.wasm' // configure load wasm as base64
 const napiModule = createNapiModule({ context: getDefaultContext() })
 
 const fs = createFsFromVolume(Volume.from({ /* ... */ }))
-const wasi = WASI.createSync({ fs, /* ... */ })
+const wasi = new WASI({ fs, /* ... */ })
 
 fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).then(wasmBuffer => {
   return WebAssembly.instantiate(wasmBuffer, {
@@ -434,13 +438,14 @@ fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).t
     napi: napiModule.imports.napi,
     emnapi: napiModule.imports.emnapi
   })
-}).then(({ instance }) => {
+}).then(({ instance, module }) => {
   wasi.initialize(instance)
-  const binding = napiModule.init(
+  const binding = napiModule.init({
     instance,
-    instance.exports.memory,
-    instance.exports.__indirect_function_table
-  )
+    module,
+    memory: instance.exports.memory,
+    table: instance.exports.__indirect_function_table
+  })
   // binding === napiModule.exports
 })
 ```
@@ -454,7 +459,7 @@ fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).t
 const napiModule = createNapiModule({ context: emnapi.getDefaultContext() })
 
 const fs = memfs.createFsFromVolume(Volume.from({ /* ... */ }))
-const wasi = wasmUtil.WASI.createSync({ fs, /* ... */ })
+const wasi = new wasmUtil.WASI({ fs, /* ... */ })
 
 fetch('./hello.wasm').then(res => res.arrayBuffer()).then(wasmBuffer => {
   return WebAssembly.instantiate(wasmBuffer, {
@@ -468,13 +473,14 @@ fetch('./hello.wasm').then(res => res.arrayBuffer()).then(wasmBuffer => {
     napi: napiModule.imports.napi,
     emnapi: napiModule.imports.emnapi
   })
-}).then(({ instance }) => {
+}).then(({ instance, module }) => {
   wasi.initialize(instance)
-  const binding = napiModule.init(
-    instance, // WebAssembly.Instance
-    instance.exports.memory, // WebAssembly.Memory
-    instance.exports.__indirect_function_table // WebAssembly.Table
-  )
+  const binding = napiModule.init({
+    instance,
+    module,
+    memory: instance.exports.memory,
+    table: instance.exports.__indirect_function_table
+  })
   // binding === napiModule.exports
 })
 </script>
