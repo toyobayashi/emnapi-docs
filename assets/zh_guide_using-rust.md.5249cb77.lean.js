@@ -1,1 +1,0 @@
-import{_ as s,o as n,c as a,a as l}from"./app.58e0e5df.js";const i=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"zh/guide/using-rust.md","lastUpdated":1677348023000}'),p={name:"zh/guide/using-rust.md"},o=l("",3),t=[o];function e(D,c,r,F,y,C){return n(),a("div",null,t)}const u=s(p,[["render",e]]);export{i as __pageData,u as default};
