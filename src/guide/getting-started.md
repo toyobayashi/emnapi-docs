@@ -131,7 +131,7 @@ emcc -O3 \
      -I./node_modules/emnapi/include \
      -L./node_modules/emnapi/lib/wasm32-emscripten \
      --js-library=./node_modules/emnapi/dist/library_napi.js \
-     -sEXPORTED_FUNCTIONS="['_malloc','_free']" \
+     -sEXPORTED_FUNCTIONS="['_napi_register_wasm_v1','_malloc','_free']" \
      -o hello.js \
      hello.c \
      -lemnapi
@@ -221,6 +221,9 @@ declare namespace Module {
      * napi_create_async_work and napi_create_threadsafe_function
      */
     nodeBinding?: typeof import('@emnapi/node-binding')
+
+    /** See Multithread part */
+    asyncWorkPoolSize?: number
   }
   export function emnapiInit (options: EmnapiInitOptions): any
 }
@@ -295,118 +298,89 @@ For non-emscripten, you need to use `@emnapi/core`. The initialization is simila
 <script src="node_modules/@emnapi/runtime/dist/emnapi.min.js"></script>
 <script src="node_modules/@emnapi/core/dist/emnapi-core.min.js"></script>
 <script>
-const napiModule = emnapiCore.createNapiModule({ context: emnapi.getDefaultContext() })
-
-fetch('./hello.wasm').then(res => res.arrayBuffer()).then(wasmBuffer => {
-  return WebAssembly.instantiate(wasmBuffer, {
-    env: {
-      ...napiModule.imports.env,
-      // Currently napi-rs imports all symbols from env module
-      ...napiModule.imports.napi,
-      ...napiModule.imports.emnapi
-    },
-    // clang
-    napi: napiModule.imports.napi,
-    emnapi: napiModule.imports.emnapi
-  })
-}).then(({ instance, module }) => {
-  const binding = napiModule.init({
-    instance, // WebAssembly.Instance
-    module, // WebAssembly.Module
-    memory: instance.exports.memory, // WebAssembly.Memory
-    table: instance.exports.__indirect_function_table // WebAssembly.Table
-  })
-  // binding === napiModule.exports
+emnapiCore.instantiateNapiModule(fetch('./hello.wasm'), {
+  context: emnapi.getDefaultContext(),
+  overwriteImports (importObject) {
+    // Currently napi-rs imports all symbols from env module
+    // importObject.env = {
+    //   ...importObject.env,
+    //   ...importObject.napi,
+    //   ...importObject.emnapi,
+    //   // ...
+    // }
+  }
+}).then(({ instance, module, napiModule }) => {
+  const binding = napiModule.exports
+  // ...
 })
 </script>
 ```
 
 ```js [Webpack]
-import { createNapiModule } from '@emnapi/core'
+import { instantiateNapiModule } from '@emnapi/core'
 import { getDefaultContext } from '@emnapi/runtime'
 import base64 from './hello.wasm' // configure load wasm as base64
 
-const napiModule = createNapiModule({ context: getDefaultContext() })
-
-fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).then(wasmBuffer => {
-  return WebAssembly.instantiate(wasmBuffer, {
-    env: {
-      ...napiModule.imports.env,
-      // Currently napi-rs imports all symbols from env module
-      ...napiModule.imports.napi,
-      ...napiModule.imports.emnapi
-    },
-    // clang
-    napi: napiModule.imports.napi,
-    emnapi: napiModule.imports.emnapi
-  })
-}).then(({ instance, module }) => {
-  const binding = napiModule.init({
-    instance,
-    module,
-    memory: instance.exports.memory,
-    table: instance.exports.__indirect_function_table
-  })
-  // binding === napiModule.exports
+instantiateNapiModule(
+  fetch('data:application/wasm;base64,' + base64),
+  {
+    context: getDefaultContext(),
+    overwriteImports (importObject) {
+      // importObject.env = {
+      //   ...importObject.env,
+      //   ...importObject.napi,
+      //   ...importObject.emnapi,
+      //   // ...
+      // }
+    }
+  }
+).then(({ instance, module, napiModule }) => {
+  const binding = napiModule.exports
+  // ...
 })
 ```
 
 ```js [Node.js]
-const { createNapiModule } = require('@emnapi/core')
+const { instantiateNapiModule } = require('@emnapi/core')
 const { getDefaultContext } = require('@emnapi/runtime')
+const fs = require('fs')
 
-const napiModule = createNapiModule({ context: getDefaultContext() })
-
-WebAssembly.instantiate(wasmBuffer, {
-  env: {
-    ...napiModule.imports.env,
-    // Currently napi-rs imports all symbols from env module
-    ...napiModule.imports.napi,
-    ...napiModule.imports.emnapi
-  },
-  // clang
-  napi: napiModule.imports.napi,
-  emnapi: napiModule.imports.emnapi
-}).then(({ instance, module }) => {
-  const binding = napiModule.init({
-    instance,
-    module,
-    memory: instance.exports.memory,
-    table: instance.exports.__indirect_function_table
-  })
-  // binding === napiModule.exports
+instantiateNapiModule(fs.promises.readFile('./hello.wasm'), {
+  context: getDefaultContext(),
+  overwriteImports (importObject) {
+    // importObject.env = {
+    //   ...importObject.env,
+    //   ...importObject.napi,
+    //   ...importObject.emnapi,
+    //   // ...
+    // }
+  }
+}).then(({ instance, module, napiModule }) => {
+  const binding = napiModule.exports
+  // ...
 })
 ```
 
 ```js [Node.js WASI]
-const { createNapiModule } = require('@emnapi/core')
+const { instantiateNapiModule } = require('@emnapi/core')
 const { getDefaultContext } = require('@emnapi/runtime')
 const { WASI } = require('wasi')
+const fs = require('fs')
 
-const napiModule = createNapiModule({ context: getDefaultContext() })
-
-const wasi = new WASI({ /* ... */ })
-
-WebAssembly.instantiate(require('fs').readFileSync('./hello.wasm'), {
-  wasi_snapshot_preview1: wasi.wasiImport,
-  env: {
-    ...napiModule.imports.env,
-    // Currently napi-rs imports all symbols from env module
-    ...napiModule.imports.napi,
-    ...napiModule.imports.emnapi
-  },
-  // clang
-  napi: napiModule.imports.napi,
-  emnapi: napiModule.imports.emnapi
-}).then(({ instance, module }) => {
-  wasi.initialize(instance)
-  const binding = napiModule.init({
-    instance,
-    module,
-    memory: instance.exports.memory,
-    table: instance.exports.__indirect_function_table
-  })
-  // binding === napiModule.exports
+instantiateNapiModule(fs.promises.readFile('./hello.wasm'), {
+  wasi: new WASI({ /* ... */ }),
+  context: getDefaultContext(),
+  overwriteImports (importObject) {
+    // importObject.env = {
+    //   ...importObject.env,
+    //   ...importObject.napi,
+    //   ...importObject.emnapi,
+    //   // ...
+    // }
+  }
+}).then(({ instance, module, napiModule }) => {
+  const binding = napiModule.exports
+  // ...
 })
 ```
 
@@ -414,39 +388,27 @@ WebAssembly.instantiate(require('fs').readFileSync('./hello.wasm'), {
 // you can use WASI polyfill in [wasm-util](https://github.com/toyobayashi/wasm-util)
 // and [memfs-browser](https://github.com/toyobayashi/memfs-browser)
 
-import { createNapiModule } from '@emnapi/core'
+import { instantiateNapiModule } from '@emnapi/core'
 import { getDefaultContext } from '@emnapi/runtime'
 import { WASI } from '@tybys/wasm-util'
-import { Volumn, createFsFromVolume } from 'memfs-browser'
+import { Volume, createFsFromVolume } from 'memfs-browser'
 import base64 from './hello.wasm' // configure load wasm as base64
 
-const napiModule = createNapiModule({ context: getDefaultContext() })
-
-const fs = createFsFromVolume(Volume.from({ /* ... */ }))
-const wasi = new WASI({ fs, /* ... */ })
-
-fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).then(wasmBuffer => {
-  return WebAssembly.instantiate(wasmBuffer, {
-    wasi_snapshot_preview1: wasi.wasiImport,
-    env: {
-      ...napiModule.imports.env,
-      // Currently napi-rs imports all symbols from env module
-      ...napiModule.imports.napi,
-      ...napiModule.imports.emnapi
-    },
-    // clang
-    napi: napiModule.imports.napi,
-    emnapi: napiModule.imports.emnapi
-  })
-}).then(({ instance, module }) => {
-  wasi.initialize(instance)
-  const binding = napiModule.init({
-    instance,
-    module,
-    memory: instance.exports.memory,
-    table: instance.exports.__indirect_function_table
-  })
-  // binding === napiModule.exports
+const fs = createFsFromVolume(Volume.fromJSON({ /* ... */ }))
+instantiateNapiModule(fetch('data:application/wasm;base64,' + base64), {
+  wasi: new WASI({ fs, /* ... */ })
+  context: getDefaultContext(),
+  overwriteImports (importObject) {
+    // importObject.env = {
+    //   ...importObject.env,
+    //   ...importObject.napi,
+    //   ...importObject.emnapi,
+    //   // ...
+    // }
+  }
+}).then(({ instance, module, napiModule }) => {
+  const binding = napiModule.exports
+  // ...
 })
 ```
 
@@ -456,32 +418,21 @@ fetch('data:application/wasm;base64,' + base64).then(res => res.arrayBuffer()).t
 <script src="node_modules/@tybys/wasm-util/dist/wasm-util.min.js"></script>
 <script src="node_modules/memfs-browser/dist/memfs.min.js"></script>
 <script>
-const napiModule = createNapiModule({ context: emnapi.getDefaultContext() })
-
-const fs = memfs.createFsFromVolume(Volume.from({ /* ... */ }))
-const wasi = new wasmUtil.WASI({ fs, /* ... */ })
-
-fetch('./hello.wasm').then(res => res.arrayBuffer()).then(wasmBuffer => {
-  return WebAssembly.instantiate(wasmBuffer, {
-    env: {
-      ...napiModule.imports.env,
-      // Currently napi-rs imports all symbols from env module
-      ...napiModule.imports.napi,
-      ...napiModule.imports.emnapi
-    },
-    // clang
-    napi: napiModule.imports.napi,
-    emnapi: napiModule.imports.emnapi
-  })
-}).then(({ instance, module }) => {
-  wasi.initialize(instance)
-  const binding = napiModule.init({
-    instance,
-    module,
-    memory: instance.exports.memory,
-    table: instance.exports.__indirect_function_table
-  })
-  // binding === napiModule.exports
+const fs = memfs.createFsFromVolume(memfs.Volume.fromJSON({ /* ... */ }))
+emnapiCore.instantiateNapiModule(fetch('./hello.wasm'), {
+  wasi: new wasmUtil.WASI({ fs, /* ... */ })
+  context: emnapi.getDefaultContext(),
+  overwriteImports (importObject) {
+    // importObject.env = {
+    //   ...importObject.env,
+    //   ...importObject.napi,
+    //   ...importObject.emnapi,
+    //   // ...
+    // }
+  }
+}).then(({ instance, module, napiModule }) => {
+  const binding = napiModule.exports
+  // ...
 })
 </script>
 ```

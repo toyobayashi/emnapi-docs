@@ -1,57 +1,237 @@
 # 多线程异步
 
-::: tip
-
-仅在 Emscripten 中支持
-
-:::
-
 - [napi_create_async_work](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#napi_create_async_work)
 - [napi_delete_async_work](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#napi_delete_async_work)
 - [napi_queue_async_work](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#napi_queue_async_work)
 - [napi_cancel_async_work](https://nodejs.org/dist/v16.15.0/docs/api/n-api.html#napi_cancel_async_work)
 
-多线程异步 API 需要启用 pthreads，并且需要编译额外的 C 源文件。推荐直接[使用 CMake](/zh/guide/using-cmake.html)。
+Emnapi 有 3 种 async work 实现和 2 种 TSFN 实现：
+
+- Async work
+    - A. 基于 Libuv 线程池和 C 的 pthread 实现
+    - B. 在 JavaScript 单线程中的模拟
+    - C. 基于 Web Worker 的 C（初始化栈）和 JavaScript 实现
+- TSFN
+    - D. 基于 Libuv 和 C 的 pthread 实现
+    - E. 基于 Web Worker 的 JavaScript 实现
+
+|   | 链接库        | `wasm32-emscripten` | `wasm32` | `wasm32-wasi` | `wasm32-wasi-threads` |
+|---|------------------------|---------------------|----------|---------------|-----------------------|
+| A | libemnapi-mt.a         | ✅                   | ❌        | ❌             | ✅                     |
+| B | libemnapi-basic(-mt).a | ✅                   | ✅        | ✅             | ✅                     |
+| C | libemnapi-basic-mt.a   | ❌                   | ✅        | ❌             | ✅                     |
+| D | libemnapi-mt.a         | ✅                   | ❌        | ❌             | ✅                     |
+| E | libemnapi-basic-mt.a   | ✅                   | ✅        | ✅             | ✅                     |
+
+在浏览器上，关于 wasi-libc 的 pthread 实现存在一些限制，例如 pthread_mutex_lock 可能会调用 __builtin_wasm_memory_atomic_wait32(memory.atomic.wait32)，而这在浏览器的 JS 主线程中是不允许的。而 Emscripten 的 pthread 实现已经考虑了在浏览器中使用的情况。如果您需要在浏览器上运行带有多线程功能的插件，我们建议您使用 Emscripten A＆D 或裸 wasm32 C＆E。
+
+## 关于预编译库
+
+预编译库可以在 `emnapi` npm 包的 `lib` 目录下找到。
+
+| 库              | 描述                                                                                                                                                                                                                                                   | `wasm32-emscripten` | `wasm32` | `wasm32-wasi` | `wasm32-wasi-threads`                   |
+|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|----------|---------------|-----------------------------------------|
+| libemnapi.a          | no atomics feature.<br/><br/> no libuv port.<br/><br/> `napi_*_async_work` and `napi_*_threadsafe_function` always return `napi_generic_failure`.                                                                                                                         | ✅                   | ✅        | ✅             | waiting wasi-sdk release thread support |
+| libemnapi-mt.a       | atomics feature enabled.<br/><br/> `napi_*_async_work` and `napi_*_threadsafe_function` are based on pthread and libuv port.                                                                                                                                        | ✅                   | ❌        | ❌             | waiting wasi-sdk release thread support |
+| libemnapi-basic.a    | no atomics feature.<br/><br/> no libuv port.<br/><br/> `napi_*_async_work` and `napi_*_threadsafe_function` are imported from JavaScript land.                                                                                                                            | ✅                   | ✅        | ✅             | waiting wasi-sdk release thread support |
+| libemnapi-basic-mt.a | atomics feature enabled.<br/><br/> no libuv port.<br/><br/> `napi_*_async_work` and `napi_*_threadsafe_function` are imported from JavaScript land.<br/><br/> include `emnapi_async_worker_create` and `emnapi_async_worker_init` for WebWorker based async work implementation. | ❌                   | ✅        | ✅             | waiting wasi-sdk release thread support |
+| libdlmalloc.a        | no atomics feature, no thread safe garanteed.                                                                                                                                                                                                                 | ❌                   | ✅        | ❌             | ❌                                       |
+| libdlmalloc-mt.a     | atomics feature enabled, thread safe.                                                                                                                                                                                                                         | ❌                   | ✅        | ❌             | ❌                                       |
+| libemmalloc.a        | no atomics feature, no thread safe garanteed.                                                                                                                                                                                                                 | ❌                   | ✅        | ❌             | ❌                                       |
+| libemmalloc-mt.a     | atomics feature enabled, thread safe.                                                                                                                                                                                                                         | ❌                   | ✅        | ❌             | ❌                                       |
+
+## CMake
 
 ```cmake
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/node_modules/emnapi")
 
 add_executable(hello hello.c)
 
-target_link_libraries(hello emnapi_full-mt)
-target_compile_options(hello PRIVATE "-sUSE_PTHREADS=1")
-target_link_options(hello PRIVATE
-  "-sALLOW_MEMORY_GROWTH=1"
-  "-sEXPORTED_FUNCTIONS=['_malloc','_free']"
-  "-sUSE_PTHREADS=1"
-  "-sPTHREAD_POOL_SIZE=4"
-  # 如果你遇到了 pthread 相关的报错请尝试指定栈大小
-  "-sSTACK_SIZE=2MB"
-  "-sDEFAULT_PTHREAD_STACK_SIZE=2MB"
-)
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  target_link_libraries(hello emnapi-mt)
+  target_compile_options(hello PRIVATE "-pthread")
+  target_link_options(hello PRIVATE
+    "-sALLOW_MEMORY_GROWTH=1"
+    "-sEXPORTED_FUNCTIONS=['_napi_register_wasm_v1','_malloc','_free']"
+    "-pthread"
+    "-sPTHREAD_POOL_SIZE=4"
+    # try to specify stack size if you experience pthread errors
+    "-sSTACK_SIZE=2MB"
+    "-sDEFAULT_PTHREAD_STACK_SIZE=2MB"
+  )
+elseif(CMAKE_C_COMPILER_TARGET STREQUAL "wasm32-wasi-threads")
+  # Experimental
+  target_link_libraries(hello emnapi-mt)
+  set_target_properties(hello PROPERTIES SUFFIX ".wasm")
+  target_compile_options(hello PRIVATE "-fno-exceptions" "-pthread")
+  target_link_options(hello PRIVATE
+    "-pthread"
+    "-mexec-model=reactor"
+    "-Wl,--import-memory"
+    "-Wl,--max-memory=2147483648"
+    "-Wl,--export-dynamic"
+    "-Wl,--export=malloc"
+    "-Wl,--export=free"
+    "-Wl,--import-undefined"
+    "-Wl,--export-table"
+  )
+elseif((CMAKE_C_COMPILER_TARGET STREQUAL "wasm32") OR (CMAKE_C_COMPILER_TARGET STREQUAL "wasm32-unknown-unknown"))
+  target_link_libraries(hello emnapi-basic-mt)
+  set_target_properties(hello PROPERTIES SUFFIX ".wasm")
+  target_compile_options(hello PRIVATE "-fno-exceptions" "-matomics" "-mbulk-memory")
+  target_link_options(hello PRIVATE
+    "-nostdlib"
+    "-Wl,--no-entry"
+    "-Wl,--export=napi_register_wasm_v1"
+    "-Wl,--export=emnapi_async_worker_create"
+    "-Wl,--export=emnapi_async_worker_init"
+    "-Wl,--import-memory,--shared-memory,--max-memory=2147483648,--import-undefined"
+    "-Wl,--export-dynamic,--export=malloc,--export=free,--export-table"
+  )
+endif()
 ```
 
 ```bash
 emcmake cmake -DCMAKE_BUILD_TYPE=Release -DEMNAPI_WORKER_POOL_SIZE=4 -G Ninja -H. -Bbuild
+
+# wasi-sdk with thread support (Experimental)
+cmake -DCMAKE_TOOLCHAIN_FILE=$WASI_SDK_PATH/share/cmake/wasi-sdk-pthread.cmake \
+      -DWASI_SDK_PREFIX=$WASI_SDK_PATH \
+      -DEMNAPI_WORKER_POOL_SIZE=4 \
+      -DCMAKE_BUILD_TYPE=Release \
+      -G Ninja -H. -Bbuild
+
+cmake -DCMAKE_TOOLCHAIN_FILE=node_modules/emnapi/cmake/wasm32.cmake \
+      -DWASI_SDK_PREFIX=$WASI_SDK_PATH \
+      -DCMAKE_BUILD_TYPE=Release \
+      -G Ninja -H. -Bbuild
+
 cmake --build build
 ```
 
-同时还建议指定线程池大小：
+## 初始化
 
-```cmake
-target_link_options(hello PRIVATE
-  "-sUSE_PTHREADS=1"
-  "-sPTHREAD_POOL_SIZE=4"
-)
+Additional work is required during instantiating wasm compiled with non-emscripten.
+
+```js
+// emnapi main thread (could be in a Worker)
+instantiateNapiModule(input, {
+  context: getDefaultContext(),
+  /**
+   * emscripten
+   *   0: no effect
+   *   > 0: the same effect to UV_THREADPOOL_SIZE
+   * non-emscripten
+   *   0: single thread mock
+   *   > 0 schedule async work in web worker
+   */
+  asyncWorkPoolSize: 4, // 0: single thread mock, > 0: schedule async work in web worker
+  wasi: new WASI(/* ... */),
+  // reuseWorker: true,
+  onCreateWorker () {
+    return new Worker('./worker.js')
+    // Node.js
+    // const { Worker } = require('worker_threads')
+    // return new Worker(join(__dirname, './worker.js'), {
+    //   env: process.env,
+    //   execArgv: ['--experimental-wasi-unstable-preview1']
+    // })
+  },
+  overwriteImports (importObject) {
+    importObject.env.memory = new WebAssembly.Memory({
+      initial: 16777216 / 65536,
+      maximum: 2147483648 / 65536,
+      shared: true
+    })
+  }
+})
+```
+
+```js
+// worker.js
+(function () {
+  let fs, WASI, emnapiCore
+
+  const ENVIRONMENT_IS_NODE =
+    typeof process === 'object' && process !== null &&
+    typeof process.versions === 'object' && process.versions !== null &&
+    typeof process.versions.node === 'string'
+
+  if (ENVIRONMENT_IS_NODE) {
+    const nodeWorkerThreads = require('worker_threads')
+
+    const parentPort = nodeWorkerThreads.parentPort
+
+    parentPort.on('message', (data) => {
+      globalThis.onmessage({ data })
+    })
+
+    fs = require('fs')
+
+    Object.assign(globalThis, {
+      self: globalThis,
+      require,
+      Worker: nodeWorkerThreads.Worker,
+      importScripts: function (f) {
+        (0, eval)(fs.readFileSync(f, 'utf8') + '//# sourceURL=' + f)
+      },
+      postMessage: function (msg) {
+        parentPort.postMessage(msg)
+      }
+    })
+
+    WASI = require('./wasi').WASI
+    emnapiCore = require('@emnapi/core')
+  } else {
+    importScripts('./node_modules/memfs-browser/dist/memfs.js')
+    importScripts('./node_modules/@tybys/wasm-util/dist/wasm-util.min.js')
+    importScripts('./node_modules/@emnapi/core/dist/emnapi-core.js')
+    emnapiCore = globalThis.emnapiCore
+
+    const { Volume, createFsFromVolume } = memfs
+    fs = createFsFromVolume(Volume.fromJSON({
+      '/': null
+    }))
+
+    WASI = globalThis.wasmUtil.WASI
+  }
+
+  const { instantiateNapiModuleSync, MessageHandler } = emnapiCore
+
+  const handler = new MessageHandler({
+    onLoad ({ wasmModule, wasmMemory }) {
+      const wasi = new WASI({ fs })
+
+      return instantiateNapiModuleSync(wasmModule, {
+        childThread: true,
+        wasi,
+        overwriteImports (importObject) {
+          importObject.env.memory = wasmMemory
+        }
+      })
+    }
+  })
+
+  globalThis.onmessage = function (e) {
+    handler.handle(e)
+    // handle other messages
+  }
+})()
 ```
 
 ## 预处理宏选项
 
 ### `-DEMNAPI_WORKER_POOL_SIZE=4`
 
-等价于编译时的 [`UV_THREADPOOL_SIZE`](http://docs.libuv.org/en/v1.x/threadpool.html?highlight=UV_THREADPOOL_SIZE)，如果未定义，emnapi 会在运行时读取 Emscripten 的 `UV_THREADPOOL_SIZE` [环境变量](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#interacting-with-code-environment-variables)，你可以像这样设置 `UV_THREADPOOL_SIZE`：
+等价于编译时的 [`UV_THREADPOOL_SIZE`](http://docs.libuv.org/en/v1.x/threadpool.html?highlight=UV_THREADPOOL_SIZE)，如果未定义，emnapi 会在运行时读取 `asyncWorkPoolSize` 选项或者 Emscripten 的 `UV_THREADPOOL_SIZE` [环境变量](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#interacting-with-code-environment-variables)：
 
 ```js
+Module.init({
+  // ...
+  asyncWorkPoolSize: 2
+})
+
+// if asyncWorkPoolSize is not specified
 Module.preRun = Module.preRun || [];
 Module.preRun.push(function () {
   if (typeof ENV !== 'undefined') {
@@ -60,24 +240,38 @@ Module.preRun.push(function () {
 });
 ```
 
+```js
+// wasi
+instantiateNapiModule({
+  // ...
+  asyncWorkPoolSize: 2
+})
+// if asyncWorkPoolSize is not specified
+new WASI({
+  env: {
+    UV_THREADPOOL_SIZE: '2'
+  }
+})
+```
+
 它代表最大可并行执行的异步工作（`napi_queue_async_work`。默认未定义，运行时读取 `UV_THREADPOOL_SIZE` 环境变量。
 
 通常境况下你可以将 `PTHREAD_POOL_SIZE` 和 `EMNAPI_WORKER_POOL_SIZE` 都设置成 `CPU 核心数`。如果你使用了另外一个多线程库中的函数，它会在异步工作中创建 `N` 个子线程，你就需要把 `PTHREAD_POOL_SIZE` 设置为 `EMNAPI_WORKER_POOL_SIZE * (N + 1)`。
 
-这个选项仅当设置了 `-sUSE_PTHREADS` 才有效。emnapi 会在初始化时创建 `EMNAPI_WORKER_POOL_SIZE` 个线程，如果 `PTHREAD_POOL_SIZE < EMNAPI_WORKER_POOL_SIZE && PTHREAD_POOL_SIZE_STRICT == 2` 则会抛出错误。
+这个选项仅当设置了 `-pthread` 才有效。emnapi 会在初始化时创建 `EMNAPI_WORKER_POOL_SIZE` 个线程，如果 `PTHREAD_POOL_SIZE < EMNAPI_WORKER_POOL_SIZE && PTHREAD_POOL_SIZE_STRICT == 2` 则会抛出错误。
 
 更多详情细节请查看 [Issue #8](https://github.com/toyobayashi/emnapi/issues/8)。
 
 ### `-DEMNAPI_NEXTTICK_TYPE=0`
 
-这个选项仅当设置了 `-sUSE_PTHREADS` 才有效。默认是 `0`。告诉 emnapi 要如何在 `uv_async_send` / `uv__async_close` 中延迟执行异步工作。
+这个选项仅当设置了 `-pthread` 才有效。默认是 `0`。告诉 emnapi 要如何在 `uv_async_send` / `uv__async_close` 中延迟执行异步工作。
 
 - `0`: 使用 `setImmediate()`（Node.js 原生 `setImmediate` 或浏览器的 `MessageChannel` 和 `port.postMessage`）
 - `1`: 使用 `Promise.resolve().then()`
 
 ### `-DEMNAPI_USE_PROXYING=1`
 
-这个选项仅当设置了 `-sUSE_PTHREADS` 才有效。Emscripten 版本 `>= 3.1.9` 默认是 `1`，否则默认是 `0`。
+这个选项仅当设置了 `-pthread` 才有效。Emscripten 版本 `>= 3.1.9` 默认是 `1`，否则默认是 `0`。
 
 - `0`
 

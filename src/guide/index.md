@@ -14,7 +14,7 @@ import { withBase } from 'vitepress'
 
 `emnapi` is ~~a subset of~~ almost a full [**N**ode-**API**](https://nodejs.org/docs/v16.15.0/api/n-api.html) (named NAPI previously) implementation for **Em**scripten, as well as [wasi-sdk](https://github.com/WebAssembly/wasi-sdk) and clang `wasm32-unknown-unknown` target from emnapi v0.29.0, [napi-rs support is comming soon](https://github.com/napi-rs/napi-rs/issues/796).
 
-Emscripten is the first class support target, currently thread related APIs are unavailable on `wasm32-unknown-unknown` and `wasm32-wasi` target.
+Emscripten is the first class support target.
 
 ## Motivation
 

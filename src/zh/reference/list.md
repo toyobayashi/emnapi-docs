@@ -192,7 +192,7 @@ if (data != NULL && runtime_allocated && ownership == emnapi_userland) {
 
 ::: warning
 
-这些 API 需要 Emscripten pthread 支持（`-sUSE_PTHREADS=1`），建议明确指定线程池大小（`-sPTHREAD_POOL_SIZE=4`）。wasi-sdk 暂未支持多线程。
+这些 API 需要 Emscripten pthread 支持（`-pthread`），建议明确指定线程池大小（`-sPTHREAD_POOL_SIZE=4`）。
 
 要求目标环境有 `Worker` 和 `SharedArrayBuffer` 支持。如果目标环境是浏览器，则需要
 

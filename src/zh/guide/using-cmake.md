@@ -16,15 +16,17 @@ add_executable(hello hello.c)
 target_link_libraries(hello emnapi)
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   target_link_options(hello PRIVATE
-    "-sEXPORTED_FUNCTIONS=['_malloc','_free']"
+    "-sEXPORTED_FUNCTIONS=['_napi_register_wasm_v1','_malloc','_free']"
   )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "WASI")
+  set_target_properties(hello PROPERTIES SUFFIX ".wasm")
   target_link_options(hello PRIVATE
     "-mexec-model=reactor"
     "-Wl,--export=napi_register_wasm_v1"
     "-Wl,--initial-memory=16777216,--export-dynamic,--export=malloc,--export=free,--import-undefined,--export-table"
   )
 elseif((CMAKE_C_COMPILER_TARGET STREQUAL "wasm32") OR (CMAKE_C_COMPILER_TARGET STREQUAL "wasm32-unknown-unknown"))
+  set_target_properties(hello PROPERTIES SUFFIX ".wasm")
   target_link_options(hello PRIVATE
     "-nostdlib"
     "-Wl,--export=napi_register_wasm_v1"
@@ -32,6 +34,7 @@ elseif((CMAKE_C_COMPILER_TARGET STREQUAL "wasm32") OR (CMAKE_C_COMPILER_TARGET S
     "-Wl,--initial-memory=16777216,--export-dynamic,--export=malloc,--export=free,--import-undefined,--export-table"
   )
   target_link_libraries(hello dlmalloc)
+  # target_link_libraries(hello emmalloc)
 endif()
 ```
 

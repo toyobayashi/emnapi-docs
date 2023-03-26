@@ -191,7 +191,7 @@ These APIs only work on Node.js and require `@emnapi/node-binding` when calling 
 
 ::: warning
 
-These APIs added in emnapi v0.15.0 require Emscripten pthread support (`-sUSE_PTHREADS=1`), also recommand to specifying thread pool size explicitly (`-sPTHREAD_POOL_SIZE=4`), wasi-sdk has not supported thread yet.
+These APIs added in emnapi v0.15.0 require Emscripten pthread support (`-pthread`), also recommand to specifying thread pool size explicitly (`-sPTHREAD_POOL_SIZE=4`).
 
 Require target environment has `Worker` and `SharedArrayBuffer` support. If target environment is browser, require
 

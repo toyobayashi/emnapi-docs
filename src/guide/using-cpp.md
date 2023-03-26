@@ -38,7 +38,7 @@ em++ -O3 \
      -I./node_modules/emnapi/include \
      -L./node_modules/emnapi/lib/wasm32-emscripten \
      --js-library=./node_modules/emnapi/dist/library_napi.js \
-     -sEXPORTED_FUNCTIONS="['_malloc','_free']" \
+     -sEXPORTED_FUNCTIONS="['_napi_register_wasm_v1','_malloc','_free']" \
      -o hello.js \
      hello.cpp \
      -lemnapi
@@ -52,6 +52,7 @@ clang++ -O3 \
         -L./node_modules/emnapi/lib/wasm32-wasi \
         --target=wasm32-wasi \
         --sysroot=$WASI_SDK_PATH/share/wasi-sysroot \
+        -fno-exceptions \
         -mexec-model=reactor \
         -Wl,--initial-memory=16777216 \
         -Wl,--export-dynamic \
@@ -75,6 +76,7 @@ clang++ -O3 \
         -I./node_modules/emnapi/include \
         -L./node_modules/emnapi/lib/wasm32 \
         --target=wasm32 \
+        -fno-exceptions \
         -nostdlib \
         -Wl,--no-entry \
         -Wl,--initial-memory=16777216 \
