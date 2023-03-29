@@ -23,8 +23,6 @@ These APIs are unavailable, throws JavaScript Error.
 
 ::: warning
 
-Only `Object` and  `Function` can be referenced, `Symbol` is not support.
-
 If the runtime does not support [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) and [WeakRef](https://www.caniuse.com/?search=WeakRef), The following APIs have some limitations, and all references are strong references no matter their reference count is 0 or not.
 
 :::

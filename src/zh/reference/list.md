@@ -23,8 +23,6 @@ sidebarDepth: 4
 
 ::: warning
 
-只有 `Object` 和  `Function` 可以被引用，不支持 `Symbol`。
-
 如果运行时不支持 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry) 和 [WeakRef](https://www.caniuse.com/?search=WeakRef)，下面的 API 有一定的限制，无论引用计数是否为 0，所有引用都是强引用。
 
 :::

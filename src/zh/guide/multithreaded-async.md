@@ -21,9 +21,16 @@ Emnapi 有 3 种 async work 实现和 2 种 TSFN 实现：
 | B | libemnapi-basic(-mt).a | ✅                   | ✅        | ✅             | ✅                     |
 | C | libemnapi-basic-mt.a   | ❌                   | ✅        | ❌             | ✅                     |
 | D | libemnapi-mt.a         | ✅                   | ❌        | ❌             | ✅                     |
-| E | libemnapi-basic-mt.a   | ✅                   | ✅        | ✅             | ✅                     |
+| E | libemnapi-basic(-mt).a | ✅                   | ✅        | ✅             | ✅                     |
 
 在浏览器上，关于 wasi-libc 的 pthread 实现存在一些限制，例如 pthread_mutex_lock 可能会调用 __builtin_wasm_memory_atomic_wait32(memory.atomic.wait32)，而这在浏览器的 JS 主线程中是不允许的。而 Emscripten 的 pthread 实现已经考虑了在浏览器中使用的情况。如果您需要在浏览器上运行带有多线程功能的插件，我们建议您使用 Emscripten A＆D 或裸 wasm32 C＆E。
+
+注意：对于浏览器，所有依赖于 Web Workers（Emscripten pthread 也依赖 Web Worker）的多线程特性都需要跨源隔离来启用 SharedArrayBuffer。你可以通过使用以下相应头为页面提供服务来隔离页面跨源
+
+```
+Cross-Origin-Embedder-Policy: require-corp
+Cross-Origin-Opener-Policy: same-origin
+```
 
 ## 关于预编译库
 
@@ -102,7 +109,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$WASI_SDK_PATH/share/cmake/wasi-sdk-pthread.cmake \
       -G Ninja -H. -Bbuild
 
 cmake -DCMAKE_TOOLCHAIN_FILE=node_modules/emnapi/cmake/wasm32.cmake \
-      -DWASI_SDK_PREFIX=$WASI_SDK_PATH \
+      -DLLVM_PREFIX=$WASI_SDK_PATH \
       -DCMAKE_BUILD_TYPE=Release \
       -G Ninja -H. -Bbuild
 

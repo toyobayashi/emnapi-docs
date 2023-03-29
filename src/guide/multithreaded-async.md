@@ -21,13 +21,22 @@ Emnapi has 3 implementations of async work and 2 implementations of TSFN:
 | B | libemnapi-basic(-mt).a | ✅                   | ✅        | ✅             | ✅                     |
 | C | libemnapi-basic-mt.a   | ❌                   | ✅        | ❌             | ✅                     |
 | D | libemnapi-mt.a         | ✅                   | ❌        | ❌             | ✅                     |
-| E | libemnapi-basic-mt.a   | ✅                   | ✅        | ✅             | ✅                     |
+| E | libemnapi-basic(-mt).a | ✅                   | ✅        | ✅             | ✅                     |
 
 There are some limitations on browser about wasi-libc's pthread implementation, for example
 `pthread_mutex_lock` may call `__builtin_wasm_memory_atomic_wait32`(`memory.atomic.wait32`)
 which is disallowed in browser JS main thread. While Emscripten's pthread implementation
 has considered usage in browser. If you need to run your addon with multithreaded features on browser,
 we recommend you use Emscripten A & D, or bare wasm32 C & E.
+
+Note: For browsers, all the multithreaded features relying on Web Workers (Emscripten pthread also relying on Web Workers)
+require cross-origin isolation to enable `SharedArrayBuffer`. You can make a page cross-origin isolated
+by serving the page with these headers:
+
+```
+Cross-Origin-Embedder-Policy: require-corp
+Cross-Origin-Opener-Policy: same-origin
+```
 
 ## About Prebuilt Libraries
 
@@ -106,7 +115,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$WASI_SDK_PATH/share/cmake/wasi-sdk-pthread.cmake \
       -G Ninja -H. -Bbuild
 
 cmake -DCMAKE_TOOLCHAIN_FILE=node_modules/emnapi/cmake/wasm32.cmake \
-      -DWASI_SDK_PREFIX=$WASI_SDK_PATH \
+      -DLLVM_PREFIX=$WASI_SDK_PATH \
       -DCMAKE_BUILD_TYPE=Release \
       -G Ninja -H. -Bbuild
 
