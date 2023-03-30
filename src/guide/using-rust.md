@@ -107,7 +107,7 @@ const wasmBuffer = useWASI
 instantiateNapiModule(wasmBuffer, {
   context: require('@emnapi/runtime').getDefaultContext(),
   wasi,
-  onInstantiated (instance) {
+  beforeInit ({ instance }) {
     for (const sym in instance.exports) {
       if (sym.startsWith('__napi_register__')) {
         instance.exports[sym]()
@@ -121,7 +121,7 @@ instantiateNapiModule(wasmBuffer, {
       ...importObject.emnapi
     }
   }
-}).then(({ instance, napiModule }) => {
+}).then(({ napiModule }) => {
   const binding = napiModule.exports
   // output: 5
   console.log(binding.fibonacci(5))
