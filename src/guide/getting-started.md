@@ -12,6 +12,7 @@ You will need to install:
 - (Optional) CMake `>= v3.13`
 - (Optional) ninja
 - (Optional) make
+- (Optional) [node-addon-api](https://github.com/nodejs/node-addon-api) `>= 6.1.0`
 
 ::: tip
 Set `$EMSDK` environment variable to the emsdk root path.
@@ -58,6 +59,9 @@ npm install @emnapi/runtime
 
 # for non-emscripten
 npm install @emnapi/core
+
+# if you use node-addon-api
+npm install node-addon-api
 ```
 
 ::: tip

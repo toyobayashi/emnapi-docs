@@ -12,6 +12,7 @@
 - (可选) CMake `>= v3.13`
 - (可选) ninja
 - (可选) make
+- (可选) [node-addon-api](https://github.com/nodejs/node-addon-api) `>= 6.1.0`
 
 ::: tip
 设置 `$EMSDK` 环境变量为 emsdk 根目录。
@@ -59,6 +60,9 @@ npm install @emnapi/runtime
 
 # for non-emscripten
 npm install @emnapi/core
+
+# if you use node-addon-api
+npm install node-addon-api
 ```
 
 ::: tip

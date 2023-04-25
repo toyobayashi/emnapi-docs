@@ -107,12 +107,16 @@ endif()
 ```
 
 ```bash
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -DEMNAPI_WORKER_POOL_SIZE=4 -G Ninja -H. -Bbuild
+emcmake cmake -DCMAKE_BUILD_TYPE=Release \
+              -DEMNAPI_FIND_NODE_ADDON_API=ON \
+              -DEMNAPI_WORKER_POOL_SIZE=4 \
+              -G Ninja -H. -Bbuild
 
 # wasi-sdk with thread support (Experimental)
 cmake -DCMAKE_TOOLCHAIN_FILE=$WASI_SDK_PATH/share/cmake/wasi-sdk-pthread.cmake \
       -DWASI_SDK_PREFIX=$WASI_SDK_PATH \
       -DEMNAPI_WORKER_POOL_SIZE=4 \
+      -DEMNAPI_FIND_NODE_ADDON_API=ON \
       -DCMAKE_BUILD_TYPE=Release \
       -G Ninja -H. -Bbuild
 

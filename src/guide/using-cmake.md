@@ -40,15 +40,20 @@ endif()
 
 Building with `emcmake`, output `build/hello.js` and `build/hello.wasm`.
 
+If you use node-addon-api, you can use `-DEMNAPI_FIND_NODE_ADDON_API=ON` or manually add node-addon-api directory to the include dir via `include_directories()` or `target_include_directories()`.
+
 ```bash
 mkdir build
 
 # emscripten
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -G Ninja -H. -Bbuild
+emcmake cmake -DCMAKE_BUILD_TYPE=Release \
+              -DEMNAPI_FIND_NODE_ADDON_API=ON \
+              -G Ninja -H. -Bbuild
 
 # wasi-sdk
 cmake -DCMAKE_TOOLCHAIN_FILE=$WASI_SDK_PATH/share/cmake/wasi-sdk.cmake \
       -DWASI_SDK_PREFIX=$WASI_SDK_PATH \
+      -DEMNAPI_FIND_NODE_ADDON_API=ON \
       -DCMAKE_BUILD_TYPE=Release \
       -G Ninja -H. -Bbuild
 

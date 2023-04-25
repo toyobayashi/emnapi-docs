@@ -40,15 +40,20 @@ endif()
 
 用 `emcmake` 构建，输出 `build/hello.js` 和 `build/hello.wasm`。
 
+可以使用 `-DEMNAPI_FIND_NODE_ADDON_API=ON` 或通过 `include_directories()` 或 `target_include_directories()` 手动将 node-addon-api 目录添加到包含目录。
+
 ```bash
 mkdir build
 
 # emscripten
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -G Ninja -H. -Bbuild
+emcmake cmake -DCMAKE_BUILD_TYPE=Release \
+              -DEMNAPI_FIND_NODE_ADDON_API=ON \
+              -G Ninja -H. -Bbuild
 
 # wasi-sdk
 cmake -DCMAKE_TOOLCHAIN_FILE=$WASI_SDK_PATH/share/cmake/wasi-sdk.cmake \
       -DWASI_SDK_PREFIX=$WASI_SDK_PATH \
+      -DEMNAPI_FIND_NODE_ADDON_API=ON \
       -DCMAKE_BUILD_TYPE=Release \
       -G Ninja -H. -Bbuild
 

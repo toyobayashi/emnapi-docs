@@ -1,4 +1,10 @@
-# 使用 C++ 包装器
+# 使用 C++ 和 node-addon-api
+
+需要 [`node-addon-api`](https://github.com/nodejs/node-addon-api) `>= 6.1.0`
+
+```bash
+npm install node-addon-api
+```
 
 你也可以使用官方的 C++ wrapper [node-addon-api](https://github.com/nodejs/node-addon-api)，它（[v6.0.0](https://github.com/nodejs/node-addon-api/releases/tag/v6.0.0)）已被集成在这个包里，但不可使用 Node.js 环境特定的 API，如 `CallbackScope`。
 
@@ -36,6 +42,7 @@ em++ -O3 \
      -DNAPI_DISABLE_CPP_EXCEPTIONS \
      -DNODE_ADDON_API_ENABLE_MAYBE \
      -I./node_modules/emnapi/include \
+     -I./node_modules/node-addon-api \
      -L./node_modules/emnapi/lib/wasm32-emscripten \
      --js-library=./node_modules/emnapi/dist/library_napi.js \
      -sEXPORTED_FUNCTIONS="['_napi_register_wasm_v1','_malloc','_free']" \
@@ -49,6 +56,7 @@ clang++ -O3 \
         -DNAPI_DISABLE_CPP_EXCEPTIONS \
         -DNODE_ADDON_API_ENABLE_MAYBE \
         -I./node_modules/emnapi/include \
+        -I./node_modules/node-addon-api \
         -L./node_modules/emnapi/lib/wasm32-wasi \
         --target=wasm32-wasi \
         --sysroot=$WASI_SDK_PATH/share/wasi-sysroot \
@@ -67,10 +75,9 @@ clang++ -O3 \
 ```
 
 ```bash [clang]
-# `node-addon-api` is using the C++ standard libraries,
-# so you must use WASI if you are using `node-addon-api`.
-# You can still use `wasm32-unknown-unknown` target
-# if you use Node-API C API only in C++.
+# `node-addon-api` 使用了 C++ 标准库，所以必须使用 WASI
+# 但仍然可以在 `wasm32-unknown-unknown` 使用 C++ 代码编写
+# Node-API C 风格的 API
 
 clang++ -O3 \
         -I./node_modules/emnapi/include \

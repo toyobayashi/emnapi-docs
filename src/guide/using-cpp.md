@@ -1,6 +1,10 @@
-# Using C++ Wrapper
+# Using C++ and node-addon-api
 
-Alternatively, you can also use [node-addon-api](https://github.com/nodejs/node-addon-api) which is official Node-API header-only C++ wrapper, already shipped ([v6.0.0](https://github.com/nodejs/node-addon-api/releases/tag/v6.0.0)) in `emnapi` but without Node.js specific API such as `CallbackScope`.
+Require [`node-addon-api`](https://github.com/nodejs/node-addon-api) `>= 6.1.0`
+
+```bash
+npm install node-addon-api
+```
 
 ::: warning
 
@@ -36,6 +40,7 @@ em++ -O3 \
      -DNAPI_DISABLE_CPP_EXCEPTIONS \
      -DNODE_ADDON_API_ENABLE_MAYBE \
      -I./node_modules/emnapi/include \
+     -I./node_modules/node-addon-api \
      -L./node_modules/emnapi/lib/wasm32-emscripten \
      --js-library=./node_modules/emnapi/dist/library_napi.js \
      -sEXPORTED_FUNCTIONS="['_napi_register_wasm_v1','_malloc','_free']" \
@@ -49,6 +54,7 @@ clang++ -O3 \
         -DNAPI_DISABLE_CPP_EXCEPTIONS \
         -DNODE_ADDON_API_ENABLE_MAYBE \
         -I./node_modules/emnapi/include \
+        -I./node_modules/node-addon-api \
         -L./node_modules/emnapi/lib/wasm32-wasi \
         --target=wasm32-wasi \
         --sysroot=$WASI_SDK_PATH/share/wasi-sysroot \
