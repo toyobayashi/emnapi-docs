@@ -1,0 +1,1 @@
+import{_ as s,o as n,c as a,a as l}from"./app.d35415a2.js";const _=JSON.parse('{"title":"Using CMake","description":"","frontmatter":{},"headers":[],"relativePath":"guide/using-cmake.md","lastUpdated":1682612480000}'),p={name:"guide/using-cmake.md"},o=l("",7),e=[o];function t(c,r,C,A,i,D){return n(),a("div",null,e)}const d=s(p,[["render",t]]);export{_ as __pageData,d as default};
