@@ -6,8 +6,6 @@
 npm install node-addon-api
 ```
 
-你也可以使用官方的 C++ wrapper [node-addon-api](https://github.com/nodejs/node-addon-api)，它（[v6.0.0](https://github.com/nodejs/node-addon-api/releases/tag/v6.0.0)）已被集成在这个包里，但不可使用 Node.js 环境特定的 API，如 `CallbackScope`。
-
 ::: warning
 
 使用 C++ wrapper 编译出的代码只能运行在 Node.js v14.6.0+ 和支持 `FinalizationRegistry` 和 `WeakRef` 的现代浏览器（[v8 引擎 v8.4+](https://v8.dev/blog/v8-release-84))！
