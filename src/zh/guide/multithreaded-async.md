@@ -194,7 +194,7 @@ instantiateNapiModule(input, {
       }
     })
 
-    WASI = require('./wasi').WASI
+    WASI = require('wasi').WASI
     emnapiCore = require('@emnapi/core')
   } else {
     importScripts('./node_modules/memfs-browser/dist/memfs.js')
