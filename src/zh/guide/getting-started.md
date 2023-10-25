@@ -133,10 +133,12 @@ module.exports = (function (exports) {
 
 ```bash [emscripten]
 emcc -O3 \
+     -DBUILDING_NODE_EXTENSION \
+     "-DNAPI_EXTERN=__attribute__((__import_module__(\"env\")))" \
      -I./node_modules/emnapi/include \
      -L./node_modules/emnapi/lib/wasm32-emscripten \
      --js-library=./node_modules/emnapi/dist/library_napi.js \
-     -sEXPORTED_FUNCTIONS="['_napi_register_wasm_v1','_malloc','_free']" \
+     -sEXPORTED_FUNCTIONS="['_napi_register_wasm_v1','_node_api_module_get_api_version_v1','_malloc','_free']" \
      -o hello.js \
      hello.c \
      -lemnapi
@@ -144,6 +146,7 @@ emcc -O3 \
 
 ```bash [wasi-sdk]
 clang -O3 \
+      -DBUILDING_NODE_EXTENSION \
       -I./node_modules/emnapi/include \
       -L./node_modules/emnapi/lib/wasm32-wasi \
       --target=wasm32-wasi \
@@ -154,6 +157,7 @@ clang -O3 \
       -Wl,--export=malloc \
       -Wl,--export=free \
       -Wl,--export=napi_register_wasm_v1 \
+      -Wl,--export-if-defined=node_api_module_get_api_version_v1 \
       -Wl,--import-undefined \
       -Wl,--export-table \
       -o hello.wasm \
@@ -166,6 +170,7 @@ clang -O3 \
 # 以获得 `malloc` 和 `free` 实现
 
 clang -O3 \
+      -DBUILDING_NODE_EXTENSION \
       -I./node_modules/emnapi/include \
       -L./node_modules/emnapi/lib/wasm32 \
       --target=wasm32 \
@@ -176,6 +181,7 @@ clang -O3 \
       -Wl,--export=malloc \
       -Wl,--export=free \
       -Wl,--export=napi_register_wasm_v1 \
+      -Wl,--export-if-defined=node_api_module_get_api_version_v1 \
       -Wl,--import-undefined \
       -Wl,--export-table \
       -o hello.wasm \

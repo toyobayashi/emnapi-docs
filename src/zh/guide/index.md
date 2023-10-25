@@ -35,7 +35,7 @@ emnapi 的另一个使用场景是将 Node-API 原生扩展跑在 [StackBlitz](h
 
 ## 可用于生产环境吗
 
-所有 Node.js 官方测试通过！功能可以得到保证。
+所有 Node.js 官方测试通过！功能可以得到保证。[StackBlitz 上的 sharp 正在使用 emnapi](https://blog.stackblitz.com/posts/bringing-sharp-to-wasm-and-webcontainers/)！
 
 经过简单测试，发现一般场景下绑定的调用开销比 embind 略大，但应在可接受的范围内。
 

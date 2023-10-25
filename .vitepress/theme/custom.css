@@ -1,8 +1,10 @@
 
 :root {
-  --vp-c-brand: #81a31c;
-  --vp-c-brand-light: #8bb11b;
+  --vp-button-brand-bg: rgb(129, 163, 28);
+  --vp-c-brand-1: rgb(129, 163, 28);
+  --vp-c-brand-2: rgb(139, 177, 27);
   --vp-button-brand-border: transparent;
+  --vp-custom-block-tip-bg: rgb(139, 177, 27, 0.14);
 }
 
 .nav-bar-title .logo {

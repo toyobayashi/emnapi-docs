@@ -6,7 +6,7 @@
 
 - `emnapi` 由 Emscripten 编译成 WebAssembly，而原生 Node-API 被编译成 Node.js 扩展（`.node` 是操作系统动态链接库），可以使用操作系统 API。
 
-- `emnapi` 没有 Node.js 特定的 API，一些 API 依赖于宿主 JavaScript 环境，请参阅 [API 列表](/zh/reference/list.html)
+- `emnapi` 没有 Node.js 特定的 API，一些 API 依赖于宿主 JavaScript 环境，特别是 WebAssembly 不与宿主共用堆内存，与 ArrayBuffer 相关的 API 存在一定的限制，请参阅 [API 列表](/zh/reference/list.html)
 
 - 如果运行时支持 `FinalizationRegistry` 和 `WeakRef`，则使用 `emnapi` 时可以直接使用内置的 `node-addon-api`。
 
@@ -14,6 +14,7 @@
 
 - 你更喜欢 Node-API，并且相比于 `embind` 你更熟悉 Node-API。
 - 你希望将你的（或现成的）用 Node-API 编写的 Node.js 扩展移植到 WebAssembly。
+- 你希望你的原生模块 npm 包可以顺利地被用户安装，而无需面对 node-gyp。
 
 ## 如何移植现成的用 Node-API 编写 Node.js 扩展
 

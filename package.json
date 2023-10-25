@@ -4,8 +4,9 @@
   "description": "emnapi documentation",
   "private": true,
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
+  "type": "module",
   "scripts": {
     "dev": "vitepress",
     "build": "vitepress build",
@@ -22,8 +23,8 @@
   },
   "homepage": "https://github.com/toyobayashi/emnapi-docs#readme",
   "devDependencies": {
-    "@types/node": "^16.11.45",
-    "vitepress": "1.0.0-alpha.40",
-    "patch-package": "^6.4.7"
+    "@types/node": "^18.11.9",
+    "vitepress": "1.0.0-rc.24",
+    "patch-package": "^8.0.0"
   }
 }

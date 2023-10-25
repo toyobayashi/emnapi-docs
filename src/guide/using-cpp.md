@@ -37,13 +37,15 @@ Compile `hello.cpp` using `em++`. C++ exception is disabled by Emscripten defaul
 
 ```bash [emscripten]
 em++ -O3 \
+     -DBUILDING_NODE_EXTENSION \
      -DNAPI_DISABLE_CPP_EXCEPTIONS \
      -DNODE_ADDON_API_ENABLE_MAYBE \
+     "-DNAPI_EXTERN=__attribute__((__import_module__(\"env\")))" \
      -I./node_modules/emnapi/include \
      -I./node_modules/node-addon-api \
      -L./node_modules/emnapi/lib/wasm32-emscripten \
      --js-library=./node_modules/emnapi/dist/library_napi.js \
-     -sEXPORTED_FUNCTIONS="['_napi_register_wasm_v1','_malloc','_free']" \
+     -sEXPORTED_FUNCTIONS="['_napi_register_wasm_v1','_node_api_module_get_api_version_v1','_malloc','_free']" \
      -o hello.js \
      hello.cpp \
      -lemnapi
@@ -51,6 +53,7 @@ em++ -O3 \
 
 ```bash [wasi-sdk]
 clang++ -O3 \
+        -DBUILDING_NODE_EXTENSION \
         -DNAPI_DISABLE_CPP_EXCEPTIONS \
         -DNODE_ADDON_API_ENABLE_MAYBE \
         -I./node_modules/emnapi/include \
@@ -65,6 +68,7 @@ clang++ -O3 \
         -Wl,--export=malloc \
         -Wl,--export=free \
         -Wl,--export=napi_register_wasm_v1 \
+        -Wl,--export-if-defined=node_api_module_get_api_version_v1 \
         -Wl,--import-undefined \
         -Wl,--export-table \
         -o hello.wasm \
@@ -79,6 +83,7 @@ clang++ -O3 \
 # if you use Node-API C API only in C++.
 
 clang++ -O3 \
+        -DBUILDING_NODE_EXTENSION \
         -I./node_modules/emnapi/include \
         -L./node_modules/emnapi/lib/wasm32 \
         --target=wasm32 \
@@ -90,6 +95,7 @@ clang++ -O3 \
         -Wl,--export=malloc \
         -Wl,--export=free \
         -Wl,--export=napi_register_wasm_v1 \
+        -Wl,--export-if-defined=node_api_module_get_api_version_v1 \
         -Wl,--import-undefined \
         -Wl,--export-table \
         -o node_api_c_api_only.wasm \

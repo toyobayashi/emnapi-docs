@@ -20,7 +20,7 @@ export default defineConfig({
   base: process.env.EMNAPI_DOCS_BASE || '/',
   lang: 'en-US',
   title: 'emnapi',
-  description: 'emnapi - The Subset of Node-API implementation for Emscripten',
+  description: 'emnapi - The Subset of Node-API implementation for WebAssembly',
   lastUpdated: true,
   srcDir: 'src',
   scrollOffset: 'header',
@@ -33,7 +33,7 @@ export default defineConfig({
     root: {
       lang: 'en',
       label: 'English',
-      description: 'emnapi - The Subset of Node-API implementation for Emscripten',
+      description: 'emnapi - The Subset of Node-API implementation for WebAssembly',
       themeConfig: {
         lastUpdatedText: 'Last Updated',
         editLink: {
@@ -47,7 +47,7 @@ export default defineConfig({
     zh: {
       lang: 'zh',
       label: '简体中文',
-      description: 'emnapi - 适用于 Emscripten 的 Node-API 子集实现',
+      description: 'emnapi - 适用于 WebAssembly 的 Node-API 子集实现',
       themeConfig: {
         lastUpdatedText: '上次更新于',
         editLink: {
@@ -95,12 +95,12 @@ function getSideBar (lang: Lang): DefaultTheme.SidebarMulti {
   }
 }
 
-function getGuideSidebar (lang: Lang): DefaultTheme.SidebarGroup[] {
+function getGuideSidebar (lang: Lang): DefaultTheme.SidebarItem[] {
   return [
     {
       text: tr[lang].guide,
       items: [
-        { text: tr[lang].whatIsEmnapi, link: `${lang}guide/` },
+        { text: tr[lang].introduction, link: `${lang}guide/` },
         { text: tr[lang].gettingStarted, link: `${lang}guide/getting-started` },
         { text: tr[lang].usingCppWrapper, link: `${lang}guide/using-cpp` },
         { text: tr[lang].usingCMake, link: `${lang}guide/using-cmake` },
@@ -113,7 +113,7 @@ function getGuideSidebar (lang: Lang): DefaultTheme.SidebarGroup[] {
     {
       text: tr[lang].advanced,
       items: [
-        { text: tr[lang].emnapiRuntime, link: `${lang}guide/runtime` },
+        // { text: tr[lang].emnapiRuntime, link: `${lang}guide/runtime` },
         { text: tr[lang].modularization, link: `${lang}guide/modularization` },
         { text: tr[lang].multithreadedAsync, link: `${lang}guide/multithreaded-async` },
         { text: tr[lang].tsfn, link: `${lang}guide/tsfn` },

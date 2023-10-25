@@ -67,7 +67,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   target_compile_options(hello PRIVATE "-pthread")
   target_link_options(hello PRIVATE
     "-sALLOW_MEMORY_GROWTH=1"
-    "-sEXPORTED_FUNCTIONS=['_napi_register_wasm_v1','_malloc','_free']"
+    "-sEXPORTED_FUNCTIONS=['_napi_register_wasm_v1','_node_api_module_get_api_version_v1','_malloc','_free']"
     "-pthread"
     "-sPTHREAD_POOL_SIZE=4"
     # try to specify stack size if you experience pthread errors
@@ -98,6 +98,7 @@ elseif((CMAKE_C_COMPILER_TARGET STREQUAL "wasm32") OR (CMAKE_C_COMPILER_TARGET S
     "-nostdlib"
     "-Wl,--no-entry"
     "-Wl,--export=napi_register_wasm_v1"
+    "-Wl,--export-if-defined=node_api_module_get_api_version_v1"
     "-Wl,--export=emnapi_async_worker_create"
     "-Wl,--export=emnapi_async_worker_init"
     "-Wl,--import-memory,--shared-memory,--max-memory=2147483648,--import-undefined"

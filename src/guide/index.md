@@ -37,7 +37,7 @@ Let's forget IE.
 
 ## Is it ready for production?
 
-All Node.js official test passed! The functionality could be guaranteed.
+All Node.js official test passed! The functionality could be guaranteed. [StackBlitz is using emnapi to port sharp](https://blog.stackblitz.com/posts/bringing-sharp-to-wasm-and-webcontainers/)!
 
 After simple testing, found the call overhead of binding is slightly greater than that of embind in general scenarios,
 but it should be within an acceptable range.
