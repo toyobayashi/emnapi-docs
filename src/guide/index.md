@@ -12,7 +12,7 @@ import { withBase } from 'vitepress'
 
 <img :src="withBase('/emnapi.svg')" alt="emnapi logo" width="256" />
 
-`emnapi` is ~~a subset of~~ almost a full [**N**ode-**API**](https://nodejs.org/docs/v16.15.0/api/n-api.html) (named NAPI previously) implementation for **Em**scripten, as well as [wasi-sdk](https://github.com/WebAssembly/wasi-sdk) and clang `wasm32-unknown-unknown` target from emnapi v0.29.0, [napi-rs support is comming soon](https://github.com/napi-rs/napi-rs/issues/796).
+`emnapi` is ~~a subset of~~ almost a full [**N**ode-**API**](https://nodejs.org/docs/v16.15.0/api/n-api.html) (named NAPI previously) implementation for **Em**scripten, as well as [wasi-sdk](https://github.com/WebAssembly/wasi-sdk) and clang `wasm32-unknown-unknown` target from emnapi v0.29.0.
 
 Emscripten is the first class support target.
 
@@ -37,7 +37,11 @@ Let's forget IE.
 
 ## Is it ready for production?
 
-All Node.js official test passed! The functionality could be guaranteed. [StackBlitz is using emnapi to port sharp](https://blog.stackblitz.com/posts/bringing-sharp-to-wasm-and-webcontainers/)!
+All Node.js official test passed! The functionality could be guaranteed. There are already well-known open source projects that are using or will use emnapi:
+
+- [sharp](https://github.com/lovell/sharp) on StackBlitz is using emnapi, see [official blog](https://blog.stackblitz.com/posts/bringing-sharp-to-wasm-and-webcontainers/)
+- [napi-rs](https://github.com/napi-rs/napi-rs) [has integrated emnapi](https://github.com/napi-rs/napi-rs/pull/1669) (v2.14.0+)
+- [node-magickwand](https://github.com/mmomtchev/magickwand.js) as a Node-API showcase project of [SWIG](https://github.com/swig/swig), has integrated emnapi
 
 After simple testing, found the call overhead of binding is slightly greater than that of embind in general scenarios,
 but it should be within an acceptable range.

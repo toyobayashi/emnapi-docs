@@ -12,7 +12,7 @@ import { withBase } from 'vitepress'
 
 <img :src="withBase('/emnapi.svg')" alt="emnapi logo" width="256" />
 
-`emnapi` 适用于 Emscripten 的 [Node-API](https://nodejs.org/docs/v16.15.0/api/n-api.html) 接近完整的实现，从 v0.29.0 版本开始支持 [wasi-sdk](https://github.com/WebAssembly/wasi-sdk) 和 clang `wasm32-unknown-unknown` 构建目标，[napi-rs 正在支持中](https://github.com/napi-rs/napi-rs/issues/796)。
+`emnapi` 适用于 Emscripten 的 [Node-API](https://nodejs.org/docs/v16.15.0/api/n-api.html) 接近完整的实现，从 v0.29.0 版本开始支持 [wasi-sdk](https://github.com/WebAssembly/wasi-sdk) 和 clang `wasm32-unknown-unknown` 构建目标。
 
 ## 动机
 
@@ -35,7 +35,11 @@ emnapi 的另一个使用场景是将 Node-API 原生扩展跑在 [StackBlitz](h
 
 ## 可用于生产环境吗
 
-所有 Node.js 官方测试通过！功能可以得到保证。[StackBlitz 上的 sharp 正在使用 emnapi](https://blog.stackblitz.com/posts/bringing-sharp-to-wasm-and-webcontainers/)！
+所有 Node.js 官方测试通过！功能可以得到保证。目前已经有著名开源项目正在或将要使用 emnapi：
+
+- StackBlitz 上的 [sharp](https://github.com/lovell/sharp) 正在使用 emnapi，见[官方博客](https://blog.stackblitz.com/posts/bringing-sharp-to-wasm-and-webcontainers/)！
+- [napi-rs](https://github.com/napi-rs/napi-rs) 在 2.14.0 版本[已集成 emnapi](https://github.com/napi-rs/napi-rs/pull/1669)
+- [node-magickwand](https://github.com/mmomtchev/magickwand.js) 作为 [SWIG](https://github.com/swig/swig) 的 Node-API 示例项目已接入 emnapi
 
 经过简单测试，发现一般场景下绑定的调用开销比 embind 略大，但应在可接受的范围内。
 
