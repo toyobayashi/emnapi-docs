@@ -33,7 +33,7 @@ Another use case of emnapi is that you want to make your addon run on [StackBlit
 
 Let's forget IE.
 
-`emnapi` JavaScript code is all ES5, but requires ES6 globals like `WeakMap`, and [some of APIs](/reference/list.html) requires `BigInt`, `WeakRef` and `FinalizationRegistry` which is very new in ECMA Standard, so if you are using those APIs, your code will not work on old browsers or old version Node.js. You can click the link to see which browsers support [WeakRef](https://www.caniuse.com/?search=WeakRef) 和 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry)。Taking Chrome as an example, the recommended target browser version is higher than Chrome 84.
+`emnapi` JavaScript code is all ES5, but requires ES6 globals like `WeakMap`, and [some of APIs](/reference/list.html) requires `BigInt`, `WeakRef` and `FinalizationRegistry` which is very new in ECMA Standard, so if you are using those APIs, your code will not work on old browsers or old version Node.js. You can click the link to see which browsers support [WeakRef](https://www.caniuse.com/?search=WeakRef) and [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry). Taking Chrome as an example, the recommended target browser version is higher than Chrome 84.
 
 ## Is it ready for production?
 
