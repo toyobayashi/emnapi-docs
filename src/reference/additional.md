@@ -103,27 +103,25 @@ The underlying byte buffer of the `ArrayBufferView` is externally allocated and
 managed. The caller must ensure that the byte buffer remains valid until the
 finalize callback is called.
 
-#### emnapi_get_emscripten_version
+#### emnapi_get_runtime_version
 
 ```c
 typedef struct {
   uint32_t major;
   uint32_t minor;
   uint32_t patch;
-} emnapi_emscripten_version;
+} emnapi_runtime_version;
 
-napi_status emnapi_get_emscripten_version(napi_env env,
-                                          const emnapi_emscripten_version** version);
+napi_status emnapi_get_runtime_version(napi_env env,
+                                       emnapi_runtime_version* version);
 ```
 
 * `[in] env`: The environment that the API is invoked under.
-* `[out] version`: A pointer to version information for Emscripten itself.
+* `[out] version`: The version information for emnapi runtime.
 
 Returns `napi_ok` if the API succeeded.
 
-This function fills the version struct with the major, minor, and patch version of Emscripten that is used for compiling current wasm module. 
-
-The returned buffer does not need to be freed.
+This function fills the version struct with the major, minor, and patch version of emnapi runtime that is used.
 
 #### emnapi_sync_memory
 
