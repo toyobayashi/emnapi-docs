@@ -134,7 +134,7 @@ module.exports = (function (exports) {
 emcc -O3 \
      -DBUILDING_NODE_EXTENSION \
      "-DNAPI_EXTERN=__attribute__((__import_module__(\"env\")))" \
-     -I./node_modules/emnapi/include \
+     -I./node_modules/emnapi/include/node \
      -L./node_modules/emnapi/lib/wasm32-emscripten \
      --js-library=./node_modules/emnapi/dist/library_napi.js \
      -sEXPORTED_FUNCTIONS="['_napi_register_wasm_v1','_node_api_module_get_api_version_v1','_malloc','_free']" \
@@ -146,7 +146,7 @@ emcc -O3 \
 ```bash [wasi-sdk]
 clang -O3 \
       -DBUILDING_NODE_EXTENSION \
-      -I./node_modules/emnapi/include \
+      -I./node_modules/emnapi/include/node \
       -L./node_modules/emnapi/lib/wasm32-wasi \
       --target=wasm32-wasi \
       --sysroot=$WASI_SDK_PATH/share/wasi-sysroot \
@@ -169,7 +169,7 @@ clang -O3 \
 
 clang -O3 \
       -DBUILDING_NODE_EXTENSION \
-      -I./node_modules/emnapi/include \
+      -I./node_modules/emnapi/include/node \
       -L./node_modules/emnapi/lib/wasm32 \
       --target=wasm32 \
       -nostdlib \

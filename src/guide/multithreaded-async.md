@@ -75,7 +75,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     "-sDEFAULT_PTHREAD_STACK_SIZE=2MB"
   )
 elseif(CMAKE_C_COMPILER_TARGET STREQUAL "wasm32-wasi-threads")
-  # Experimental
   target_link_libraries(hello emnapi-mt)
   set_target_properties(hello PROPERTIES SUFFIX ".wasm")
   target_compile_options(hello PRIVATE "-fno-exceptions" "-pthread")
@@ -113,7 +112,7 @@ emcmake cmake -DCMAKE_BUILD_TYPE=Release \
               -DEMNAPI_WORKER_POOL_SIZE=4 \
               -G Ninja -H. -Bbuild
 
-# wasi-sdk with thread support (Experimental)
+# wasi-sdk with thread support
 cmake -DCMAKE_TOOLCHAIN_FILE=$WASI_SDK_PATH/share/cmake/wasi-sdk-pthread.cmake \
       -DWASI_SDK_PREFIX=$WASI_SDK_PATH \
       -DEMNAPI_WORKER_POOL_SIZE=4 \

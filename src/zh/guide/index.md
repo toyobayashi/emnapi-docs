@@ -43,6 +43,12 @@ emnapi 的另一个使用场景是将 Node-API 原生扩展跑在 [StackBlitz](h
 
 经过简单测试，发现一般场景下绑定的调用开销比 embind 略大，但应在可接受的范围内。
 
-1.0 版本即将到来，目前并没有发布，因为用于内部实现的运行时 API 可能还需要频繁重构与变更，但这不影响用户使用 Node-API 本身的稳定 API。
-
 你也可以试试[让 emnapi 变得更好](https://github.com/toyobayashi/emnapi/pulls)！
+
+## 赞助者
+
+<p align="center">
+  <a href="https://cdn.jsdelivr.net/gh/toyobayashi/toyobayashi/sponsorkit/sponsors.svg">
+    <img src='https://cdn.jsdelivr.net/gh/toyobayashi/toyobayashi/sponsorkit/sponsors.svg'/>
+  </a>
+</p>

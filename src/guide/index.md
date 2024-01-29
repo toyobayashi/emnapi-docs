@@ -46,6 +46,12 @@ All Node.js official test passed! The functionality could be guaranteed. There a
 After simple testing, found the call overhead of binding is slightly greater than that of embind in general scenarios,
 but it should be within an acceptable range.
 
-1.0 is comming soon, currently is not released, as the runtime API for internal implementation may need to be refactored and changed frequently, but this does not affect users to use Node-API's own stable API.
-
 You can also try to [make emnapi be better](https://github.com/toyobayashi/emnapi/pulls)!
+
+## Sponsors
+
+<p align="center">
+  <a href="https://cdn.jsdelivr.net/gh/toyobayashi/toyobayashi/sponsorkit/sponsors.svg">
+    <img src='https://cdn.jsdelivr.net/gh/toyobayashi/toyobayashi/sponsorkit/sponsors.svg'/>
+  </a>
+</p>

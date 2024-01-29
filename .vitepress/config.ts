@@ -104,6 +104,7 @@ function getGuideSidebar (lang: Lang): DefaultTheme.SidebarItem[] {
         { text: tr[lang].gettingStarted, link: `${lang}guide/getting-started` },
         { text: tr[lang].usingCppWrapper, link: `${lang}guide/using-cpp` },
         { text: tr[lang].usingCMake, link: `${lang}guide/using-cmake` },
+        { text: tr[lang].usingNodeGyp, link: `${lang}guide/using-node-gyp` },
         { text: tr[lang].usingRust, link: `${lang}guide/using-rust` },
         { text: tr[lang].errorHandling, link: `${lang}guide/error-handling` },
         { text: tr[lang].functionBinding, link: `${lang}guide/function-binding` },
