@@ -6,7 +6,7 @@
 
 - `emnapi` 由 Emscripten 编译成 WebAssembly，而原生 Node-API 被编译成 Node.js 扩展（`.node` 是操作系统动态链接库），可以使用操作系统 API。
 
-- `emnapi` 没有 Node.js 特定的 API，一些 API 依赖于宿主 JavaScript 环境，特别是 WebAssembly 不与宿主共用堆内存，与 ArrayBuffer 相关的 API 存在一定的限制，请参阅 [API 列表](/zh/reference/list.html)
+- `emnapi` 没有 Node.js 特定的 API，一些 API 依赖于宿主 JavaScript 环境，特别是 WebAssembly 不与宿主共用堆内存，与 ArrayBuffer 相关的 API 存在一定的限制，请参阅 [API 列表](/zh/v1/reference/list.html)
 
 - 如果运行时支持 `FinalizationRegistry` 和 `WeakRef`，则使用 `emnapi` 时可以直接使用内置的 `node-addon-api`。
 
@@ -26,7 +26,7 @@
 
 :::
 
-1. 检查扩展中使用的所有 API 是否在 `emnapi` 中已被实现。请参阅 [API 列表](/zh/reference/list.html)。
-2. 在调用 `napi_create_reference` / `napi_wrap` 之前使用 [emnapi_is_support_weakref](/zh/reference/additional.html#emnapi-is-support-weakref) 检查运行时的弱引用支持。
-3. 检查是否需要同步 wasm 内存，根据 [ArrayBuffer 相关的 API](/zh/reference/list.html#arraybuffer-相关)
+1. 检查扩展中使用的所有 API 是否在 `emnapi` 中已被实现。请参阅 [API 列表](/zh/v1/reference/list.html)。
+2. 在调用 `napi_create_reference` / `napi_wrap` 之前使用 [emnapi_is_support_weakref](/zh/v1/reference/additional.html#emnapi-is-support-weakref) 检查运行时的弱引用支持。
+3. 检查是否需要同步 wasm 内存，根据 [ArrayBuffer 相关的 API](/zh/v1/reference/list.html#arraybuffer-相关)
 4. 编写 CMakeLists。不支持 node-gyp。

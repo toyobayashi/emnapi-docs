@@ -344,4 +344,4 @@ Feel free to use the following APIs.
 - napi_fatal_error
 - napi_get_node_version
 
-[emnapi_create_external_uint8array]: /reference/additional.html#emnapi-create-external-uint8array
+[emnapi_create_external_uint8array]: /v1/reference/additional.html#emnapi-create-external-uint8array

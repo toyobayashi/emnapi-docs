@@ -24,7 +24,7 @@
   "homepage": "https://github.com/toyobayashi/emnapi-docs#readme",
   "devDependencies": {
     "@types/node": "^18.11.9",
-    "vitepress": "1.0.0-rc.24",
+    "vitepress": "1.6.4",
     "patch-package": "^8.0.0"
   }
 }

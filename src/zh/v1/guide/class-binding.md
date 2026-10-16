@@ -206,7 +206,7 @@ NAPI_MODULE_INIT() {
 
 ### JavaScript 类的构造函数
 
-你可以使用 [emnapi_is_support_weakref](/zh/reference/additional.html#emnapi-is-support-weakref) 来确认运行时是否支持 `FinalizationRegistry` 和 `WeakRef`，如果不支持，不要传清理回调函数给 `napi_wrap`。
+你可以使用 [emnapi_is_support_weakref](/zh/v1/reference/additional.html#emnapi-is-support-weakref) 来确认运行时是否支持 `FinalizationRegistry` 和 `WeakRef`，如果不支持，不要传清理回调函数给 `napi_wrap`。
 
 ```cpp
 napi_value MyClass::Constructor(napi_env env, napi_callback_info info) {

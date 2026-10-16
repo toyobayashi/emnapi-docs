@@ -1,0 +1,3 @@
+- [napi-rs](https://github.com/napi-rs/napi-rs)
+- [node-rs-playground](https://github.com/napi-rs/node-rs-playground)
+- [https://node-rs.dev/](https://node-rs.dev/)

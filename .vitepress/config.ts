@@ -82,7 +82,21 @@ export default defineConfig({
 
 function getNav (lang: Lang): DefaultTheme.NavItem[] {
   return [
-    { text: tr[lang].guide, link: `${lang}/guide/`, activeMatch: `^/(\\S+/)?guide/` },
+    {
+      text: tr[lang].versions,
+      items: [
+        { text: tr[lang].emnapiV1, link: `${lang}v1/` },
+        { text: tr[lang].emnapiV2, link: `${lang}v2/` },
+      ]
+    },
+    {
+      text: tr[lang].guide,
+      items: [
+        { text: tr[lang].emnapiV1 + ' ' + tr[lang].guide, link: lang + 'v1/guide/' },
+        { text: tr[lang].emnapiV2 + ' ' + tr[lang].guide, link: lang + 'v2/guide/' },
+      ],
+      activeMatch: '^' + lang + 'v[12]/guide/'
+    },
     { text: tr[lang].examples, link: 'https://github.com/toyobayashi/node-addon-examples' },
     { text: tr[lang].docsRepo, link: 'https://github.com/toyobayashi/emnapi-docs' }
   ]
@@ -90,42 +104,52 @@ function getNav (lang: Lang): DefaultTheme.NavItem[] {
 
 function getSideBar (lang: Lang): DefaultTheme.SidebarMulti {
   return {
-    [`${lang}guide/`]: getGuideSidebar(lang),
-    [`${lang}`]: getGuideSidebar(lang),
+    [`${lang}v1/guide/`]: getGuideSidebar(lang, 'v1'),
+    [`${lang}v1/`]: getGuideSidebar(lang, 'v1'),
+    [`${lang}v2/guide/`]: getGuideSidebar(lang, 'v2'),
+    [`${lang}v2/`]: getGuideSidebar(lang, 'v2'),
   }
 }
 
-function getGuideSidebar (lang: Lang): DefaultTheme.SidebarItem[] {
+function getGuideSidebar (lang: Lang, version: 'v1' | 'v2'): DefaultTheme.SidebarItem[] {
+  const base = `${lang}${version}/`
+  const advancedItems: DefaultTheme.SidebarItem[] = [
+    // { text: tr[lang].emnapiRuntime, link: `${base}guide/runtime` },
+    { text: tr[lang].modularization, link: `${base}guide/modularization` },
+    { text: tr[lang].multithreadedAsync, link: `${base}guide/multithreaded-async` },
+    { text: tr[lang].tsfn, link: `${base}guide/tsfn` },
+    { text: tr[lang].faq, link: `${base}guide/faq` },
+  ]
+  if (version === 'v2') {
+    advancedItems.push(
+      { text: tr[lang].migrationFromV1, link: `${base}guide/migration-from-v1` },
+      { text: tr[lang].v8Nan, link: `${base}guide/v8-nan` },
+    )
+  }
   return [
     {
       text: tr[lang].guide,
       items: [
-        { text: tr[lang].introduction, link: `${lang}guide/` },
-        { text: tr[lang].gettingStarted, link: `${lang}guide/getting-started` },
-        { text: tr[lang].usingCppWrapper, link: `${lang}guide/using-cpp` },
-        { text: tr[lang].usingCMake, link: `${lang}guide/using-cmake` },
-        { text: tr[lang].usingNodeGyp, link: `${lang}guide/using-node-gyp` },
-        { text: tr[lang].usingRust, link: `${lang}guide/using-rust` },
-        { text: tr[lang].errorHandling, link: `${lang}guide/error-handling` },
-        { text: tr[lang].functionBinding, link: `${lang}guide/function-binding` },
-        { text: tr[lang].classBinding, link: `${lang}guide/class-binding` },
+        { text: tr[lang].introduction, link: `${base}guide/` },
+        { text: tr[lang].gettingStarted, link: `${base}guide/getting-started` },
+        { text: tr[lang].usingCppWrapper, link: `${base}guide/using-cpp` },
+        { text: tr[lang].usingCMake, link: `${base}guide/using-cmake` },
+        { text: version === 'v2' ? tr[lang].usingNodeGypV2 : tr[lang].usingNodeGyp, link: `${base}guide/using-node-gyp` },
+        { text: tr[lang].usingRust, link: `${base}guide/using-rust` },
+        { text: tr[lang].errorHandling, link: `${base}guide/error-handling` },
+        { text: tr[lang].functionBinding, link: `${base}guide/function-binding` },
+        { text: tr[lang].classBinding, link: `${base}guide/class-binding` },
       ]
     },
     {
       text: tr[lang].advanced,
-      items: [
-        // { text: tr[lang].emnapiRuntime, link: `${lang}guide/runtime` },
-        { text: tr[lang].modularization, link: `${lang}guide/modularization` },
-        { text: tr[lang].multithreadedAsync, link: `${lang}guide/multithreaded-async` },
-        { text: tr[lang].tsfn, link: `${lang}guide/tsfn` },
-        { text: tr[lang].faq, link: `${lang}guide/faq` },
-      ]
+      items: advancedItems
     },
     {
       text: 'API',
       items: [
-        { text: tr[lang].apiList, link: `${lang}reference/list` },
-        { text: tr[lang].additionalApi, link: `${lang}reference/additional` }
+        { text: tr[lang].apiList, link: `${base}reference/list` },
+        { text: tr[lang].additionalApi, link: `${base}reference/additional` }
       ]
     }
   ]

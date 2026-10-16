@@ -1,5 +1,11 @@
 const tr = {
   '/': {
+    versions: 'Versions',
+    emnapiV1: 'emnapi v1',
+    emnapiV2: 'emnapi v2 beta.2',
+    usingNodeGypV2: 'Using node-gyp',
+    migrationFromV1: 'Migrating from emnapi v1',
+    v8Nan: 'V8 API shim and NAN',
     guide: 'Guide',
     apiReference: 'API Reference',
     examples: 'Examples',
@@ -27,6 +33,12 @@ const tr = {
     docsRepo: 'Docs Repo'
   },
   '/zh/': {
+    versions: '文档版本',
+    emnapiV1: 'emnapi v1',
+    emnapiV2: 'emnapi v2 beta.2',
+    usingNodeGypV2: '使用 node-gyp',
+    migrationFromV1: '从 emnapi v1 迁移',
+    v8Nan: 'V8 API 兼容层与 NAN',
     guide: '指南',
     apiReference: 'API 参考',
     examples: '代码示例',
