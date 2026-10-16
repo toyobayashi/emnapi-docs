@@ -31,7 +31,7 @@ emnapi 的另一个使用场景是将 Node-API 原生扩展跑在 [StackBlitz](h
 
 先把 IE 忘掉吧。
 
-`emnapi` 发布的 JavaScript 代码都是 ES5，但需要 ES6 全局变量，例如 `WeakMap`，并且[一些 API](/zh/reference/list.html) 需要 `BigInt`、`WeakRef` 和 `FinalizationRegistry`，这在 ES 标准中是非常新的，所以如果你用到了这些 API，你的代码将无法在稍微旧点的浏览器或旧版本 Node.js 上运行。你可以点击链接查看哪些浏览器支持 [WeakRef](https://www.caniuse.com/?search=WeakRef) 和 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry)。以 Chrome 为例，推荐目标浏览器版本高于 Chrome 84。
+`emnapi` 发布的 JavaScript 代码都是 ES5，但需要 ES6 全局变量，例如 `WeakMap`，并且[一些 API](/zh/v1/reference/list.html) 需要 `BigInt`、`WeakRef` 和 `FinalizationRegistry`，这在 ES 标准中是非常新的，所以如果你用到了这些 API，你的代码将无法在稍微旧点的浏览器或旧版本 Node.js 上运行。你可以点击链接查看哪些浏览器支持 [WeakRef](https://www.caniuse.com/?search=WeakRef) 和 [FinalizationRegistry](https://www.caniuse.com/?search=FinalizationRegistry)。以 Chrome 为例，推荐目标浏览器版本高于 Chrome 84。
 
 ## 可用于生产环境吗
 

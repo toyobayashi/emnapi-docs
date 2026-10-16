@@ -344,4 +344,4 @@ Cross-Origin-Embedder-Policy: require-corp
 - napi_fatal_error
 - napi_get_node_version
 
-[emnapi_create_external_uint8array]: /zh/reference/additional.html#emnapi-create-external-uint8array
+[emnapi_create_external_uint8array]: /zh/v1/reference/additional.html#emnapi-create-external-uint8array

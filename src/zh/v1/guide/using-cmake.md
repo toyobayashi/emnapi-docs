@@ -1,8 +1,8 @@
-# Using CMake
+# 使用 CMake
 
-See [Getting Started] for environment setup.
+环境安装请参考[开始使用][]章节
 
-Create `CMakeLists.txt`.
+创建 `CMakeLists.txt`。
 
 ```cmake
 cmake_minimum_required(VERSION 3.13)
@@ -40,9 +40,9 @@ elseif((CMAKE_C_COMPILER_TARGET STREQUAL "wasm32") OR (CMAKE_C_COMPILER_TARGET S
 endif()
 ```
 
-Building with `emcmake`, output `build/hello.js` and `build/hello.wasm`.
+用 `emcmake` 构建，输出 `build/hello.js` 和 `build/hello.wasm`。
 
-If you use node-addon-api, you can use `-DEMNAPI_FIND_NODE_ADDON_API=ON` or manually add node-addon-api directory to the include dir via `include_directories()` or `target_include_directories()`.
+可以使用 `-DEMNAPI_FIND_NODE_ADDON_API=ON` 或通过 `include_directories()` 或 `target_include_directories()` 手动将 node-addon-api 目录添加到包含目录。
 
 ```bash
 mkdir build
@@ -68,4 +68,4 @@ cmake -DCMAKE_TOOLCHAIN_FILE=node_modules/emnapi/cmake/wasm32.cmake \
 cmake --build build
 ```
 
-[Getting Started]: /guide/getting-started.html
+[开始使用]: /zh/v1/guide/getting-started.html

@@ -206,7 +206,7 @@ NAPI_MODULE_INIT() {
 
 ### JavaScript Class Constructor
 
-You can use [emnapi_is_support_weakref](/reference/additional.html#emnapi-is-support-weakref) to determine whether the runtime has `FinalizationRegistry` and `WeakRef`, if not, do not pass finalize callback to `napi_wrap`.
+You can use [emnapi_is_support_weakref](/v1/reference/additional.html#emnapi-is-support-weakref) to determine whether the runtime has `FinalizationRegistry` and `WeakRef`, if not, do not pass finalize callback to `napi_wrap`.
 
 ```cpp
 napi_value MyClass::Constructor(napi_env env, napi_callback_info info) {

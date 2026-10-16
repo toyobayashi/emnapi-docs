@@ -22,7 +22,7 @@ jobs:
           node-version: 18
       
       - name: Install
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Patch
         run: npx patch-package
