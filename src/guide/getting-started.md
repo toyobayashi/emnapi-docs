@@ -190,7 +190,7 @@ clang -O3 \
 
 :::
 
-## Initialzation
+## Initialization
 
 To initialize emnapi, you need to import the emnapi runtime to create a `Context` by `createContext` or `getDefaultContext` first.
 Each context owns isolated Node-API object such as `napi_env`, `napi_value`, `napi_ref`. If you have multiple emnapi modules, you should reuse the same `Context` across them. 
